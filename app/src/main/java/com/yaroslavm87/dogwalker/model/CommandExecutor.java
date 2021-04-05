@@ -1,8 +1,8 @@
-package com.yaroslavm87.dogwalker.Model;
+package com.yaroslavm87.dogwalker.model;
 
-import com.yaroslavm87.dogwalker.Notifications.CmdPassValToSubscriber;
-import com.yaroslavm87.dogwalker.Notifications.Observable;
-import com.yaroslavm87.dogwalker.Notifications.Subscriber;
+import com.yaroslavm87.dogwalker.notifications.CmdPassValToSubscriber;
+import com.yaroslavm87.dogwalker.notifications.Observable;
+import com.yaroslavm87.dogwalker.notifications.Subscriber;
 
 public class CommandExecutor {
 

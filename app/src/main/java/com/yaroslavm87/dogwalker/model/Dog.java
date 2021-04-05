@@ -1,9 +1,9 @@
-package com.yaroslavm87.dogwalker.Model;
+package com.yaroslavm87.dogwalker.model;
 
-import com.yaroslavm87.dogwalker.Notifications.CmdPassValToSubscriber;
-import com.yaroslavm87.dogwalker.Notifications.Event;
-import com.yaroslavm87.dogwalker.Notifications.Observable;
-import com.yaroslavm87.dogwalker.Notifications.Publisher;
+import com.yaroslavm87.dogwalker.notifications.CmdPassValToSubscriber;
+import com.yaroslavm87.dogwalker.notifications.Event;
+import com.yaroslavm87.dogwalker.notifications.Observable;
+import com.yaroslavm87.dogwalker.notifications.Publisher;
 
 import java.util.Objects;
 
@@ -12,6 +12,7 @@ public class Dog implements Observable {
     private final int _id;
     private String name;
     private int imageResId;
+    private long lastTimeWalk;
     private Publisher publisher;
 
     public Dog(int id, String name) {
@@ -40,6 +41,18 @@ public class Dog implements Observable {
 
     public int getImageResId() {
         return imageResId;
+    }
+
+    public long getLastTimeWalk() {
+        return lastTimeWalk;
+    }
+
+    public void setLastTimeWalk(long lastTimeWalk) {
+        this.lastTimeWalk = lastTimeWalk;
+    }
+
+    void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 
     @Override

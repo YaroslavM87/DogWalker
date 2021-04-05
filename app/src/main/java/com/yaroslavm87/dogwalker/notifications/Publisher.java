@@ -1,6 +1,6 @@
-package com.yaroslavm87.dogwalker.Notifications;
+package com.yaroslavm87.dogwalker.notifications;
 
-import com.yaroslavm87.dogwalker.Model.CommandExecutor;
+import com.yaroslavm87.dogwalker.model.CommandExecutor;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Publisher {
 
-    private Map<Event, List<Subscriber>> listsOfSubscribers;
+    private final Map<Event, List<Subscriber>> listsOfSubscribers;
 
     public Publisher() {
 

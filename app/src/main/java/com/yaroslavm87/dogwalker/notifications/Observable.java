@@ -1,4 +1,4 @@
-package com.yaroslavm87.dogwalker.Notifications;
+package com.yaroslavm87.dogwalker.notifications;
 
 public interface Observable {
 
