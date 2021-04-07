@@ -1,31 +1,32 @@
 package com.yaroslavm87.dogwalker.model;
 
-import com.yaroslavm87.dogwalker.notifications.CmdPassValToSubscriber;
+import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Observable;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 class ListOfDogs implements Observable {
 
-    private List<Dog> list;
+    private ArrayList<Dog> list;
     private Publisher publisher;
     private Dog dogBuffer;
 
-    public ListOfDogs(List<Dog> list) {
+    public ListOfDogs(ArrayList<Dog> list) {
         this.list = Objects.requireNonNull(list);
     }
 
-    public void setList(List<Dog> list) {
+    public void setList(ArrayList<Dog> list) {
 
         this.list = Objects.requireNonNull(list);
 
         this.publisher.notifyEventHappened(this, Event.LIST_DOGS_CHANGED);
     }
 
-    List<Dog> getList() {
+    ArrayList<Dog> getList() {
         return this.list;
     }
 
@@ -47,14 +48,15 @@ class ListOfDogs implements Observable {
 //        this.publisher.notifyEventHappened(this, Event.LIST_DOGS_ITEM_DELETED);
 //    }
 
-    void deleteDog(int index) {
+    Dog deleteDog(int index) {
 
         if(index >= 0 & index < list.size()) {
-
-            this.list.remove(index);
+            return null;
         }
 
         this.publisher.notifyEventHappened(this, Event.LIST_DOGS_ITEM_DELETED);
+
+        return this.list.remove(index);
     }
 
     Dog getDog(int dogId) {
@@ -71,12 +73,12 @@ class ListOfDogs implements Observable {
     }
 
     @Override
-    public CmdPassValToSubscriber prepareCommandForUpdate(Event event) {
+    public PassValToSubscriber prepareCommandForUpdate(Event event) {
 
         return getAppropriateCommand(event);
     }
 
-    private CmdPassValToSubscriber getAppropriateCommand(Event event) {
+    private PassValToSubscriber getAppropriateCommand(Event event) {
 
         switch (event) {
 

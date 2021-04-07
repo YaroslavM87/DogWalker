@@ -1,6 +1,6 @@
 package com.yaroslavm87.dogwalker.notifications;
 
-import com.yaroslavm87.dogwalker.model.CommandExecutor;
+import com.yaroslavm87.dogwalker.commands.CommandExecutor;
 
 import java.util.HashMap;
 import java.util.LinkedList;

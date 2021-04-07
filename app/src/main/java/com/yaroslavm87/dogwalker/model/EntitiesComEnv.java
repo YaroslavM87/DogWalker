@@ -3,27 +3,28 @@ package com.yaroslavm87.dogwalker.model;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.repository.Repository;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class ModelManager<T extends List<Dog>> {
+public class EntitiesComEnv {
 
     private final ListOfDogs listOfDogs;
-    private Repository<T> repository;
+    private Repository repository;
     private Publisher publisher;
 
 
-    public ModelManager(Publisher publisher) {
+    public EntitiesComEnv(Publisher publisher) {
 
         this.publisher = Objects.requireNonNull(publisher);
 
-        this.listOfDogs = new ListOfDogs(new LinkedList<>());
+        this.listOfDogs = new ListOfDogs(new ArrayList<>());
 
         this.listOfDogs.setPublisher(publisher);
 
         try{
-            List<Dog> tmpList = repository.read();
+            ArrayList<Dog> tmpList = repository.read();
 
             for(Dog d : tmpList) {
 
@@ -36,22 +37,19 @@ public class ModelManager<T extends List<Dog>> {
         }
     }
 
-    public List<Dog> getListOfDogs() {
+    public ArrayList<Dog> getListOfDogs() {
         return this.listOfDogs.getList();
     }
 
     public void createDog(String name) {
 
-        Dog newDog = new Dog(
-                this.listOfDogs.getList().size(),
-                name
-        );
+        Dog newDog = new Dog(name);
 
         newDog.setPublisher(publisher);
 
         this.listOfDogs.addDog(newDog);
 
-        repository.update();
+        repository.add(newDog);
     }
 
     public Dog getDog(int dogId) {
@@ -61,12 +59,12 @@ public class ModelManager<T extends List<Dog>> {
 
     public void deleteDog(int index){
 
-        this.listOfDogs.deleteDog(index);
+        Dog dog = this.listOfDogs.deleteDog(index);
 
-        repository.delete();
+        repository.delete(dog);
     }
 
-    public void setRepository(Repository<T> repository) {
+    public void setRepository(Repository repository) {
         this.repository = repository;
     }
 

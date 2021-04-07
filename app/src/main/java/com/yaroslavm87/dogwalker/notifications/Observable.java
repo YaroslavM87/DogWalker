@@ -1,6 +1,8 @@
 package com.yaroslavm87.dogwalker.notifications;
 
+import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
+
 public interface Observable {
 
-    CmdPassValToSubscriber prepareCommandForUpdate(Event event);
+    PassValToSubscriber prepareCommandForUpdate(Event event);
 }

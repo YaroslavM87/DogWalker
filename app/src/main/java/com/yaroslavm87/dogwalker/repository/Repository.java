@@ -2,15 +2,18 @@ package com.yaroslavm87.dogwalker.repository;
 
 import com.yaroslavm87.dogwalker.model.Dog;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public interface Repository <T extends List<Dog>>  {
+// <T extends List<Dog>>
 
-    T read();
+public interface Repository {
 
-    void create();
+    ArrayList<Dog> read();
 
-    void update();
+    void add(Dog dog);
 
-    void delete();
+    void update(Dog dog);
+
+    void delete(Dog dog);
 }
