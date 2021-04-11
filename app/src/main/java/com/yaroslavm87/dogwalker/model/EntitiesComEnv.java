@@ -1,43 +1,48 @@
 package com.yaroslavm87.dogwalker.model;
 
+import android.util.Log;
+
 import com.yaroslavm87.dogwalker.notifications.Publisher;
+import com.yaroslavm87.dogwalker.repository.DatabaseAdapter;
 import com.yaroslavm87.dogwalker.repository.Repository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class EntitiesComEnv {
+public enum EntitiesComEnv {
+
+    INSTANCE;
 
     private final ListOfDogs listOfDogs;
-    private Repository repository;
+    private DatabaseAdapter repository;
     private Publisher publisher;
+    private final String LOG_TAG = "myLogs";
 
 
-    public EntitiesComEnv(Publisher publisher) {
-
-        this.publisher = Objects.requireNonNull(publisher);
-
+    {
         this.listOfDogs = new ListOfDogs(new ArrayList<>());
+        this.publisher = Publisher.INSTANCE;
+    }
+
+    EntitiesComEnv() {
+
+        Log.d(LOG_TAG, "EntitiesComEnv() constructor call");
 
         this.listOfDogs.setPublisher(publisher);
-
-        try{
-            ArrayList<Dog> tmpList = repository.read();
-
-            for(Dog d : tmpList) {
-
-                d.setPublisher(publisher);
-            }
-
-            this.listOfDogs.setList(tmpList);
-
-        } catch (Exception e) {
-        }
     }
 
     public ArrayList<Dog> getListOfDogs() {
+
+        if(this.listOfDogs.getList().isEmpty()) {
+
+            Log.d(LOG_TAG, "EntitiesComEnv.getListOfDogs() call");
+
+            loadListOfDogsFromRepo();
+        }
+
         return this.listOfDogs.getList();
     }
 
@@ -45,11 +50,11 @@ public class EntitiesComEnv {
 
         Dog newDog = new Dog(name);
 
-        newDog.setPublisher(publisher);
+        newDog.setPublisher(this.publisher);
 
         this.listOfDogs.addDog(newDog);
 
-        repository.add(newDog);
+        this.repository.add(newDog);
     }
 
     public Dog getDog(int dogId) {
@@ -61,14 +66,42 @@ public class EntitiesComEnv {
 
         Dog dog = this.listOfDogs.deleteDog(index);
 
-        repository.delete(dog);
+        this.repository.delete(dog);
     }
 
-    public void setRepository(Repository repository) {
+    public void setRepository(DatabaseAdapter repository) {
+
+        Log.d(LOG_TAG, "EntitiesComEnv.setRepository() call");
+
         this.repository = repository;
     }
 
     public  void setPublisher(Publisher publisher) {
         this.publisher = publisher;
+    }
+
+    public void loadListOfDogsFromRepo() {
+
+        try{
+
+            Log.d(LOG_TAG, "EntitiesComEnv.loadListOfDogsFromRepo() call");
+
+            ArrayList<Dog> tmpList = repository.read();
+
+            for(Dog d : tmpList) {
+
+                d.setPublisher(publisher);
+            }
+
+            this.listOfDogs.setList(tmpList);
+
+            tmpList = null;
+
+
+        } catch (Exception e) {
+
+            Log.d(LOG_TAG, "EntitiesComEnv.loadListOfDogsFromRepo() EXCEPTION: " + e);
+
+        }
     }
 }

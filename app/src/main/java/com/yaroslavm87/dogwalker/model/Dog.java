@@ -77,10 +77,10 @@ public class Dog implements Observable {
         switch (event) {
 
             case DOG_NAME_CHANGED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(this.name);
+                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.name);
 
             case DOG_IMAGE_RES_ID_CHANGED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(this.imageResId);
+                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.imageResId);
 
             default:
                 return null;

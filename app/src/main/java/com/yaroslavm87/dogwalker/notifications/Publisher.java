@@ -7,42 +7,54 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class Publisher {
+public enum Publisher {
+
+    INSTANCE;
 
     private final Map<Event, List<Subscriber>> listsOfSubscribers;
 
-    public Publisher() {
+    private Publisher() {
 
         listsOfSubscribers = new HashMap<>();
     }
 
     public void subscribeForEvent(Event event, Subscriber... subscribers) {
 
+        List<Subscriber> list = getAppropriateListOfSubscribers(event);
+
         for (Subscriber s : subscribers) {
 
-            getAppropriateListOfSubscribers(event).add(s);
+            if(!list.contains(s)) {
+
+                list.add(s);
+            }
         }
     }
 
     public void subscribeForEvent(Subscriber subscriber, Event... events) {
 
-        for (Event event : events) {
+        for (Event e : events) {
 
-            getAppropriateListOfSubscribers(event).add(subscriber);
+            subscribeForEvent(e, subscriber);
         }
     }
 
     public boolean cancelSubscription(Subscriber subscriber, Event event) {
 
-        if (getAppropriateListOfSubscribers(event).size() != 0) {
+        if(!listsOfSubscribers.containsKey(event)) {
 
-            List<Subscriber> list = getAppropriateListOfSubscribers(event);
+            return false;
+        }
+
+        List<Subscriber> list = getAppropriateListOfSubscribers(event);
+
+        if (!list.isEmpty()) {
 
             boolean result = list.remove(subscriber);
 
-            if (list.size() == 0) {
+            if (list.isEmpty()) {
 
-                listsOfSubscribers.remove(event);
+                this.listsOfSubscribers.remove(event);
             }
 
             return result;
@@ -50,6 +62,17 @@ public class Publisher {
         } else {
 
             return false;
+        }
+    }
+
+    public void cancelSubscription(Subscriber subscriber, Event[] events) {
+
+        for(Event e : events) {
+
+            if(listsOfSubscribers.containsKey(e)) {
+
+                cancelSubscription(subscriber, e);
+            }
         }
     }
 

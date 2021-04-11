@@ -17,11 +17,10 @@ public class DogDeserializer implements JsonDeserializer<Dog> {
 
         Dog dog = new Dog(
                 jsonObject.get("_id").getAsInt(),
-                jsonObject.get("name").getAsString()
+                jsonObject.get("name").getAsString(),
+                jsonObject.get("imageResId").getAsInt(),
+                jsonObject.get("lastTimeWalk").getAsInt()
         );
-
-        dog.setImageResId(jsonObject.get("imageResId").getAsInt());
-        dog.setLastTimeWalk(jsonObject.get("lastTimeWalk").getAsLong());
 
         return dog;
     }

@@ -15,12 +15,18 @@ class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LAST_TIME_WALK = "LAST_TIME_WALK";
     private String sqlStatement;
     private StringBuilder stringBuilder;
-    private final String LOG_TAG = "dbLogs";
+    private final String LOG_TAG = "myLogs";
 
 
     DatabaseHelper(Context context, int dbVersion) {
+
         super(context, DB_NAME, null, dbVersion);
+
         this.stringBuilder = new StringBuilder();
+
+        Log.d(LOG_TAG, "DatabaseHelper() instance just created");
+
+        //addTestData();
     }
 
     @Override
@@ -32,21 +38,65 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 .append(COLUMN_ID)
                 .append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
                 .append(COLUMN_NAME)
-                .append(" TEXT, ")
-                .append(COLUMN_IMAGE_RESOURCE_ID)
-                .append(" INTEGER, ")
-                .append(COLUMN_LAST_TIME_WALK)
-                .append(" INTEGER)")
+                .append(" TEXT);")
+
+
+//                .append(" TEXT, ")
+//                .append(COLUMN_IMAGE_RESOURCE_ID)
+//                .append(" INTEGER, ")
+//                .append(COLUMN_LAST_TIME_WALK)
+//                .append(" INTEGER)")
                 .toString();
 
         db.execSQL(sqlStatement);
+        Log.d(LOG_TAG, "DatabaseHelper.onCreate() call");
 
-        Log.d(LOG_TAG, "SQLiteDatabase.onCreate()");
+//        sqlStatement = "";
+//
+//        this.sqlStatement = stringBuilder.append("INSERT INTO ")
+//                .append(TABLE_NAME)
+//                .append(" (")
+//                .append(COLUMN_NAME)
+//                .append(") VALUES ('Ami');")
+//                .toString();
+//
+//        db.execSQL(sqlStatement);
+//        Log.d(LOG_TAG, "Item added in table");
+//
+//
+//        sqlStatement = "";
+//
+//        this.sqlStatement = stringBuilder.append("INSERT INTO ")
+//                .append(TABLE_NAME)
+//                .append(" (")
+//                .append(COLUMN_NAME)
+//                .append(") VALUES ('Feliz');")
+//                .toString();
+//
+//        db.execSQL(sqlStatement);
+//        Log.d(LOG_TAG, "Item added in table");
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+    }
+
+    public void addTestData() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        sqlStatement = "";
+
+        this.sqlStatement = stringBuilder.append("INSERT INTO ")
+                .append(TABLE_NAME)
+                .append(" (")
+                .append(COLUMN_NAME)
+                .append(") VALUES ('Ami');")
+                .toString();
+
+        db.execSQL(sqlStatement);
+        Log.d(LOG_TAG, "DatabaseHelper.addTestData() call");
     }
 
     StringBuilder getStringBuilder() {

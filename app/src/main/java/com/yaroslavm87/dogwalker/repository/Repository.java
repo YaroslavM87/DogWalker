@@ -3,13 +3,14 @@ package com.yaroslavm87.dogwalker.repository;
 import com.yaroslavm87.dogwalker.model.Dog;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 // <T extends List<Dog>>
 
-public interface Repository {
+public interface Repository<T extends List<Dog>> {
 
-    ArrayList<Dog> read();
+    T read();
 
     void add(Dog dog);
 

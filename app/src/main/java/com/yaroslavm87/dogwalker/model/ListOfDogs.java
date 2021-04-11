@@ -83,13 +83,13 @@ class ListOfDogs implements Observable {
         switch (event) {
 
             case LIST_DOGS_CHANGED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(this.list);
+                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.list);
 
             case LIST_DOGS_ITEM_ADDED:
             case LIST_DOGS_ITEM_DELETED:
                 return (observable, subscriber) -> {
 
-                    subscriber.receiveUpdate(this.dogBuffer);
+                    subscriber.receiveUpdate(event, this.dogBuffer);
 
                     this.dogBuffer = null;
                 };

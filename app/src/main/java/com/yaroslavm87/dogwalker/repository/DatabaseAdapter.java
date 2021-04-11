@@ -5,27 +5,38 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.yaroslavm87.dogwalker.model.Dog;
 import java.util.ArrayList;
+import java.util.List;
 
-public class DatabaseAdapter implements Repository {
+public class DatabaseAdapter implements Repository<List<Dog>> {
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase database;
     private ContentValues contentValues;
+    private final String LOG_TAG = "myLogs";
+
 
     public DatabaseAdapter(Context context){
+
+        Log.d(LOG_TAG, "DatabaseAdapter() constructor call");
+
+        Log.d(LOG_TAG, "DatabaseHelper() constructor call from DatabaseAdapter");
         dbHelper = new DatabaseHelper(context.getApplicationContext(), 1);
+
         contentValues = new ContentValues();
     }
 
     @Override
     public ArrayList<Dog> read() {
 
+        Log.d(LOG_TAG, "DatabaseAdapter.read() call");
+
         databaseOpen();
 
-        ArrayList<Dog> dogs = new ArrayList<>();
+        ArrayList<Dog> dogList = new ArrayList<>();
 
         Cursor cursor = getAllEntries();
 
@@ -33,16 +44,19 @@ public class DatabaseAdapter implements Repository {
 
             int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_ID));
             String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NAME));
-            int imageResId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID));
-            int lastTimeWalk = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_LAST_TIME_WALK));
+//            int imageResId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID));
+//            int lastTimeWalk = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_LAST_TIME_WALK));
+            Dog dog = new Dog(name);
+            dog.setId(id);
+            dogList.add(dog);
 
-            dogs.add(new Dog(id, name, imageResId, lastTimeWalk));
+            //dogList.add(new Dog(id, name, imageResId, lastTimeWalk));
         }
 
         cursor.close();
         databaseClose();
 
-        return dogs;
+        return dogList;
     }
 
     @Override
@@ -87,20 +101,29 @@ public class DatabaseAdapter implements Repository {
     }
 
     private void databaseOpen(){
+
+        Log.d(LOG_TAG, "DatabaseAdapter.databaseOpen() call");
+
         database = dbHelper.getWritableDatabase();
     }
 
     private void databaseClose(){
+
+        Log.d(LOG_TAG, "DatabaseAdapter.databaseClose() call");
+
         dbHelper.close();
+
     }
 
     private Cursor getAllEntries(){
 
+        Log.d(LOG_TAG, "DatabaseAdapter.getAllEntries() call");
+
         String[] columns = new String[] {
                 DatabaseHelper.COLUMN_ID,
-                DatabaseHelper.COLUMN_NAME,
-                DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID,
-                DatabaseHelper.COLUMN_LAST_TIME_WALK
+                DatabaseHelper.COLUMN_NAME
+//                DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID,
+//                DatabaseHelper.COLUMN_LAST_TIME_WALK
         };
 
         return  database.query(
