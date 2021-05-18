@@ -17,7 +17,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private StringBuilder stringBuilder;
     private final String LOG_TAG = "myLogs";
 
-
     DatabaseHelper(Context context, int dbVersion) {
 
         super(context, DB_NAME, null, dbVersion);
@@ -31,6 +30,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
+        Log.d(LOG_TAG, "DatabaseHelper.onCreate() call");
 
         this.sqlStatement = stringBuilder.append("CREATE TABLE ")
                 .append(TABLE_NAME)
@@ -49,7 +50,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 .toString();
 
         db.execSQL(sqlStatement);
-        Log.d(LOG_TAG, "DatabaseHelper.onCreate() call");
 
 //        sqlStatement = "";
 //
@@ -84,6 +84,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void addTestData() {
+
+        Log.d(LOG_TAG, "DatabaseHelper.addTestData() call");
+
         SQLiteDatabase db = getWritableDatabase();
 
         sqlStatement = "";
@@ -96,7 +99,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 .toString();
 
         db.execSQL(sqlStatement);
-        Log.d(LOG_TAG, "DatabaseHelper.addTestData() call");
     }
 
     StringBuilder getStringBuilder() {

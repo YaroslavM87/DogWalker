@@ -1,32 +1,40 @@
 package com.yaroslavm87.dogwalker.ViewModel;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.yaroslavm87.dogwalker.model.Dog;
-import com.yaroslavm87.dogwalker.model.EntitiesComEnv;
+import com.yaroslavm87.dogwalker.model.Model;
+import com.yaroslavm87.dogwalker.model.ModelBuilder;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.notifications.Subscriber;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MyViewModel extends androidx.lifecycle.ViewModel implements Subscriber {
+public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implements Subscriber {
 
-    private EntitiesComEnv model;
+    private final Model model;
     private final Publisher publisher;
-    private MutableLiveData<ArrayList<Dog>> listOfDogsLive;
-    private MutableLiveData<Dog> addedDogLive;
-    private MutableLiveData<Integer> deletedDogId;
+    private final MutableLiveData<ArrayList<Dog>> listOfDogsLive;
+    private final MutableLiveData<Integer> insertedDogIndexLive;
+    private final MutableLiveData<Integer> deletedDogIndexLive;
+
 
     {
-        this.model = EntitiesComEnv.INSTANCE;
         this.publisher = Publisher.INSTANCE;
         this.listOfDogsLive = new MutableLiveData<>();
+        this.insertedDogIndexLive = new MutableLiveData<>();
+        this.deletedDogIndexLive = new MutableLiveData<>();
+
     }
 
-    public MyViewModel() {
+    public ViewModelDogList(Application application) {
+        super(application);
+
+        this.model = ModelBuilder.getModelInstance(application);
 
         this.publisher.subscribeForEvent(
                 this,
@@ -48,8 +56,8 @@ public class MyViewModel extends androidx.lifecycle.ViewModel implements Subscri
     public void receiveUpdate(Event event, Object updatedValue) {
 
         ArrayList<Dog> list;
-        Dog dog;
-        updatedValue.getClass().getTypeParameters();
+        //Dog dog;
+        //updatedValue.getClass().getTypeParameters();
 
         switch(event) {
 
@@ -61,24 +69,22 @@ public class MyViewModel extends androidx.lifecycle.ViewModel implements Subscri
 
                         list = (ArrayList<Dog>) updatedValue;
 
-                        listOfDogsLive.setValue(list);
+                        this.listOfDogsLive.postValue(list);
                     }
-
-
                 }
                 break;
 
             case LIST_DOGS_ITEM_ADDED:
-                if(updatedValue instanceof Dog) {
-                    dog = (Dog) updatedValue;
-                    addedDogLive.setValue(dog);
+                if(updatedValue instanceof Integer) {
+                    int index = (int) updatedValue;
+                    this.insertedDogIndexLive.postValue(index);
                 }
                 break;
 
             case LIST_DOGS_ITEM_DELETED:
-                if(updatedValue instanceof Dog) {
-                    dog = (Dog) updatedValue;
-                    deletedDogId.setValue((int) dog.getId());
+                if(updatedValue instanceof Integer) {
+                    int index = (int) updatedValue;
+                    this.deletedDogIndexLive.postValue(index);
                 }
                 break;
         }
@@ -88,19 +94,20 @@ public class MyViewModel extends androidx.lifecycle.ViewModel implements Subscri
         return this.listOfDogsLive;
     }
 
-    public LiveData<Dog> getAddedDogLive() {
-        return this.addedDogLive;
+    public LiveData<Integer> getInsertedDogIndexLive() {
+        return this.insertedDogIndexLive;
     }
 
-    public LiveData<Integer> getDeletedDogId() {
-        return this.deletedDogId;
+    public LiveData<Integer> getDeletedDogIndexLive() {
+        return this.deletedDogIndexLive;
     }
+
 
     public void addNewDog(String dogName) {
-        model.createDog(dogName);
+        this.model.createDog(dogName);
     }
 
     public void deleteDog(int dogIndex) {
-        model.deleteDog(dogIndex);
+        this.model.deleteDog(dogIndex);
     }
 }

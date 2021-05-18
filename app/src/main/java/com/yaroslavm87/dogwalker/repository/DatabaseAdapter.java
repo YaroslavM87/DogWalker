@@ -15,7 +15,7 @@ public class DatabaseAdapter implements Repository<List<Dog>> {
 
     private DatabaseHelper dbHelper;
     private SQLiteDatabase database;
-    private ContentValues contentValues;
+    private final ContentValues contentValues;
     private final String LOG_TAG = "myLogs";
 
 
@@ -25,7 +25,6 @@ public class DatabaseAdapter implements Repository<List<Dog>> {
 
         Log.d(LOG_TAG, "DatabaseHelper() constructor call from DatabaseAdapter");
         dbHelper = new DatabaseHelper(context.getApplicationContext(), 1);
-
         contentValues = new ContentValues();
     }
 
@@ -35,6 +34,8 @@ public class DatabaseAdapter implements Repository<List<Dog>> {
         Log.d(LOG_TAG, "DatabaseAdapter.read() call");
 
         databaseOpen();
+
+        //database.execSQL("DROP TABLE IF EXISTS " + DatabaseHelper.TABLE_NAME);
 
         ArrayList<Dog> dogList = new ArrayList<>();
 
@@ -62,16 +63,25 @@ public class DatabaseAdapter implements Repository<List<Dog>> {
     @Override
     public void add(Dog dog) {
 
+        Log.d(LOG_TAG, "DatabaseAdapter.add() call");
+
+        databaseOpen();
+
         contentValues.clear();
         contentValues.put(DatabaseHelper.COLUMN_NAME, dog.getName());
-        contentValues.put(DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID, dog.getImageResId());
-        contentValues.put(DatabaseHelper.COLUMN_LAST_TIME_WALK, dog.getLastTimeWalk());
+//        contentValues.put(DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID, dog.getImageResId());
+//        contentValues.put(DatabaseHelper.COLUMN_LAST_TIME_WALK, dog.getLastTimeWalk());
 
         database.insert(DatabaseHelper.TABLE_NAME, null, contentValues);
+
+        databaseClose();
     }
 
     @Override
     public void update(Dog dog) {
+
+        Log.d(LOG_TAG, "DatabaseAdapter.update() call");
+
         String whereClause = dbHelper.getStringBuilder()
                 .append(DatabaseHelper.COLUMN_ID)
                 .append("=")
@@ -89,16 +99,46 @@ public class DatabaseAdapter implements Repository<List<Dog>> {
     @Override
     public void delete(Dog dog) {
 
-        String whereClause = "_id = ?";
+        Log.d(LOG_TAG, "DatabaseAdapter.delete() call");
 
-        String[] whereArgs = new String[] {String.valueOf(dog.getId())};
+        databaseOpen();
+
+        String whereClause = "NAME = ?";
+
+        String[] whereArgs = new String[] {dog.getName()};
 
         database.delete(DatabaseHelper.TABLE_NAME, whereClause, whereArgs);
+
+        databaseClose();
+
     }
 
-        public long getCount(){
+    public long getCount(){
+
         return DatabaseUtils.queryNumEntries(database, DatabaseHelper.TABLE_NAME);
     }
+
+
+//    public void addTestData() {
+//
+//        Log.d(LOG_TAG, "DatabaseAdapter.addTestData() call");
+//
+//        StringBuilder sb = dbHelper.getStringBuilder();
+//        String sqlStatement = "";
+//
+//        databaseOpen();
+//
+//        sqlStatement = sb.append("INSERT INTO ")
+//                .append(DatabaseHelper.TABLE_NAME)
+//                .append(" (")
+//                .append(DatabaseHelper.COLUMN_NAME)
+//                .append(") VALUES ('Ami');")
+//                .toString();
+//
+//        database.execSQL(sqlStatement);
+//
+//        databaseClose();
+//    }
 
     private void databaseOpen(){
 

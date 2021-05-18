@@ -1,4 +1,4 @@
-package com.yaroslavm87.dogwalker;
+package com.yaroslavm87.dogwalker.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import androidx.annotation.NonNull;
 
+import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.model.Dog;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
@@ -23,33 +24,35 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
             super(itemView);
 
+            //Log.d(LOG_TAG, "RVAdapter.MyViewHolder() instance just created");
+
             itemView.setOnClickListener(this);
 
             myTextView1 = itemView.findViewById(R.id.dogId);
             myTextView2 = itemView.findViewById(R.id.dogName);
-
-            Log.d(LOG_TAG, "RVAdapter.MyViewHolder() instance just created");
         }
 
         @Override
         public void onClick(View v) {
 
-            if (onEntryClickListener != null) {
+            if (onViewHolderItemClickListener != null) {
 
-                onEntryClickListener.onEntryClick(v, getLayoutPosition());
+                onViewHolderItemClickListener.onViewHolderItemClick(getLayoutPosition());
             }
         }
+
+
     }
 
     private ArrayList<Dog> dogList;
-    private OnEntryClickListener onEntryClickListener;
+    private OnViewHolderItemClickListener onViewHolderItemClickListener;
     private int layout;
     private final String LOG_TAG = "myLogs";
 
 
     public RVAdapter(ArrayList<Dog> dogList, int layout) {
 
-        Log.d(LOG_TAG, "RVAdapter() constructor call");
+        //Log.d(LOG_TAG, "RVAdapter() constructor call");
 
         this.dogList = dogList;
         this.layout = layout;
@@ -59,7 +62,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
     @Override
     public RVAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        Log.d(LOG_TAG, "RVAdapter.onCreateViewHolder() call");
+        //Log.d(LOG_TAG, "RVAdapter.onCreateViewHolder() call");
 
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
 
@@ -69,18 +72,18 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RVAdapter.MyViewHolder holder, int position) {
 
-        Log.d(LOG_TAG, "RVAdapter.onBindViewHolder() call");
+        //Log.d(LOG_TAG, "RVAdapter.onBindViewHolder() call");
 
         Dog dog = dogList.get(position);
 
-        holder.myTextView1.setText(String.valueOf(dog.getId()));
+        holder.myTextView1.setText(String.valueOf(dogList.indexOf(dog)));
         holder.myTextView2.setText(dog.getName());
     }
 
     @Override
     public int getItemCount() {
 
-        Log.d(LOG_TAG, "RVAdapter.getItemCount() call");
+        //Log.d(LOG_TAG, "RVAdapter.getItemCount() call");
 
         return dogList.size();
     }
@@ -97,19 +100,21 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
                 // some actions
             }
     */
-    public interface OnEntryClickListener {
+    public interface OnViewHolderItemClickListener {
 
-        void onEntryClick(View view, int position);
+        void onViewHolderItemClick(int position);
     }
 
-    public void setOnEntryClickListener(OnEntryClickListener onEntryClickListener) {
+    public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener listener) {
 
-        this.onEntryClickListener = onEntryClickListener;
+        Log.d(LOG_TAG, "RVAdapter.setOnViewHolderItemClickListener() call");
+
+        this.onViewHolderItemClickListener = listener;
     }
 
     public void setDogList(ArrayList<Dog> dogList) {
 
-        Log.d(LOG_TAG, "RVAdapter.setDogList() call");
+        //Log.d(LOG_TAG, "RVAdapter.setDogList() call");
 
         this.dogList = dogList;
     }

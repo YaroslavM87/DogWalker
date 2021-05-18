@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class Dog implements Observable {
 
-    private long _id;
+    private int _id;
     private String name;
     private int imageResId;
     private long lastTimeWalk;
@@ -18,6 +18,8 @@ public class Dog implements Observable {
     public Dog(String name) {
         this._id = -1;
         this.name = Objects.requireNonNull(name);
+        this.imageResId = -1;
+        this.lastTimeWalk = -1L;
     }
 
     public Dog(int id, String name, int imageResId, int lastTimeWalk) {
@@ -27,11 +29,11 @@ public class Dog implements Observable {
         this.lastTimeWalk = lastTimeWalk;
     }
 
-    public long getId() {
+    public int getId() {
         return _id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this._id = id;
     }
 
