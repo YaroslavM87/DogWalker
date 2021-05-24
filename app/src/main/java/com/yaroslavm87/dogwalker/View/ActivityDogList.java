@@ -1,40 +1,41 @@
 package com.yaroslavm87.dogwalker.View;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.ViewModel.ViewModelDogList;
 import com.yaroslavm87.dogwalker.model.Dog;
-import com.yaroslavm87.dogwalker.model.Model;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ActivityDogList extends AppCompatActivity implements View.OnClickListener, RVAdapter.OnViewHolderItemClickListener {
 
     private ViewModelDogList viewModelDogList;
+
+    private static int SIGN_IN_REQUEST_CODE = 1;
+
     private Button addDogButton;
     private Button deleteDogButton;
     private EditText dogNameEditText;
-    private int chosenDogFromList_index;
+
     private RecyclerView recyclerView;
     private RVAdapter rvAdapter;
-    private final String LOG_TAG = "myLogs";
 
-    {
-        this.chosenDogFromList_index = 0;
-    }
+    private final String LOG_TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,28 +66,26 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
         });
 
         viewModelDogList.getInsertedDogIndexLive().observe(this, dogIndex -> {
-            Log.d(LOG_TAG, "notifyItemInserted() call");
+            Log.d(LOG_TAG, "ActivityDogList.notifyItemInserted() call");
             rvAdapter.notifyItemInserted(dogIndex);
         });
 
         viewModelDogList.getDeletedDogIndexLive().observe(this, dogIndex -> {
-            Log.d(LOG_TAG, "notifyItemRemoved() call");
-            rvAdapter.notifyItemRemoved(dogIndex);
+            Log.d(LOG_TAG, "ActivityDogList.notifyItemRemoved() call");
+
+            if(dogIndex > -1) {
+                rvAdapter.notifyItemRemoved(dogIndex);
+            }
         });
 
         rvAdapter.setOnViewHolderItemClickListener(this);
-
-        findViewById(R.id.addDog).setOnClickListener(this);
-
-
-
-
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
 
-        switch (v.getTag().toString()) {
+        switch (Objects.requireNonNull(v.getTag().toString())) {
 
             case "addDogButton":
 
@@ -97,23 +96,31 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
                     this.viewModelDogList.addNewDog(s);
                     this.dogNameEditText.setText("");
                 }
+                hideKeyboard();
                 break;
 
             case "deleteDogButton":
 
-                if(this.chosenDogFromList_index > -1) {
-
-                    this.viewModelDogList.deleteDog(this.chosenDogFromList_index);
-                    this.chosenDogFromList_index = -1;
-                }
+                this.viewModelDogList.deleteDog();
                 break;
         }
-
     }
 
     @Override
     public void onViewHolderItemClick(int position) {
+        Log.d(LOG_TAG, "ActivityDogList.onViewHolderItemClick() call");
+        this.viewModelDogList.setCurrentChosenDogByIndex(position);
+    }
 
-        this.chosenDogFromList_index = position;
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) this.getApplicationContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = this.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

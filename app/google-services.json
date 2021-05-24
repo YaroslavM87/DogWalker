@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "50914490138",
+    "project_id": "dogwalker-ff068",
+    "storage_bucket": "dogwalker-ff068.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50914490138:android:e22aba727c2b8e3728dea3",
+        "android_client_info": {
+          "package_name": "com.yaroslavm87.dogwalker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "50914490138-452fnkvgf3j1cd8gji7abug6tf3g0lpj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBl4YJd77OrQ_j699yg9tLeuYnja7j7Xk4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "50914490138-452fnkvgf3j1cd8gji7abug6tf3g0lpj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

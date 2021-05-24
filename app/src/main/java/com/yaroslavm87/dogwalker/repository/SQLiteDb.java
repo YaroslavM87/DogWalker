@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-class DatabaseHelper extends SQLiteOpenHelper {
+class SQLiteDb extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "DOGS_STORE_DB";
     public static final String TABLE_NAME = "DOGS";
@@ -17,13 +17,13 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private StringBuilder stringBuilder;
     private final String LOG_TAG = "myLogs";
 
-    DatabaseHelper(Context context, int dbVersion) {
+    SQLiteDb(Context context, int dbVersion) {
 
         super(context, DB_NAME, null, dbVersion);
 
         this.stringBuilder = new StringBuilder();
 
-        Log.d(LOG_TAG, "DatabaseHelper() instance just created");
+        Log.d(LOG_TAG, "SQLiteDb() instance just created");
 
         //addTestData();
     }
@@ -31,7 +31,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        Log.d(LOG_TAG, "DatabaseHelper.onCreate() call");
+        Log.d(LOG_TAG, "SQLiteDb.onCreate() call");
 
         this.sqlStatement = stringBuilder.append("CREATE TABLE ")
                 .append(TABLE_NAME)
@@ -85,7 +85,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     public void addTestData() {
 
-        Log.d(LOG_TAG, "DatabaseHelper.addTestData() call");
+        Log.d(LOG_TAG, "SQLiteDb.addTestData() call");
 
         SQLiteDatabase db = getWritableDatabase();
 

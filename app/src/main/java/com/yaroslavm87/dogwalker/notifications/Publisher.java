@@ -2,6 +2,7 @@ package com.yaroslavm87.dogwalker.notifications;
 
 import com.yaroslavm87.dogwalker.commands.CommandExecutor;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,11 +12,10 @@ public enum Publisher {
 
     INSTANCE;
 
-    private final Map<Event, List<Subscriber>> listsOfSubscribers;
+    private final EnumMap<Event, List<Subscriber>> listsOfSubscribers;
 
-    private Publisher() {
-
-        listsOfSubscribers = new HashMap<>();
+    Publisher() {
+        listsOfSubscribers = new EnumMap<>(Event.class);
     }
 
     public void subscribeForEvent(Event event, Subscriber... subscribers) {

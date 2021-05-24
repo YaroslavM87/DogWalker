@@ -3,10 +3,10 @@
     android:layout_margin="10dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
+    android:layout_gravity="top"
     android:orientation="vertical"
     android:padding="5dp"
-    android:gravity="center"
+    android:gravity="top"
     >
 
     <LinearLayout
@@ -18,40 +18,35 @@
         android:padding="5dp"
         android:gravity="center" >
 
-        <Button
-            android:id="@+id/addDog"
+        <LinearLayout
+            android:layout_margin="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="20dp"
-            android:gravity="center"
-            android:onClick="onClick"
+            android:layout_gravity="start"
+            android:orientation="vertical"
             android:padding="5dp"
-            android:text="add" />
+            android:gravity="center" >
 
-        <EditText
-            android:id="@+id/dogNameEditText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="Dog name"
-            android:inputType="textPersonName">
-        </EditText>
+            <Button
+                android:id="@+id/addDog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:padding="5dp"
+                android:text="add" />
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/dogNameEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Dog name"
+                android:inputType="textPersonName">
+            </EditText>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="100dp" />
-
-    <LinearLayout
-        android:layout_margin="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:padding="5dp"
-        android:gravity="center" >
+        </LinearLayout>
 
         <Button
             android:id="@+id/deleteDog"
@@ -65,5 +60,11 @@
             android:text="delete" />
 
     </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
 
 </LinearLayout>

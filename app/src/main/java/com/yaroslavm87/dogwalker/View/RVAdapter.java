@@ -37,10 +37,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
             if (onViewHolderItemClickListener != null) {
 
-                onViewHolderItemClickListener.onViewHolderItemClick(getLayoutPosition());
+                onViewHolderItemClickListener.onViewHolderItemClick(this.getLayoutPosition());
             }
         }
-
 
     }
 
@@ -64,9 +63,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
         //Log.d(LOG_TAG, "RVAdapter.onCreateViewHolder() call");
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-
-        return new MyViewHolder(view);
+        return new MyViewHolder(
+                LayoutInflater.from(parent.getContext()).inflate(layout, parent, false)
+        );
     }
 
     @Override
@@ -88,28 +87,16 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
         return dogList.size();
     }
 
-    /*
-    the following interface and the method allow to set any method declared in any class through declaring 'OnEntryClickListener' interface
-    Example:
-
-        myAdapter.setOnEntryClickListener(new MyAdapter.OnEntryClickListener() {
-
-            @Override
-            public void onEntryClick(View view, int position) {
-
-                // some actions
-            }
-    */
     public interface OnViewHolderItemClickListener {
 
         void onViewHolderItemClick(int position);
     }
 
-    public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener listener) {
+    public void setOnViewHolderItemClickListener(OnViewHolderItemClickListener onViewHolderItemClickListener) {
 
         Log.d(LOG_TAG, "RVAdapter.setOnViewHolderItemClickListener() call");
 
-        this.onViewHolderItemClickListener = listener;
+        this.onViewHolderItemClickListener = onViewHolderItemClickListener;
     }
 
     public void setDogList(ArrayList<Dog> dogList) {

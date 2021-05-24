@@ -13,7 +13,10 @@ public class Dog implements Observable {
     private String name;
     private int imageResId;
     private long lastTimeWalk;
-    private Publisher publisher;
+    private transient Publisher publisher;
+
+    public Dog() {
+    }
 
     public Dog(String name) {
         this._id = -1;
@@ -37,23 +40,22 @@ public class Dog implements Observable {
         this._id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-        publisher.notifyEventHappened(this, Event.DOG_NAME_CHANGED);
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setImageResId(int imageResId) {
-        this.imageResId = imageResId;
-        publisher.notifyEventHappened(this, Event.DOG_IMAGE_RES_ID_CHANGED);
-
+    public void setName(String name) {
+        this.name = name;
+        //publisher.notifyEventHappened(this, Event.DOG_NAME_CHANGED);
     }
 
     public int getImageResId() {
         return imageResId;
+    }
+
+    public void setImageResId(int imageResId) {
+        this.imageResId = imageResId;
+        //publisher.notifyEventHappened(this, Event.DOG_IMAGE_RES_ID_CHANGED);
     }
 
     public long getLastTimeWalk() {

@@ -22,12 +22,15 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
     private final MutableLiveData<Integer> insertedDogIndexLive;
     private final MutableLiveData<Integer> deletedDogIndexLive;
 
+    private int chosenDogFromList_index;
+    private String chosenDogFromList_name;
 
     {
         this.publisher = Publisher.INSTANCE;
         this.listOfDogsLive = new MutableLiveData<>();
         this.insertedDogIndexLive = new MutableLiveData<>();
         this.deletedDogIndexLive = new MutableLiveData<>();
+        this.chosenDogFromList_index = -1;
 
     }
 
@@ -38,9 +41,9 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
         this.publisher.subscribeForEvent(
                 this,
-                Event.LIST_DOGS_CHANGED,
-                Event.LIST_DOGS_ITEM_ADDED,
-                Event.LIST_DOGS_ITEM_DELETED
+                Event.MODEL_LIST_DOGS_CHANGED,
+                Event.MODEL_LIST_DOGS_ITEM_ADDED,
+                Event.MODEL_LIST_DOGS_ITEM_DELETED
         );
 
         listOfDogsLive.setValue(this.model.getListOfDogs());
@@ -61,8 +64,8 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
         switch(event) {
 
-            case LIST_DOGS_CHANGED:
-                //TODO: дополнить проверкой `updatedValue`
+            case MODEL_LIST_DOGS_CHANGED:
+//                //TODO: дополнить проверкой `updatedValue`
                 if(updatedValue instanceof ArrayList) {
 
                     if(((ArrayList) updatedValue).get(0) instanceof Dog) {
@@ -74,17 +77,19 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
                 }
                 break;
 
-            case LIST_DOGS_ITEM_ADDED:
+            case MODEL_LIST_DOGS_ITEM_ADDED:
+
                 if(updatedValue instanceof Integer) {
-                    int index = (int) updatedValue;
-                    this.insertedDogIndexLive.postValue(index);
+
+                    this.insertedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
 
-            case LIST_DOGS_ITEM_DELETED:
+            case MODEL_LIST_DOGS_ITEM_DELETED:
+
                 if(updatedValue instanceof Integer) {
-                    int index = (int) updatedValue;
-                    this.deletedDogIndexLive.postValue(index);
+
+                    this.deletedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
         }
@@ -107,7 +112,21 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
         this.model.createDog(dogName);
     }
 
-    public void deleteDog(int dogIndex) {
-        this.model.deleteDog(dogIndex);
+    public void deleteDog() {
+
+        if(this.chosenDogFromList_index > -1) {
+
+            this.model.deleteDog(this.chosenDogFromList_index);
+
+            this.chosenDogFromList_index = -1;
+            this.chosenDogFromList_name = null;
+        }
+    }
+
+    public void setCurrentChosenDogByIndex(int index) {
+
+        this.chosenDogFromList_index = index;
+
+        this.chosenDogFromList_name = this.model.getListOfDogs().get(index).getName();
     }
 }

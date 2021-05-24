@@ -4,11 +4,12 @@ import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Observable;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
+import com.yaroslavm87.dogwalker.notifications.Subscriber;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-class ListOfDogs implements Observable {
+class ListOfDogs implements Observable, Subscriber {
 
     private ArrayList<Dog> list;
     private Publisher publisher;
@@ -22,7 +23,7 @@ class ListOfDogs implements Observable {
 
         this.list = Objects.requireNonNull(list);
 
-        this.publisher.notifyEventHappened(this, Event.LIST_DOGS_CHANGED);
+        this.publisher.notifyEventHappened(this, Event.MODEL_LIST_DOGS_CHANGED);
     }
 
     ArrayList<Dog> getList() {
@@ -37,7 +38,7 @@ class ListOfDogs implements Observable {
 
             this.publisher.notifyEventHappened(
                     this,
-                    Event.LIST_DOGS_ITEM_ADDED
+                    Event.MODEL_LIST_DOGS_ITEM_ADDED
             );
         }
 
@@ -62,9 +63,23 @@ class ListOfDogs implements Observable {
 
         this.lastDogMovedIndexBuffer = index;
 
-        this.publisher.notifyEventHappened(this, Event.LIST_DOGS_ITEM_DELETED);
+        this.publisher.notifyEventHappened(this, Event.MODEL_LIST_DOGS_ITEM_DELETED);
 
         return this.list.remove(index);
+    }
+
+    int deleteDog(Dog d) {
+
+        if (d != null) {
+
+            int index = this.list.indexOf(d);
+
+            this.deleteDog(index);
+
+            return index;
+
+        } else return -1;
+
     }
 
     Dog getDog(int dogId) {
@@ -90,15 +105,58 @@ class ListOfDogs implements Observable {
 
         switch (event) {
 
-            case LIST_DOGS_CHANGED:
+            case MODEL_LIST_DOGS_CHANGED:
                 return (observable, subscriber) -> subscriber.receiveUpdate(event, this.list);
 
-            case LIST_DOGS_ITEM_ADDED:
-            case LIST_DOGS_ITEM_DELETED:
+            case MODEL_LIST_DOGS_ITEM_ADDED:
+            case MODEL_LIST_DOGS_ITEM_DELETED:
                 return (observable, subscriber) -> subscriber.receiveUpdate(event, Integer.valueOf (this.lastDogMovedIndexBuffer));
 
             default:
                 return null;
         }
+    }
+
+    @Override
+    public void receiveUpdate(Event event, Object updatedValue) {
+
+        //ArrayList<Dog> list;
+        //Dog dog;
+        //updatedValue.getClass().getTypeParameters();
+
+        switch(event) {
+
+            //TODO: скорее весго не нужен; убрать
+//            case REPO_LIST_DOGS_CHANGED:
+//                if(updatedValue instanceof ArrayList) {
+//
+//                    if(((ArrayList) updatedValue).get(0) instanceof Dog) {
+//
+//                        this.setList((ArrayList<Dog>) updatedValue);
+//                    }
+//                }
+//                break;
+
+            case REPO_LIST_DOGS_ITEM_ADDED:
+
+                if(updatedValue instanceof Dog) {
+
+                    this.addDog((Dog) updatedValue);
+                }
+                break;
+
+            case REPO_LIST_DOGS_ITEM_DELETED:
+                if(updatedValue instanceof Integer) {
+
+                    this.deleteDog((int) updatedValue);
+
+                } else if (updatedValue instanceof Dog) {
+
+                    this.deleteDog((Dog) updatedValue);
+                }
+
+                break;
+        }
+
     }
 }

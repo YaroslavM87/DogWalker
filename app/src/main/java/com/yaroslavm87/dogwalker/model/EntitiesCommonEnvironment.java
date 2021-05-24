@@ -2,24 +2,28 @@ package com.yaroslavm87.dogwalker.model;
 
 import android.util.Log;
 
+import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
-import com.yaroslavm87.dogwalker.repository.DatabaseAdapter;
+import com.yaroslavm87.dogwalker.repository.Repository;
+import com.yaroslavm87.dogwalker.repository.SQLiteDbAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public enum EntitiesCommonEnvironment implements Model {
 
     INSTANCE;
 
     private final ListOfDogs listOfDogs;
-    private DatabaseAdapter repository;
+    private Repository<ArrayList<Dog>> repository;
     private final Publisher publisher;
     private final String LOG_TAG = "myLogs";
 
     {
         this.listOfDogs = new ListOfDogs(new ArrayList<>());
         this.publisher = Publisher.INSTANCE;
-        this.listOfDogs.setPublisher(publisher);
+        this.listOfDogs.setPublisher(this.publisher);
     }
 
     EntitiesCommonEnvironment() {
@@ -48,15 +52,16 @@ public enum EntitiesCommonEnvironment implements Model {
 
         newDog.setPublisher(this.publisher);
 
-        newDog.setId(this.listOfDogs.getList().size() + 1);
+        //newDog.setId(this.listOfDogs.getList().size() + 1);
 
-        this.listOfDogs.addDog(newDog);
+        //this.listOfDogs.addDog(newDog);
 
         new Thread(() -> {
 
             try{
 
                 this.repository.add(newDog);
+                Log.d(LOG_TAG, "EntitiesComEnv.createDog().repository.add(newDog) call");
 
             } catch (Exception e) {
 
@@ -76,13 +81,13 @@ public enum EntitiesCommonEnvironment implements Model {
 
         Log.d(LOG_TAG, "EntitiesComEnv.deleteDog() call");
 
-        Dog dog = this.listOfDogs.deleteDog(index);
+        //Dog dog = this.listOfDogs.deleteDog(index);
 
         new Thread(() -> {
 
             try{
 
-                this.repository.delete(dog);
+                this.repository.delete(this.listOfDogs.getDog(index));
 
             } catch (Exception e) {
 
@@ -100,13 +105,12 @@ public enum EntitiesCommonEnvironment implements Model {
         return this;
     }
 
-    EntitiesCommonEnvironment setRepository(DatabaseAdapter repository) {
+    void setRepository(Repository<ArrayList<Dog>> repository) {
 
         Log.d(LOG_TAG, "EntitiesComEnv.setRepository() call");
 
         this.repository = repository;
 
-        return this;
     }
 
 //    EntitiesComEnv setPublisher(Publisher publisher) {
@@ -118,7 +122,7 @@ public enum EntitiesCommonEnvironment implements Model {
 //        return this;
 //    }
 
-    EntitiesCommonEnvironment loadListOfDogsFromRepo() {
+    void loadListOfDogsFromRepo() {
 
         new Thread(() -> {
 
@@ -146,6 +150,14 @@ public enum EntitiesCommonEnvironment implements Model {
 
         }).start();
 
-        return this;
     }
+
+    void subscribeModelForEvents(Event... events) {
+
+        Log.d(LOG_TAG, "EntitiesComEnv.subscribeModelForEvents() call");
+
+        this.publisher.subscribeForEvent(this.listOfDogs, Objects.requireNonNull(events));
+    }
+
+
 }
