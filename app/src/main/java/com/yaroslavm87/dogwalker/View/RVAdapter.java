@@ -46,7 +46,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
                 onViewHolderItemClickListener.onViewHolderItemClick(this.getLayoutPosition());
             }
         }
-
     }
 
     private ArrayList<Dog> dogList;
@@ -132,6 +131,4 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
         this.layout = layout;
     }
-
-
 }

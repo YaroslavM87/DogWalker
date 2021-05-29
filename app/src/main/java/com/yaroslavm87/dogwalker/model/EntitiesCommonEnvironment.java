@@ -51,6 +51,15 @@ public enum EntitiesCommonEnvironment implements Model {
         Dog newDog = new Dog();
         newDog.setName(name);
 
+        if(LIST_OF_DOGS.getList().contains(newDog)) {
+
+            Log.d(LOG_TAG, "ListOfDogs contains dog " + name);
+
+            return;
+        }
+
+        newDog.setName(name);
+
         //newDog.setPublisher(this.publisher);
 
         //newDog.setId(this.listOfDogs.getList().size() + 1);

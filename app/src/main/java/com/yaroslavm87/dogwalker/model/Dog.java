@@ -1,15 +1,8 @@
 package com.yaroslavm87.dogwalker.model;
 
-import androidx.annotation.NonNull;
-
-import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
-import com.yaroslavm87.dogwalker.notifications.Event;
-import com.yaroslavm87.dogwalker.notifications.Observable;
-import com.yaroslavm87.dogwalker.notifications.Publisher;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
-
-//public class Dog implements Observable {
 
 public class Dog implements Cloneable{
 
@@ -17,7 +10,6 @@ public class Dog implements Cloneable{
     private String name;
     private int imageResId;
     private long lastTimeWalk;
-    //private transient Publisher publisher;
 
     public Dog() {
     }
@@ -30,10 +22,10 @@ public class Dog implements Cloneable{
 //    }
 //
     public Dog(int id, String name, int imageResId, long lastTimeWalk) {
-        this._id = id;
-        this.name = Objects.requireNonNull(name);
-        this.imageResId = imageResId;
-        this.lastTimeWalk = lastTimeWalk;
+        setId(id);
+        setName(name);
+        setImageResId(imageResId);
+        setLastTimeWalk(lastTimeWalk);
     }
 
     public int getId() {
@@ -49,8 +41,7 @@ public class Dog implements Cloneable{
     }
 
     public void setName(String name) {
-        this.name = name;
-        //publisher.notifyEventHappened(this, Event.DOG_NAME_CHANGED);
+        this.name = Objects.requireNonNull(name).toLowerCase();
     }
 
     public int getImageResId() {
@@ -59,7 +50,6 @@ public class Dog implements Cloneable{
 
     public void setImageResId(int imageResId) {
         this.imageResId = imageResId;
-        //publisher.notifyEventHappened(this, Event.DOG_IMAGE_RES_ID_CHANGED);
     }
 
     public long getLastTimeWalk() {
@@ -67,9 +57,30 @@ public class Dog implements Cloneable{
     }
 
     public void setLastTimeWalk(long lastTimeWalk) {
+
+        if(lastTimeWalk < 0) throw new IllegalArgumentException();
+
         this.lastTimeWalk = lastTimeWalk;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if(obj instanceof Dog) {
+
+            return this.name.equals(((Dog) obj).getName());
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hashCode(name);
+    }
+
+    // TODO: replace with clone()
     public static Dog getCopy(Dog dogToCopy) {
 
         return new Dog(
@@ -79,29 +90,4 @@ public class Dog implements Cloneable{
                 dogToCopy.getLastTimeWalk()
         );
     }
-
-    //    void setPublisher(Publisher publisher) {
-//        this.publisher = publisher;
-//    }
-
-//    @Override
-//    public PassValToSubscriber prepareCommandForUpdate(Event event) {
-//
-//        return getAppropriateCommand(event);
-//    }
-//
-//    private PassValToSubscriber getAppropriateCommand(Event event) {
-//
-//        switch (event) {
-//
-//            case DOG_NAME_CHANGED:
-//                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.name);
-//
-//            case DOG_IMAGE_RES_ID_CHANGED:
-//                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.imageResId);
-//
-//            default:
-//                return null;
-//        }
-//    }
 }
