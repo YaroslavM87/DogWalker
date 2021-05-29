@@ -63,6 +63,9 @@ public class FirebaseDb extends DataSource<Dog> {
     @Override
     public void update(Dog dog) {
 
+        Log.d(LOG_TAG, "FirebaseDb.update() call");
+
+        db.getReference().child("dog").child(dog.getName()).setValue(dog);
     }
 
     @Override
@@ -80,26 +83,34 @@ public class FirebaseDb extends DataSource<Dog> {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
+                Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildAdded() call");
+
                 DogRepository.INSTANCE.setLastDogMovedBuffer(
                         snapshot.getValue(Dog.class),
                         Event.REPO_NEW_DOG_OBJ_AVAILABLE
                 );
-
-                Log.d(LOG_TAG, "FirebaseDb.read().onChildAdded() call");
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildChanged() call");
+
+                DogRepository.INSTANCE.setLastDogMovedBuffer(
+                        snapshot.getValue(Dog.class),
+                        Event.REPO_LIST_DOGS_ITEM_CHANGED
+                );
+            }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildRemoved() call");
 
                 DogRepository.INSTANCE.setLastDogMovedBuffer(
                         snapshot.getValue(Dog.class),
                         Event.REPO_LIST_DOGS_ITEM_DELETED
                 );
-
-                Log.d(LOG_TAG, "FirebaseDb.read().onChildRemoved() call");
             }
 
             @Override

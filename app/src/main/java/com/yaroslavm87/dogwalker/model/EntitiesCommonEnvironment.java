@@ -5,25 +5,26 @@ import android.util.Log;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.repository.Repository;
-import com.yaroslavm87.dogwalker.repository.SQLiteDbAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public enum EntitiesCommonEnvironment implements Model {
 
     INSTANCE;
 
-    private final ListOfDogs listOfDogs;
+    private final ListOfDogs LIST_OF_DOGS;
     private Repository repository;
     private final Publisher publisher;
+    private final long TIME_TO_REST_AFTER_WALK;
+
     private final String LOG_TAG = "myLogs";
 
     {
-        this.listOfDogs = new ListOfDogs(new ArrayList<>());
+        this.LIST_OF_DOGS = new ListOfDogs(new ArrayList<>());
         this.publisher = Publisher.INSTANCE;
-        this.listOfDogs.setPublisher(this.publisher);
+        this.LIST_OF_DOGS.setPublisher(this.publisher);
+        TIME_TO_REST_AFTER_WALK = 0L;
     }
 
     EntitiesCommonEnvironment() {
@@ -33,14 +34,14 @@ public enum EntitiesCommonEnvironment implements Model {
 
     public ArrayList<Dog> getListOfDogs() {
 
-        if(this.listOfDogs.getList().isEmpty()) {
+        if(this.LIST_OF_DOGS.getList().isEmpty()) {
 
             Log.d(LOG_TAG, "EntitiesComEnv.getListOfDogs() call");
 
             loadListOfDogsFromRepo();
         }
 
-        return this.listOfDogs.getList();
+        return this.LIST_OF_DOGS.getList();
     }
 
     public void createDog(String name) {
@@ -70,11 +71,51 @@ public enum EntitiesCommonEnvironment implements Model {
         }).start();
     }
 
-    public Dog getDog(int index) {
+//    public Dog getDog(int index) {
+//
+//        Log.d(LOG_TAG, "EntitiesComEnv.getDog() call");
+//
+//        return this.LIST_OF_DOGS.getDog(index);
+//    }
 
-        Log.d(LOG_TAG, "EntitiesComEnv.getDog() call");
+    public void walkDog(int index) {
 
-        return this.listOfDogs.getDog(index);
+        Log.d(LOG_TAG, "EntitiesComEnv.walkDog() call");
+
+        Dog updatedDog = Dog.getCopy(this.LIST_OF_DOGS.getDog(index));
+
+        long currentTime = System.currentTimeMillis();
+        long timeDelta = currentTime - updatedDog.getLastTimeWalk();
+
+        if(timeDelta == 0 || timeDelta >= TIME_TO_REST_AFTER_WALK) {
+
+            updatedDog.setLastTimeWalk(currentTime);
+
+            new Thread(() -> {
+
+                try{
+                    Log.d(LOG_TAG, "EntitiesComEnv.walkDog().repository.update(updatedDog) call");
+
+                    this.repository.update(updatedDog);
+
+                } catch (Exception e) {
+
+                    Log.d(LOG_TAG, "EntitiesComEnv.createDog() EXCEPTION: " + e);
+                }
+            }).start();
+
+        } else {
+
+            long timeUntilNextWalk = TIME_TO_REST_AFTER_WALK - timeDelta;
+
+            publisher.makeSubscribersReceiveUpdate(
+                    Event.MODEL_ERROR,
+                    (subscriber) -> subscriber.receiveUpdate(
+                            Event.MODEL_ERROR,
+                            timeUntilNextWalk
+                    )
+            );
+        }
     }
 
     public void deleteDog(int index) {
@@ -87,7 +128,7 @@ public enum EntitiesCommonEnvironment implements Model {
 
             try{
 
-                this.repository.delete(this.listOfDogs.getDog(index));
+                this.repository.delete(this.LIST_OF_DOGS.getDog(index));
 
             } catch (Exception e) {
 
@@ -96,14 +137,14 @@ public enum EntitiesCommonEnvironment implements Model {
         }).start();
     }
 
-    EntitiesCommonEnvironment setListOfDogs(ArrayList<Dog> listOfDogs) {
-
-        Log.d(LOG_TAG, "EntitiesComEnv.setListOfDogs() call");
-
-        this.listOfDogs.setList(listOfDogs);
-
-        return this;
-    }
+//    EntitiesCommonEnvironment setListOfDogs(ArrayList<Dog> listOfDogs) {
+//
+//        Log.d(LOG_TAG, "EntitiesComEnv.setListOfDogs() call");
+//
+//        this.LIST_OF_DOGS.setList(listOfDogs);
+//
+//        return this;
+//    }
 
     void setRepository(Repository repository) {
 
@@ -146,7 +187,7 @@ public enum EntitiesCommonEnvironment implements Model {
 
         Log.d(LOG_TAG, "EntitiesComEnv.subscribeModelForEvents() call");
 
-        this.publisher.subscribeForEvent(this.listOfDogs, Objects.requireNonNull(events));
+        this.publisher.subscribeForEvent(this.LIST_OF_DOGS, Objects.requireNonNull(events));
     }
 
 

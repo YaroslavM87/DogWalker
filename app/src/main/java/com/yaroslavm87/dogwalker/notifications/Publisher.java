@@ -1,6 +1,7 @@
 package com.yaroslavm87.dogwalker.notifications;
 
 import com.yaroslavm87.dogwalker.commands.CommandExecutor;
+import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -82,6 +83,22 @@ public enum Publisher {
                 observable,
                 getAppropriateListOfSubscribers(event),
                 event);
+    }
+
+    public void makeSubscribersReceiveUpdate(Event event, PassValToSubscriber command) {
+
+        List<Subscriber> list = getAppropriateListOfSubscribers(event);
+
+        if (list != null) {
+
+            for (Subscriber subscriber : list) {
+
+                if (subscriber != null) {
+
+                    CommandExecutor.execute(subscriber,command);
+                }
+            }
+        }
     }
 
     private List<Subscriber> getAppropriateListOfSubscribers(Event event) {

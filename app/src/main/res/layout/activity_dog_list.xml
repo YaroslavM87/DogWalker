@@ -48,16 +48,39 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/deleteDog"
+        <LinearLayout
+            android:layout_margin="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="20dp"
-            android:gravity="center"
-            android:onClick="onClick"
+            android:layout_gravity="start"
+            android:orientation="vertical"
             android:padding="5dp"
-            android:text="delete" />
+            android:gravity="center" >
+
+            <Button
+                android:id="@+id/walkDog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="0dp"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:padding="5dp"
+                android:text="walk" />
+
+            <Button
+                android:id="@+id/deleteDog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:padding="5dp"
+                android:text="delete" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

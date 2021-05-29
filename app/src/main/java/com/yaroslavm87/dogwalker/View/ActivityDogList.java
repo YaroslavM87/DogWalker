@@ -34,8 +34,7 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
 
     private static int SIGN_IN_REQUEST_CODE = 1;
 
-    private Button addDogButton;
-    private Button deleteDogButton;
+    private Button addDogButton, deleteDogButton, walkDogButton;
     private EditText dogNameEditText;
 
     private RecyclerView recyclerView;
@@ -64,6 +63,9 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
         deleteDogButton = findViewById(R.id.deleteDog);
         deleteDogButton.setTag("deleteDogButton");
 
+        walkDogButton  = findViewById(R.id.walkDog);
+        walkDogButton.setTag("walkDogButton");
+
         dogNameEditText = findViewById(R.id.dogNameEditText);
 
         viewModelDogList.getListOfDogsLive().observe(this, dogList -> {
@@ -74,6 +76,11 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
         viewModelDogList.getInsertedDogIndexLive().observe(this, dogIndex -> {
             Log.d(LOG_TAG, "ActivityDogList.notifyItemInserted() call");
             rvAdapter.notifyItemInserted(dogIndex);
+        });
+
+        viewModelDogList.getChangedDogIndexLive().observe(this, dogIndex -> {
+            Log.d(LOG_TAG, "ActivityDogList.notifyItemInserted() call");
+            rvAdapter.notifyDataSetChanged();
         });
 
         viewModelDogList.getDeletedDogIndexLive().observe(this, dogIndex -> {
@@ -130,6 +137,11 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
             case "deleteDogButton":
 
                 this.viewModelDogList.deleteDog();
+                break;
+
+            case "walkDogButton":
+
+                this.viewModelDogList.walkDog();
                 break;
         }
     }

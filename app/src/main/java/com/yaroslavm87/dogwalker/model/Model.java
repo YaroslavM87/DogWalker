@@ -8,7 +8,7 @@ public interface Model {
 
     void createDog(String name);
 
-    Dog getDog(int dogId);
+    void walkDog(int dogIndex);
 
     void deleteDog(int index);
 }

@@ -7,7 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
 import androidx.annotation.NonNull;
 
 import com.yaroslavm87.dogwalker.R;
@@ -17,8 +23,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView myTextView1;
-        TextView myTextView2;
+        TextView textViewDogName;
+        TextView textViewDogLastTimeWalk;
 
         MyViewHolder(@NonNull View itemView) {
 
@@ -28,8 +34,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
             itemView.setOnClickListener(this);
 
-            myTextView1 = itemView.findViewById(R.id.dogId);
-            myTextView2 = itemView.findViewById(R.id.dogName);
+            textViewDogName = itemView.findViewById(R.id.dogName);
+            textViewDogLastTimeWalk = itemView.findViewById(R.id.dogLastTimeWalk);
         }
 
         @Override
@@ -75,8 +81,24 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
         Dog dog = dogList.get(position);
 
-        holder.myTextView1.setText(String.valueOf(dogList.indexOf(dog)));
-        holder.myTextView2.setText(dog.getName());
+        holder.textViewDogName.setText(dog.getName());
+
+        String date;
+
+        if(dog.getLastTimeWalk() == 0L) {
+
+            date = "Еще не гулял(а)";
+
+        } else {
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy в hh:mm", Locale.ENGLISH);
+
+
+            date = formatter.format(dog.getLastTimeWalk());
+            //date = new Date(dog.getLastTimeWalk()).toString();
+        }
+
+        holder.textViewDogLastTimeWalk.setText(date);
     }
 
     @Override
@@ -110,4 +132,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.MyViewHolder> {
 
         this.layout = layout;
     }
+
+
 }

@@ -54,14 +54,35 @@ class ListOfDogs implements Observable, Subscriber {
         //LIST_DOGS_ITEM_ADDED
     }
 
-//    public void deleteDog(Dog dog) {
-//
-//        this.list.remove(Objects.requireNonNull(dog));
-//
-//        this.dogBuffer = Objects.requireNonNull(dog);
-//
-//        this.publisher.notifyEventHappened(this, Event.LIST_DOGS_ITEM_DELETED);
-//    }
+    public void updateDog(Dog dog) {
+
+        int indexOfDogToReplace = 0;
+
+        for(Dog d : this.list) {
+            Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> " + d.getName() + " - " + dog.getName());
+
+
+            if(d.getName().equals(dog.getName())) {
+
+                indexOfDogToReplace = this.list.indexOf(d);
+
+                Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> index = " + indexOfDogToReplace);
+
+                this.list.set(indexOfDogToReplace, dog);
+
+                Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> name = " + this.list.get(indexOfDogToReplace).getName());
+
+                break;
+            }
+        }
+
+        int finalIndexOfDogToReplace = indexOfDogToReplace;
+
+        this.publisher.makeSubscribersReceiveUpdate(
+                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_CHANGED, finalIndexOfDogToReplace)
+        );
+    }
 
     Dog deleteDog(int index) {
 
@@ -157,6 +178,7 @@ class ListOfDogs implements Observable, Subscriber {
                 break;
 
             case REPO_LIST_DOGS_ITEM_DELETED:
+
                 if(updatedValue instanceof Integer) {
 
                     this.deleteDog((int) updatedValue);
@@ -174,7 +196,14 @@ class ListOfDogs implements Observable, Subscriber {
                     }
 
                 }
+                break;
 
+            case REPO_LIST_DOGS_ITEM_CHANGED:
+
+                if(updatedValue instanceof Dog) {
+
+                    this.updateDog((Dog) updatedValue);
+                }
                 break;
         }
 

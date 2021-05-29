@@ -1,20 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="20dp"
     android:orientation="horizontal" >
 
     <TextView
-        android:id="@+id/dogId"
+        android:id="@+id/dogName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center" />
 
     <TextView
-        android:id="@+id/dogName"
+        android:id="@+id/dogLastTimeWalk"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="4"
+        android:layout_weight="5"
         android:gravity="center" />
 
 </LinearLayout>

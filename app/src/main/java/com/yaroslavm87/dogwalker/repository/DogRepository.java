@@ -37,7 +37,7 @@ public enum DogRepository implements Repository, Observable {
 
     @Override
     public void update(Dog dog) {
-
+        remoteStorage.update(dog);
     }
 
     @Override
@@ -58,12 +58,12 @@ public enum DogRepository implements Repository, Observable {
 //            case MODEL_LIST_DOGS_CHANGED:
 //                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.read());
 
-            case REPO_NEW_DOG_OBJ_AVAILABLE:
-            case REPO_LIST_DOGS_ITEM_DELETED:
-
-                Log.d(LOG_TAG, "SQLiteDbAdapter.getAppropriateCommand() call");
-
-                return (subscriber) -> subscriber.receiveUpdate(event, this.getLastDogMovedBuffer());
+//            case REPO_NEW_DOG_OBJ_AVAILABLE:
+//            case REPO_LIST_DOGS_ITEM_DELETED:
+//
+//                Log.d(LOG_TAG, "SQLiteDbAdapter.getAppropriateCommand() call");
+//
+//                return (subscriber) -> subscriber.receiveUpdate(event, this.getLastDogMovedBuffer());
 
             default:
                 return null;
@@ -74,7 +74,12 @@ public enum DogRepository implements Repository, Observable {
 
         this.lastDogMovedBuffer = dog;
 
-        this.publisher.notifyEventHappened(this, event);
+        Log.d(LOG_TAG, "DogRepository.setLastDogMovedBuffer() call -> " + dog.getName());
+
+        this.publisher.makeSubscribersReceiveUpdate(
+                event,
+                (subscriber) -> subscriber.receiveUpdate(event, this.getLastDogMovedBuffer())
+        );
     }
 
     private Dog getLastDogMovedBuffer() {

@@ -1,5 +1,7 @@
 package com.yaroslavm87.dogwalker.model;
 
+import androidx.annotation.NonNull;
+
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Observable;
@@ -9,7 +11,7 @@ import java.util.Objects;
 
 //public class Dog implements Observable {
 
-public class Dog {
+public class Dog implements Cloneable{
 
     private int _id;
     private String name;
@@ -27,12 +29,12 @@ public class Dog {
 //        this.lastTimeWalk = -1L;
 //    }
 //
-//    public Dog(int id, String name, int imageResId, int lastTimeWalk) {
-//        this._id = id;
-//        this.name = Objects.requireNonNull(name);
-//        this.imageResId = imageResId;
-//        this.lastTimeWalk = lastTimeWalk;
-//    }
+    public Dog(int id, String name, int imageResId, long lastTimeWalk) {
+        this._id = id;
+        this.name = Objects.requireNonNull(name);
+        this.imageResId = imageResId;
+        this.lastTimeWalk = lastTimeWalk;
+    }
 
     public int getId() {
         return _id;
@@ -68,7 +70,17 @@ public class Dog {
         this.lastTimeWalk = lastTimeWalk;
     }
 
-//    void setPublisher(Publisher publisher) {
+    public static Dog getCopy(Dog dogToCopy) {
+
+        return new Dog(
+                dogToCopy.getId(),
+                dogToCopy.getName(),
+                dogToCopy.getImageResId(),
+                dogToCopy.getLastTimeWalk()
+        );
+    }
+
+    //    void setPublisher(Publisher publisher) {
 //        this.publisher = publisher;
 //    }
 

@@ -19,6 +19,7 @@ public class ModelBuilder {
 
         model.subscribeModelForEvents(
                 Event.REPO_NEW_DOG_OBJ_AVAILABLE,
+                Event.REPO_LIST_DOGS_ITEM_CHANGED,
                 Event.REPO_LIST_DOGS_ITEM_DELETED
         );
 
