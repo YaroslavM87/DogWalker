@@ -32,6 +32,7 @@ public enum EntitiesCommonEnvironment implements Model {
         Log.d(LOG_TAG, "EntitiesComEnv() constructor call");
     }
 
+    //TODO: разделить на два метода - проверка списка и запрос в БД если пустой, и возврат списка
     public ArrayList<Dog> getListOfDogs() {
 
         if(this.LIST_OF_DOGS.getList().isEmpty()) {

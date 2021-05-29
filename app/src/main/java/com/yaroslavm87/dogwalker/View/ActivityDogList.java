@@ -34,7 +34,7 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
 
     private static int SIGN_IN_REQUEST_CODE = 1;
 
-    private Button addDogButton, deleteDogButton, walkDogButton;
+    private Button addDogButton, deleteDogButton, walkDogButton, sortNameButton, sortTimeButton;
     private EditText dogNameEditText;
 
     private RecyclerView recyclerView;
@@ -65,6 +65,12 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
 
         walkDogButton  = findViewById(R.id.walkDog);
         walkDogButton.setTag("walkDogButton");
+
+        sortNameButton  = findViewById(R.id.sortName);
+        sortNameButton.setTag("sortNameButton");
+
+        sortTimeButton  = findViewById(R.id.sortTime);
+        sortTimeButton.setTag("sortTimeButton");
 
         dogNameEditText = findViewById(R.id.dogNameEditText);
 
@@ -142,6 +148,16 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
             case "walkDogButton":
 
                 this.viewModelDogList.walkDog();
+                break;
+
+            case "sortNameButton":
+
+                this.viewModelDogList.sortName();
+                break;
+
+            case "sortTimeButton":
+
+                this.viewModelDogList.sortTime();
                 break;
         }
     }

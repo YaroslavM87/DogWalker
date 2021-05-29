@@ -76,7 +76,6 @@ public class Dog implements Cloneable{
 
     @Override
     public int hashCode() {
-
         return Objects.hashCode(name);
     }
 

@@ -1,8 +1,10 @@
 package com.yaroslavm87.dogwalker.ViewModel;
 
 import android.app.Application;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -157,6 +159,20 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
             this.chosenDogFromList_index = -1;
             this.chosenDogFromList_name = null;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortName() {
+
+        model.getListOfDogs().sort(new ComparatorDogListName());
+        listOfDogsLive.postValue(model.getListOfDogs());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortTime() {
+
+        model.getListOfDogs().sort(new ComparatorDogListLastTimeWalk());
+        listOfDogsLive.postValue(model.getListOfDogs());
     }
 
 
