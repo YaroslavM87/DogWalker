@@ -6,5 +6,5 @@ import com.yaroslavm87.dogwalker.notifications.Subscriber;
 @FunctionalInterface
 public interface PassValToSubscriber {
 
-    void execute(Observable observable, Subscriber subscriber);
+    void execute(Subscriber subscriber);
 }

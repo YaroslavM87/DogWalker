@@ -1,13 +1,14 @@
 {
   "project_info": {
     "project_number": "50914490138",
+    "firebase_url": "https://dogwalker-ff068-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "dogwalker-ff068",
     "storage_bucket": "dogwalker-ff068.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:50914490138:android:e22aba727c2b8e3728dea3",
+        "mobilesdk_app_id": "1:50914490138:android:45cdee3c947e390d28dea3",
         "android_client_info": {
           "package_name": "com.yaroslavm87.dogwalker"
         }

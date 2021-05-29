@@ -16,7 +16,7 @@ public enum EntitiesCommonEnvironment implements Model {
     INSTANCE;
 
     private final ListOfDogs listOfDogs;
-    private Repository<ArrayList<Dog>> repository;
+    private Repository repository;
     private final Publisher publisher;
     private final String LOG_TAG = "myLogs";
 
@@ -29,7 +29,6 @@ public enum EntitiesCommonEnvironment implements Model {
     EntitiesCommonEnvironment() {
 
         Log.d(LOG_TAG, "EntitiesComEnv() constructor call");
-
     }
 
     public ArrayList<Dog> getListOfDogs() {
@@ -48,9 +47,10 @@ public enum EntitiesCommonEnvironment implements Model {
 
         Log.d(LOG_TAG, "EntitiesComEnv.createDog() call");
 
-        Dog newDog = new Dog(name);
+        Dog newDog = new Dog();
+        newDog.setName(name);
 
-        newDog.setPublisher(this.publisher);
+        //newDog.setPublisher(this.publisher);
 
         //newDog.setId(this.listOfDogs.getList().size() + 1);
 
@@ -105,7 +105,7 @@ public enum EntitiesCommonEnvironment implements Model {
         return this;
     }
 
-    void setRepository(Repository<ArrayList<Dog>> repository) {
+    void setRepository(Repository repository) {
 
         Log.d(LOG_TAG, "EntitiesComEnv.setRepository() call");
 
@@ -130,17 +130,7 @@ public enum EntitiesCommonEnvironment implements Model {
 
                 Log.d(LOG_TAG, "EntitiesComEnv.loadListOfDogsFromRepo() call");
 
-                ArrayList<Dog> tmpList = repository.read();
-
-                for(Dog d : tmpList) {
-
-                    d.setPublisher(publisher);
-                }
-
-                this.listOfDogs.setList(tmpList);
-
-                tmpList = null;
-
+                repository.read();
 
             } catch (Exception e) {
 

@@ -109,7 +109,6 @@ public enum Publisher {
                 if (subscriber != null) {
 
                     CommandExecutor.execute(
-                            observable,
                             subscriber,
                             observable.prepareCommandForUpdate(event)
                     );

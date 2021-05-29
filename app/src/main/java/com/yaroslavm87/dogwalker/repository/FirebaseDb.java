@@ -5,10 +5,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Logger;
+import com.google.firebase.database.ValueEventListener;
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.notifications.Event;
@@ -16,73 +20,44 @@ import com.yaroslavm87.dogwalker.notifications.Observable;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-public class FirebaseDb implements Repository<ArrayList<Dog>>, Observable {
+public class FirebaseDb extends DataSource<Dog> {
 
     private FirebaseDatabase db;
-    private final Publisher publisher;
-
     private final String LOG_TAG;
 
     {
-        db = FirebaseDatabase.getInstance();
-        this.publisher = Publisher.INSTANCE;
         this.LOG_TAG = "myLogs";
     }
 
+    public FirebaseDb() {
+
+        super(DataSource.Type.REMOTE_STORAGE);
+
+        //new Thread(this::initDb).start();
+    }
+
     @Override
-    public ArrayList<Dog> read() {
-
-        ArrayList<Dog> dogList = new ArrayList<>();
-
-        String name = db.getReference().child("Dog").get().toString();
-        Log.d(LOG_TAG, "FirebaseDb.read() = " + name);
-
-
-        ChildEventListener dogListListener = new ChildEventListener() {
-
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                Dog dog = snapshot.getValue(Dog.class);
-
-                dogList.add(dog);
-
-                Log.d(LOG_TAG, "FirebaseDb.read().onChildAdded() call");
-
-                //db.getReference().push().removeValue();
-
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        };
-
-        db.getReference().addChildEventListener(dogListListener);
-
-        //db.getReference().removeEventListener(dogListListener);
+    public void read() {
 
         Log.d(LOG_TAG, "FirebaseDb.read() call");
 
+        //TODO: init db in new thread
+        initDb();
 
-        return dogList;
+        addListenerToDB();
     }
 
     @Override
     public void add(Dog dog) {
-        FirebaseDatabase.getInstance().getReference().push().setValue(dog);
-       // db.getReference().push().setValue(dog);
 
+        Log.d(LOG_TAG, "FirebaseDb.add() call");
+
+        db.getReference().child("dog").child(dog.getName()).setValue(dog);
     }
 
     @Override
@@ -92,19 +67,59 @@ public class FirebaseDb implements Repository<ArrayList<Dog>>, Observable {
 
     @Override
     public void delete(Dog dog) {
-        FirebaseDatabase.getInstance().getReference().push().removeValue();
+
+        Log.d(LOG_TAG, "FirebaseDb.delete() call");
+
+        db.getReference("dog").child(dog.getName()).setValue(null);
     }
 
-    @Override
-    public PassValToSubscriber prepareCommandForUpdate(Event event) {
+    void addListenerToDB() {
 
+        ChildEventListener dogListListener = new ChildEventListener() {
 
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
+                DogRepository.INSTANCE.setLastDogMovedBuffer(
+                        snapshot.getValue(Dog.class),
+                        Event.REPO_NEW_DOG_OBJ_AVAILABLE
+                );
 
+                Log.d(LOG_TAG, "FirebaseDb.read().onChildAdded() call");
+            }
 
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
 
+                DogRepository.INSTANCE.setLastDogMovedBuffer(
+                        snapshot.getValue(Dog.class),
+                        Event.REPO_LIST_DOGS_ITEM_DELETED
+                );
 
-        return null;
+                Log.d(LOG_TAG, "FirebaseDb.read().onChildRemoved() call");
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+
+        };
+
+        db.getReference("dog").addChildEventListener(dogListListener);
+
+    }
+
+    void initDb() {
+
+        db = FirebaseDatabase.getInstance();
+
+        db.setLogLevel(Logger.Level.DEBUG);
+
+        Log.d(LOG_TAG, "DB ref " + db.getReference());
     }
 }

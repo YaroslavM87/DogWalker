@@ -1,5 +1,7 @@
 package com.yaroslavm87.dogwalker.model;
 
+import android.util.Log;
+
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Observable;
@@ -14,6 +16,12 @@ class ListOfDogs implements Observable, Subscriber {
     private ArrayList<Dog> list;
     private Publisher publisher;
     private int lastDogMovedIndexBuffer;
+    private final String LOG_TAG;
+
+    {
+        this.LOG_TAG = "myLogs";
+
+    }
 
     public ListOfDogs(ArrayList<Dog> list) {
         this.list = Objects.requireNonNull(list);
@@ -23,7 +31,7 @@ class ListOfDogs implements Observable, Subscriber {
 
         this.list = Objects.requireNonNull(list);
 
-        this.publisher.notifyEventHappened(this, Event.MODEL_LIST_DOGS_CHANGED);
+        //this.publisher.notifyEventHappened(this, Event.MODEL_LIST_DOGS_CHANGED);
     }
 
     ArrayList<Dog> getList() {
@@ -73,6 +81,8 @@ class ListOfDogs implements Observable, Subscriber {
         if (d != null) {
 
             int index = this.list.indexOf(d);
+            boolean b = this.list.contains(d);
+            Log.d(LOG_TAG, String.valueOf(b));
 
             this.deleteDog(index);
 
@@ -106,11 +116,11 @@ class ListOfDogs implements Observable, Subscriber {
         switch (event) {
 
             case MODEL_LIST_DOGS_CHANGED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.list);
+                return (subscriber) -> subscriber.receiveUpdate(event, this.list);
 
             case MODEL_LIST_DOGS_ITEM_ADDED:
             case MODEL_LIST_DOGS_ITEM_DELETED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(event, Integer.valueOf (this.lastDogMovedIndexBuffer));
+                return (subscriber) -> subscriber.receiveUpdate(event, this.lastDogMovedIndexBuffer);
 
             default:
                 return null;
@@ -137,6 +147,7 @@ class ListOfDogs implements Observable, Subscriber {
 //                }
 //                break;
 
+            case REPO_NEW_DOG_OBJ_AVAILABLE:
             case REPO_LIST_DOGS_ITEM_ADDED:
 
                 if(updatedValue instanceof Dog) {
@@ -152,7 +163,16 @@ class ListOfDogs implements Observable, Subscriber {
 
                 } else if (updatedValue instanceof Dog) {
 
-                    this.deleteDog((Dog) updatedValue);
+                    for(Dog d : this.list) {
+
+                        if(d.getName().equals(((Dog) updatedValue).getName())) {
+
+                            this.deleteDog(d);
+
+                            break;
+                        }
+                    }
+
                 }
 
                 break;

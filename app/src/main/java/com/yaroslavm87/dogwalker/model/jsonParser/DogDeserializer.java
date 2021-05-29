@@ -15,13 +15,15 @@ public class DogDeserializer implements JsonDeserializer<Dog> {
 
         JsonObject jsonObject = json.getAsJsonObject();
 
-        Dog dog = new Dog(
-                jsonObject.get("_id").getAsInt(),
-                jsonObject.get("name").getAsString(),
-                jsonObject.get("imageResId").getAsInt(),
-                jsonObject.get("lastTimeWalk").getAsInt()
-        );
+//        Dog dog = new Dog(
+//                jsonObject.get("_id").getAsInt(),
+//                jsonObject.get("name").getAsString(),
+//                jsonObject.get("imageResId").getAsInt(),
+//                jsonObject.get("lastTimeWalk").getAsInt()
+//        );
 
-        return dog;
+        return null;
+
+//        return dog;
     }
 }

@@ -6,10 +6,9 @@ import com.yaroslavm87.dogwalker.notifications.Subscriber;
 public class CommandExecutor {
 
     public static void execute(
-            Observable observable,
             Subscriber subscriber,
             PassValToSubscriber command
     ) {
-        command.execute(observable, subscriber);
+        command.execute(subscriber);
     }
 }

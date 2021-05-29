@@ -1,6 +1,7 @@
 package com.yaroslavm87.dogwalker.ViewModel;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -25,13 +26,16 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
     private int chosenDogFromList_index;
     private String chosenDogFromList_name;
 
+    private final String LOG_TAG;
+
+
     {
         this.publisher = Publisher.INSTANCE;
         this.listOfDogsLive = new MutableLiveData<>();
         this.insertedDogIndexLive = new MutableLiveData<>();
         this.deletedDogIndexLive = new MutableLiveData<>();
         this.chosenDogFromList_index = -1;
-
+        this.LOG_TAG = "myLogs";
     }
 
     public ViewModelDogList(Application application) {
@@ -125,8 +129,10 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
     public void setCurrentChosenDogByIndex(int index) {
 
-        this.chosenDogFromList_index = index;
+        Log.d(LOG_TAG, "ViewModelDogList.setCurrentChosenDogByIndex() call = " + index);
 
+        this.chosenDogFromList_index = index;
+        
         this.chosenDogFromList_name = this.model.getListOfDogs().get(index).getName();
     }
 }

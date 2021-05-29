@@ -7,30 +7,32 @@ import com.yaroslavm87.dogwalker.notifications.Publisher;
 
 import java.util.Objects;
 
-public class Dog implements Observable {
+//public class Dog implements Observable {
+
+public class Dog {
 
     private int _id;
     private String name;
     private int imageResId;
     private long lastTimeWalk;
-    private transient Publisher publisher;
+    //private transient Publisher publisher;
 
     public Dog() {
     }
 
-    public Dog(String name) {
-        this._id = -1;
-        this.name = Objects.requireNonNull(name);
-        this.imageResId = -1;
-        this.lastTimeWalk = -1L;
-    }
-
-    public Dog(int id, String name, int imageResId, int lastTimeWalk) {
-        this._id = id;
-        this.name = Objects.requireNonNull(name);
-        this.imageResId = imageResId;
-        this.lastTimeWalk = lastTimeWalk;
-    }
+//    public Dog(String name) {
+//        this._id = -1;
+//        this.name = Objects.requireNonNull(name);
+//        this.imageResId = -1;
+//        this.lastTimeWalk = -1L;
+//    }
+//
+//    public Dog(int id, String name, int imageResId, int lastTimeWalk) {
+//        this._id = id;
+//        this.name = Objects.requireNonNull(name);
+//        this.imageResId = imageResId;
+//        this.lastTimeWalk = lastTimeWalk;
+//    }
 
     public int getId() {
         return _id;
@@ -66,28 +68,28 @@ public class Dog implements Observable {
         this.lastTimeWalk = lastTimeWalk;
     }
 
-    void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
-    }
+//    void setPublisher(Publisher publisher) {
+//        this.publisher = publisher;
+//    }
 
-    @Override
-    public PassValToSubscriber prepareCommandForUpdate(Event event) {
-
-        return getAppropriateCommand(event);
-    }
-
-    private PassValToSubscriber getAppropriateCommand(Event event) {
-
-        switch (event) {
-
-            case DOG_NAME_CHANGED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.name);
-
-            case DOG_IMAGE_RES_ID_CHANGED:
-                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.imageResId);
-
-            default:
-                return null;
-        }
-    }
+//    @Override
+//    public PassValToSubscriber prepareCommandForUpdate(Event event) {
+//
+//        return getAppropriateCommand(event);
+//    }
+//
+//    private PassValToSubscriber getAppropriateCommand(Event event) {
+//
+//        switch (event) {
+//
+//            case DOG_NAME_CHANGED:
+//                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.name);
+//
+//            case DOG_IMAGE_RES_ID_CHANGED:
+//                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.imageResId);
+//
+//            default:
+//                return null;
+//        }
+//    }
 }

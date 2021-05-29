@@ -1,5 +1,6 @@
 package com.yaroslavm87.dogwalker.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,6 +16,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.ViewModel.ViewModelDogList;
 import com.yaroslavm87.dogwalker.model.Dog;
@@ -79,6 +85,28 @@ public class ActivityDogList extends AppCompatActivity implements View.OnClickLi
         });
 
         rvAdapter.setOnViewHolderItemClickListener(this);
+
+//        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+//        connectedRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                boolean connected = snapshot.getValue(Boolean.class);
+//                if (connected) {
+//                    Log.d(LOG_TAG, "connected");
+//                } else {
+//                    Log.d(LOG_TAG, "not connected");
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Log.w(LOG_TAG, "Listener was cancelled");
+//            }
+//        });
+
+
+
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

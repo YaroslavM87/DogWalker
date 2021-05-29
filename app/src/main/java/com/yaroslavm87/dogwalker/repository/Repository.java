@@ -8,9 +8,9 @@ import java.util.List;
 
 // <T extends List<Dog>>
 
-public interface Repository<T extends List<Dog>> {
+public interface Repository {
 
-    T read();
+    void read();
 
     void add(Dog dog);
 

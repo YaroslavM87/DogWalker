@@ -16,7 +16,7 @@ import com.yaroslavm87.dogwalker.notifications.Publisher;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
+public class SQLiteDbAdapter extends DataSource<Dog> {
 
     private final SQLiteDb dbHelper;
     private SQLiteDatabase database;
@@ -36,6 +36,7 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
 
 
     public SQLiteDbAdapter(Context context){
+        super(Type.LOCAL_STORAGE);
 
         Log.d(LOG_TAG, "SQLiteDbAdapter() constructor call");
 
@@ -45,7 +46,7 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
     }
 
     @Override
-    public ArrayList<Dog> read() {
+    public void read() {
 
         Log.d(LOG_TAG, "SQLiteDbAdapter.read() call");
 
@@ -63,7 +64,8 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
             String name = cursor.getString(cursor.getColumnIndex(SQLiteDb.COLUMN_NAME));
 //            int imageResId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_IMAGE_RESOURCE_ID));
 //            int lastTimeWalk = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_LAST_TIME_WALK));
-            Dog dog = new Dog(name);
+            Dog dog = new Dog();
+            dog.setName(name);
             dog.setId(id);
             dogList.add(dog);
 
@@ -72,8 +74,6 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
 
         cursor.close();
         databaseClose();
-
-        return dogList;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
 
         this.setLastDogMovedBuffer(d);
 
-        this.publisher.notifyEventHappened(this, Event.REPO_LIST_DOGS_ITEM_ADDED);
+        //this.publisher.notifyEventHappened(this, Event.REPO_LIST_DOGS_ITEM_ADDED);
     }
 
     @Override
@@ -133,10 +133,10 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
 
         this.setLastDogMovedBuffer(d);
 
-        this.publisher.notifyEventHappened(this, Event.REPO_LIST_DOGS_ITEM_DELETED);
+        //this.publisher.notifyEventHappened(this, Event.REPO_LIST_DOGS_ITEM_DELETED);
     }
 
-    public long getCount(){
+    public long getCount() {
 
         return DatabaseUtils.queryNumEntries(database, SQLiteDb.TABLE_NAME);
     }
@@ -198,31 +198,6 @@ public class SQLiteDbAdapter implements Repository<List<Dog>>, Observable {
                 null,
                 null
         );
-    }
-
-    @Override
-    public PassValToSubscriber prepareCommandForUpdate(Event event) {
-
-        return getAppropriateCommand(event);
-    }
-
-    private PassValToSubscriber getAppropriateCommand(Event event) {
-
-        switch (event) {
-
-//            case MODEL_LIST_DOGS_CHANGED:
-//                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.read());
-
-            case REPO_LIST_DOGS_ITEM_ADDED:
-            case REPO_LIST_DOGS_ITEM_DELETED:
-
-                Log.d(LOG_TAG, "SQLiteDbAdapter.getAppropriateCommand() call");
-
-                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.getLastDogMovedBuffer());
-
-            default:
-                return null;
-        }
     }
 
     private void setLastDogMovedBuffer(Dog d) {
