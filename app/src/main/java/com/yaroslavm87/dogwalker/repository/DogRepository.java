@@ -15,9 +15,6 @@ public enum DogRepository implements Repository, Observable {
     private final DataSource<Dog> remoteStorage;
     private final Publisher publisher;
     private final String LOG_TAG;
-    // TODO: убрать буффер
-    private Dog lastDogMovedBuffer;
-
 
     {
         this.remoteStorage = new FirebaseDb();
@@ -45,49 +42,11 @@ public enum DogRepository implements Repository, Observable {
         remoteStorage.delete(dog);
     }
 
-    @Override
-    public PassValToSubscriber prepareCommandForUpdate(Event event) {
+    void notifyDataChanged(Event event, PassValToSubscriber command) {
 
-        return getAppropriateCommand(event);
-    }
-
-    private PassValToSubscriber getAppropriateCommand(Event event) {
-
-        switch (event) {
-
-//            case MODEL_LIST_DOGS_CHANGED:
-//                return (observable, subscriber) -> subscriber.receiveUpdate(event, this.read());
-
-//            case REPO_NEW_DOG_OBJ_AVAILABLE:
-//            case REPO_LIST_DOGS_ITEM_DELETED:
-//
-//                Log.d(LOG_TAG, "SQLiteDbAdapter.getAppropriateCommand() call");
-//
-//                return (subscriber) -> subscriber.receiveUpdate(event, this.getLastDogMovedBuffer());
-
-            default:
-                return null;
-        }
-    }
-
-    public void setLastDogMovedBuffer(Dog dog, Event event) {
-
-        this.lastDogMovedBuffer = dog;
-
-        Log.d(LOG_TAG, "DogRepository.setLastDogMovedBuffer() call -> " + dog.getName());
-
-        this.publisher.makeSubscribersReceiveUpdate(
+        publisher.makeSubscribersReceiveUpdate(
                 event,
-                (subscriber) -> subscriber.receiveUpdate(event, this.getLastDogMovedBuffer())
+                command
         );
-    }
-
-    private Dog getLastDogMovedBuffer() {
-
-        Dog result = this.lastDogMovedBuffer;
-
-        this.lastDogMovedBuffer = null;
-
-        return result;
     }
 }

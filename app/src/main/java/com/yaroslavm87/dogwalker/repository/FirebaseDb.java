@@ -5,25 +5,13 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Logger;
-import com.google.firebase.database.ValueEventListener;
-import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.notifications.Event;
-import com.yaroslavm87.dogwalker.notifications.Observable;
-import com.yaroslavm87.dogwalker.notifications.Publisher;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class FirebaseDb extends DataSource<Dog> {
 
@@ -49,7 +37,7 @@ public class FirebaseDb extends DataSource<Dog> {
         //TODO: init db in new thread
         initDb();
 
-        addListenerToDB();
+        db.getReference("dog").addChildEventListener(createDogObjListenerForDb());
     }
 
     @Override
@@ -76,18 +64,23 @@ public class FirebaseDb extends DataSource<Dog> {
         db.getReference("dog").child(dog.getName()).setValue(null);
     }
 
-    void addListenerToDB() {
+    ChildEventListener createDogObjListenerForDb() {
 
-        ChildEventListener dogListListener = new ChildEventListener() {
+        return new ChildEventListener() {
 
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
                 Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildAdded() call");
 
-                DogRepository.INSTANCE.setLastDogMovedBuffer(
-                        snapshot.getValue(Dog.class),
-                        Event.REPO_NEW_DOG_OBJ_AVAILABLE
+                Dog dog = snapshot.getValue(Dog.class);
+
+                DogRepository.INSTANCE.notifyDataChanged(
+                        Event.REPO_NEW_DOG_OBJ_AVAILABLE,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.REPO_NEW_DOG_OBJ_AVAILABLE,
+                                dog
+                        )
                 );
             }
 
@@ -96,9 +89,14 @@ public class FirebaseDb extends DataSource<Dog> {
 
                 Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildChanged() call");
 
-                DogRepository.INSTANCE.setLastDogMovedBuffer(
-                        snapshot.getValue(Dog.class),
-                        Event.REPO_LIST_DOGS_ITEM_CHANGED
+                Dog dog = snapshot.getValue(Dog.class);
+
+                DogRepository.INSTANCE.notifyDataChanged(
+                        Event.REPO_LIST_DOGS_ITEM_CHANGED,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.REPO_LIST_DOGS_ITEM_CHANGED,
+                                dog
+                        )
                 );
             }
 
@@ -107,9 +105,14 @@ public class FirebaseDb extends DataSource<Dog> {
 
                 Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildRemoved() call");
 
-                DogRepository.INSTANCE.setLastDogMovedBuffer(
-                        snapshot.getValue(Dog.class),
-                        Event.REPO_LIST_DOGS_ITEM_DELETED
+                Dog dog = snapshot.getValue(Dog.class);
+
+                DogRepository.INSTANCE.notifyDataChanged(
+                        Event.REPO_LIST_DOGS_ITEM_DELETED,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.REPO_LIST_DOGS_ITEM_DELETED,
+                                dog
+                        )
                 );
             }
 
@@ -120,9 +123,6 @@ public class FirebaseDb extends DataSource<Dog> {
             public void onCancelled(@NonNull DatabaseError error) {}
 
         };
-
-        db.getReference("dog").addChildEventListener(dogListListener);
-
     }
 
     void initDb() {

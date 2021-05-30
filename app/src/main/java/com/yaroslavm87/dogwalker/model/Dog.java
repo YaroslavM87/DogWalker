@@ -14,13 +14,6 @@ public class Dog implements Cloneable{
     public Dog() {
     }
 
-//    public Dog(String name) {
-//        this._id = -1;
-//        this.name = Objects.requireNonNull(name);
-//        this.imageResId = -1;
-//        this.lastTimeWalk = -1L;
-//    }
-//
     public Dog(int id, String name, int imageResId, long lastTimeWalk) {
         setId(id);
         setName(name);

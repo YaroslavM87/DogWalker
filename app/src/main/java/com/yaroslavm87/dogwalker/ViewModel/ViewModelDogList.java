@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implements Subscriber {
 
     private final Model model;
-    private final Publisher publisher;
+    private final Publisher PUBLISHER;
     private final MutableLiveData<ArrayList<Dog>> listOfDogsLive;
     private final MutableLiveData<Integer> insertedDogIndexLive, changedDogIndexLive, deletedDogIndexLive;
 
@@ -31,65 +31,48 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
 
     {
-        this.publisher = Publisher.INSTANCE;
-        this.listOfDogsLive = new MutableLiveData<>();
-        this.insertedDogIndexLive = new MutableLiveData<>();
-        this.changedDogIndexLive = new MutableLiveData<>();
-        this.deletedDogIndexLive = new MutableLiveData<>();
-        this.chosenDogFromList_index = -1;
-        this.LOG_TAG = "myLogs";
+        PUBLISHER = Publisher.INSTANCE;
+        listOfDogsLive = new MutableLiveData<>();
+        insertedDogIndexLive = new MutableLiveData<>();
+        changedDogIndexLive = new MutableLiveData<>();
+        deletedDogIndexLive = new MutableLiveData<>();
+        chosenDogFromList_index = -1;
+        LOG_TAG = "myLogs";
     }
 
     public ViewModelDogList(Application application) {
         super(application);
 
-        this.model = ModelBuilder.getModelInstance(application);
+        model = ModelBuilder.getModelInstance(application);
 
-        this.publisher.subscribeForEvent(
+        PUBLISHER.subscribeForEvent(
                 this,
-                Event.MODEL_LIST_DOGS_CHANGED,
                 Event.MODEL_LIST_DOGS_ITEM_ADDED,
                 Event.MODEL_LIST_DOGS_ITEM_CHANGED,
                 Event.MODEL_LIST_DOGS_ITEM_DELETED,
                 Event.MODEL_ERROR
         );
 
-        listOfDogsLive.setValue(this.model.getListOfDogs());
+        //TODO: make receiving the list through a callback
+        listOfDogsLive.setValue(model.getListOfDogs());
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        this.publisher.cancelSubscription(this, Event.values());
+        PUBLISHER.cancelSubscription(this, Event.values());
     }
 
     @Override
     public void receiveUpdate(Event event, Object updatedValue) {
 
-        ArrayList<Dog> list;
-        //Dog dog;
-        //updatedValue.getClass().getTypeParameters();
-
         switch(event) {
-
-            case MODEL_LIST_DOGS_CHANGED:
-//                //TODO: дополнить проверкой `updatedValue`
-                if(updatedValue instanceof ArrayList) {
-
-                    if(((ArrayList) updatedValue).get(0) instanceof Dog) {
-
-                        list = (ArrayList<Dog>) updatedValue;
-
-                        this.listOfDogsLive.postValue(list);
-                    }
-                }
-                break;
 
             case MODEL_LIST_DOGS_ITEM_ADDED:
 
                 if(updatedValue instanceof Integer) {
 
-                    this.insertedDogIndexLive.postValue((int) updatedValue);
+                    insertedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
 
@@ -97,7 +80,7 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
                 if(updatedValue instanceof Integer) {
 
-                    this.changedDogIndexLive.postValue((int) updatedValue);
+                    changedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
 
@@ -105,48 +88,50 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
                 if(updatedValue instanceof Integer) {
 
-                    this.deletedDogIndexLive.postValue((int) updatedValue);
+                    deletedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
 
             case MODEL_ERROR:
+
                 if(updatedValue instanceof Long) {
 
-                    this.deletedDogIndexLive.postValue((int) updatedValue);
+                    //TODO: add message handling
+//                    deletedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
         }
     }
 
     public LiveData<ArrayList<Dog>> getListOfDogsLive() {
-        return this.listOfDogsLive;
+        return listOfDogsLive;
     }
 
     public LiveData<Integer> getInsertedDogIndexLive() {
-        return this.insertedDogIndexLive;
+        return insertedDogIndexLive;
     }
 
     public LiveData<Integer> getChangedDogIndexLive() {
-        return this.changedDogIndexLive;
+        return changedDogIndexLive;
     }
 
     public LiveData<Integer> getDeletedDogIndexLive() {
-        return this.deletedDogIndexLive;
+        return deletedDogIndexLive;
     }
 
 
     public void addNewDog(String dogName) {
-        this.model.createDog(dogName);
+        model.createDog(dogName);
     }
 
     public void deleteDog() {
 
-        if(this.chosenDogFromList_index > -1) {
+        if(chosenDogFromList_index > -1) {
 
-            this.model.deleteDog(this.chosenDogFromList_index);
+            model.deleteDog(chosenDogFromList_index);
 
-            this.chosenDogFromList_index = -1;
-            this.chosenDogFromList_name = null;
+            chosenDogFromList_index = -1;
+            chosenDogFromList_name = null;
         }
     }
 
@@ -154,34 +139,41 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
         if(this.chosenDogFromList_index > -1) {
 
-            this.model.walkDog(this.chosenDogFromList_index);
+            model.walkDog(chosenDogFromList_index);
 
-            this.chosenDogFromList_index = -1;
-            this.chosenDogFromList_name = null;
+            chosenDogFromList_index = -1;
+            chosenDogFromList_name = null;
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortName() {
 
-        model.getListOfDogs().sort(new ComparatorDogListName());
+        model.getListOfDogs().sort(
+                (dog1, dog2) -> dog1.getName().compareTo(dog2.getName())
+
+        );
+
         listOfDogsLive.postValue(model.getListOfDogs());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortTime() {
 
-        model.getListOfDogs().sort(new ComparatorDogListLastTimeWalk());
+        model.getListOfDogs().sort(
+                (dog1, dog2) -> (int) (dog1.getLastTimeWalk() - dog2.getLastTimeWalk())
+        );
+
         listOfDogsLive.postValue(model.getListOfDogs());
     }
 
-
+    //TODO:
     public void setCurrentChosenDogByIndex(int index) {
 
         Log.d(LOG_TAG, "ViewModelDogList.setCurrentChosenDogByIndex() call = " + index);
 
         this.chosenDogFromList_index = index;
         
-        this.chosenDogFromList_name = this.model.getListOfDogs().get(index).getName();
+        this.chosenDogFromList_name = model.getListOfDogs().get(index).getName();
     }
 }

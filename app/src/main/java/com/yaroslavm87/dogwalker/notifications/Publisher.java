@@ -4,10 +4,8 @@ import com.yaroslavm87.dogwalker.commands.CommandExecutor;
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public enum Publisher {
 
@@ -40,29 +38,20 @@ public enum Publisher {
         }
     }
 
-    public boolean cancelSubscription(Subscriber subscriber, Event event) {
+    public void cancelSubscription(Subscriber subscriber, Event event) {
 
-        if(!listsOfSubscribers.containsKey(event)) {
-
-            return false;
-        }
+        if(!listsOfSubscribers.containsKey(event)) return;
 
         List<Subscriber> list = getAppropriateListOfSubscribers(event);
 
         if (!list.isEmpty()) {
 
-            boolean result = list.remove(subscriber);
+            list.remove(subscriber);
 
             if (list.isEmpty()) {
 
-                this.listsOfSubscribers.remove(event);
+                listsOfSubscribers.remove(event);
             }
-
-            return result;
-
-        } else {
-
-            return false;
         }
     }
 
@@ -75,14 +64,6 @@ public enum Publisher {
                 cancelSubscription(subscriber, e);
             }
         }
-    }
-
-    public void notifyEventHappened(Observable observable, Event event) {
-
-        notifySubscribers(
-                observable,
-                getAppropriateListOfSubscribers(event),
-                event);
     }
 
     public void makeSubscribersReceiveUpdate(Event event, PassValToSubscriber command) {
@@ -114,23 +95,6 @@ public enum Publisher {
             listsOfSubscribers.put(event, list);
 
             return list;
-        }
-    }
-
-    private void notifySubscribers(Observable observable, List<Subscriber> list, Event event) {
-
-        if (list != null) {
-
-            for (Subscriber subscriber : list) {
-
-                if (subscriber != null) {
-
-                    CommandExecutor.execute(
-                            subscriber,
-                            observable.prepareCommandForUpdate(event)
-                    );
-                }
-            }
         }
     }
 }
