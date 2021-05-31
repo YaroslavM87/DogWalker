@@ -69,7 +69,18 @@ public class Dog implements Cloneable{
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+
+        final int prime = 31;
+        int counter = 1;
+        int result = 1;
+
+        char[] nameAsArray = name.toCharArray();
+
+        for(char ch : nameAsArray) {
+            result += ch * prime * counter++;
+        }
+
+        return result;
     }
 
     // TODO: replace with clone()
