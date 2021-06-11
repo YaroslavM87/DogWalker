@@ -7,6 +7,7 @@ import java.util.Objects;
 public class Dog implements Cloneable{
 
     private int _id;
+    // TODO: prohibit changes on dog name
     private String name;
     private int imageResId;
     private long lastTimeWalk;

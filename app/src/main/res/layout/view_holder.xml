@@ -1,0 +1,19 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_holder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="?android:attr/selectableItemBackground" >
+
+    <TextView
+        android:id="@+id/view_holder_dog_list_name"
+        style="@style/dogListNameTextViewStyle"
+        />
+
+    <TextView
+        android:id="@+id/view_holder_dog_list_last_time_walk"
+        style="@style/dogListLastImeWalkTextViewStyle"
+        />
+
+</LinearLayout>

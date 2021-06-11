@@ -23,20 +23,16 @@ public class FirebaseDb extends DataSource<Dog> {
     }
 
     public FirebaseDb() {
-
         super(DataSource.Type.REMOTE_STORAGE);
-
+        //TODO: init db in new thread
+        initDb();
         //new Thread(this::initDb).start();
     }
 
     @Override
     public void read() {
-
         Log.d(LOG_TAG, "FirebaseDb.read() call");
-
-        //TODO: init db in new thread
-        initDb();
-
+        // TODO: query list with sorting by time
         db.getReference("dog").addChildEventListener(createDogObjListenerForDb());
     }
 

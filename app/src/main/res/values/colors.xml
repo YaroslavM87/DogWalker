@@ -7,4 +7,15 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="dogWalkedRecently">#69F0AE</color>
+    <color name="dogWalkedThisWeek">#FDDC66</color>
+    <color name="dogDidNotWalkThisWeek">#FF4081</color>
+
+    <color name="dogWalkedRecently_Br">#1EF0AE</color>
+    <color name="dogWalkedThisWeek_Br">#FACA1E</color>
+    <color name="dogDidNotWalkThisWeek_Br">#F80C5C</color>
+
+
+
 </resources>

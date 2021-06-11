@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DogWalker">
 
-        <activity android:name=".View.ActivityDogList">
+        <activity android:name=".view.ActivityMain">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -10,9 +10,9 @@ import com.yaroslavm87.dogwalker.notifications.Subscriber;
 import java.util.ArrayList;
 import java.util.Objects;
 
-class ListOfDogs implements Observable, Subscriber {
+public class ListOfDogs implements Observable, Subscriber {
 
-    private final ArrayList<Dog> list;
+    public final ArrayList<Dog> list;
     private final Publisher PUBLISHER;
     private final String LOG_TAG;
 
@@ -25,14 +25,13 @@ class ListOfDogs implements Observable, Subscriber {
         this.list = Objects.requireNonNull(list);
     }
 
-    ArrayList<Dog> getList() {
+    public ArrayList<Dog> getList() {
         return list;
     }
 
     void addDog(Dog dog) {
-
         if(list.add(Objects.requireNonNull(dog))) {
-
+            Log.d(LOG_TAG, "ListOfDogs.addDog().listSize " + list.size());
             PUBLISHER.makeSubscribersReceiveUpdate(
                     Event.MODEL_LIST_DOGS_ITEM_ADDED,
                     (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_ADDED, list.size() - 1)
@@ -42,40 +41,37 @@ class ListOfDogs implements Observable, Subscriber {
 
     public void updateDog(Dog dog) {
 
-        int indexOfDogToReplace = 0;
-
         for(Dog d : list) {
             Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> " + d.getName() + " - " + dog.getName());
 
             if(d.getName().equals(dog.getName())) {
 
-                indexOfDogToReplace = list.indexOf(d);
+                int indexOfDogToReplace = list.indexOf(d);
 
                 Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> index = " + indexOfDogToReplace);
 
                 list.set(indexOfDogToReplace, dog);
 
                 Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> name = " + list.get(indexOfDogToReplace).getName());
+
+                PUBLISHER.makeSubscribersReceiveUpdate(
+                        Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                                indexOfDogToReplace
+                        )
+                );
+
                 break;
             }
         }
-
-        int finalIndexOfDogToReplace = indexOfDogToReplace;
-
-        PUBLISHER.makeSubscribersReceiveUpdate(
-                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
-                (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_CHANGED, finalIndexOfDogToReplace)
-        );
     }
 
     void deleteDog(int index) {
-
         if(index < 0 || index >= list.size()) {
             return;
         }
-
         list.remove(index);
-
         PUBLISHER.makeSubscribersReceiveUpdate(
                 Event.MODEL_LIST_DOGS_ITEM_DELETED,
                 (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_DELETED, index)
@@ -83,21 +79,15 @@ class ListOfDogs implements Observable, Subscriber {
     }
 
     void deleteDog(Dog d) {
-
         if (d != null) {
-
             Log.d(LOG_TAG, String.valueOf(list.contains(d)));
-
             deleteDog(list.indexOf(d));
         }
     }
 
     Dog getDog(int dogId) {
-
         if(list.size() > dogId) {
-
             return list.get(dogId);
-
         } else return null;
     }
 
@@ -107,38 +97,30 @@ class ListOfDogs implements Observable, Subscriber {
         switch(event) {
 
             case REPO_NEW_DOG_OBJ_AVAILABLE:
-
                 if(updatedValue instanceof Dog) {
-
+                    Log.d(LOG_TAG, "ListOfDogs.receiveUpdate().newDog " + ((Dog) updatedValue).getName());
+                    // + Thread.currentThread().getName())
                     addDog((Dog) updatedValue);
                 }
                 break;
 
+            case REPO_LIST_DOGS_ITEM_CHANGED:
+                if(updatedValue instanceof Dog) {
+                    updateDog((Dog) updatedValue);
+                }
+                break;
+
             case REPO_LIST_DOGS_ITEM_DELETED:
-
                 if(updatedValue instanceof Integer) {
-
                     deleteDog((int) updatedValue);
 
                 } else if (updatedValue instanceof Dog) {
-
                     for(Dog d : list) {
-
                         if(d.getName().equals(((Dog) updatedValue).getName())) {
-
                             deleteDog(d);
                             break;
                         }
                     }
-
-                }
-                break;
-
-            case REPO_LIST_DOGS_ITEM_CHANGED:
-
-                if(updatedValue instanceof Dog) {
-
-                    updateDog((Dog) updatedValue);
                 }
                 break;
         }

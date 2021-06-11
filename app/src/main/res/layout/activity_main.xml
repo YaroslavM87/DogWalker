@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container_dog_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container_dog_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/fragment_container_dog_info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+<!--    <LinearLayout-->
+<!--        xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--        android:id="@+id/activity_dog_list"-->
+<!--        tools:context=".View.ActivityDogList"-->
+<!--        android:layout_margin="10dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_gravity="top"-->
+<!--        android:orientation="vertical"-->
+<!--        android:padding="5dp"-->
+<!--        android:gravity="top"-->
+<!--        >-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_margin="0dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:padding="5dp"-->
+<!--            android:gravity="center" >-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_margin="5dp"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="start"-->
+<!--                android:orientation="vertical"-->
+<!--                android:padding="5dp"-->
+<!--                android:gravity="center" >-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/addDog"-->
+<!--                    android:tag="addDogButton"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:layout_margin="5dp"-->
+<!--                    android:gravity="center"-->
+<!--                    android:onClick="onClick"-->
+<!--                    android:padding="5dp"-->
+<!--                    android:text="add" />-->
+
+<!--                <EditText-->
+<!--                    android:id="@+id/dogNameEditText"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:hint="Dog name"-->
+<!--                    android:inputType="textPersonName">-->
+<!--                </EditText>-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_margin="5dp"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="start"-->
+<!--                android:orientation="vertical"-->
+<!--                android:padding="5dp"-->
+<!--                android:gravity="center" >-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/walkDog"-->
+<!--                    android:tag="walkDogButton"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:layout_margin="5dp"-->
+<!--                    android:gravity="center"-->
+<!--                    android:onClick="onClick"-->
+<!--                    android:padding="5dp"-->
+<!--                    android:text="walk" />-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/deleteDog"-->
+<!--                    android:tag="deleteDogButton"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:layout_margin="5dp"-->
+<!--                    android:gravity="center"-->
+<!--                    android:onClick="onClick"-->
+<!--                    android:padding="5dp"-->
+<!--                    android:text="delete" />-->
+
+<!--            </LinearLayout>-->
+
+<!--        </LinearLayout>-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_margin="5dp"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="start"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:padding="5dp"-->
+<!--            android:gravity="center" >-->
+
+<!--            <Button-->
+<!--                android:id="@+id/sortName"-->
+<!--                android:tag="sortNameButton"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_margin="5dp"-->
+<!--                android:gravity="center"-->
+<!--                android:onClick="onClick"-->
+<!--                android:padding="5dp"-->
+<!--                android:text="sort name" />-->
+
+<!--            <Button-->
+<!--                android:id="@+id/sortTime"-->
+<!--                android:tag="sortTimeButton"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_margin="5dp"-->
+<!--                android:gravity="center"-->
+<!--                android:onClick="onClick"-->
+<!--                android:padding="5dp"-->
+<!--                android:text="sort time" />-->
+
+<!--            <Button-->
+<!--                android:id="@+id/signOut"-->
+<!--                android:tag="signOutButton"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_margin="5dp"-->
+<!--                android:gravity="center"-->
+<!--                android:onClick="onClick"-->
+<!--                android:padding="5dp"-->
+<!--                android:text="Sign Out" />-->
+
+<!--        </LinearLayout>-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/recyclerView"-->
+<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
+
+<!--    </LinearLayout>-->

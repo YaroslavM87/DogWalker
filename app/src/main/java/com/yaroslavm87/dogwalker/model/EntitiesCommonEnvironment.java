@@ -13,35 +13,35 @@ public enum EntitiesCommonEnvironment implements Model {
 
     INSTANCE;
 
-    private final ListOfDogs LIST_OF_DOGS;
+    public final ListOfDogs LIST_OF_DOGS;
     private Repository repository;
     private final Publisher PUBLISHER;
 
     private final long TIME_TO_REST_AFTER_WALK;
-    private final String LOG_TAG = "myLogs";
+    private final String LOG_TAG;
 
     {
         LIST_OF_DOGS = new ListOfDogs(new ArrayList<>());
         PUBLISHER = Publisher.INSTANCE;
         TIME_TO_REST_AFTER_WALK = 0L;
+        LOG_TAG = "myLogs";
     }
 
     EntitiesCommonEnvironment() {
-
         Log.d(LOG_TAG, "EntitiesComEnv() constructor call");
     }
 
     //TODO: разделить на два метода - проверка списка и запрос в БД если пустой, и возврат списка
     public ArrayList<Dog> getListOfDogs() {
+//
+//        if(LIST_OF_DOGS.getList().isEmpty()) {
+//
+//            Log.d(LOG_TAG, "EntitiesComEnv.getListOfDogs() call");
+//
+//            startRepoLoadingListOfDogs();
+//        }
 
-        if(LIST_OF_DOGS.getList().isEmpty()) {
-
-            Log.d(LOG_TAG, "EntitiesComEnv.getListOfDogs() call");
-
-            loadListOfDogsFromRepo();
-        }
-
-        return this.LIST_OF_DOGS.getList();
+        return LIST_OF_DOGS.getList();
     }
 
     public void createDog(String name) {
@@ -147,24 +147,23 @@ public enum EntitiesCommonEnvironment implements Model {
 
     }
 
-    void loadListOfDogsFromRepo() {
+    void startRepoLoadingListOfDogs() {
 
         new Thread(() -> {
 
             try{
 
-                Log.d(LOG_TAG, "EntitiesComEnv.loadListOfDogsFromRepo() call");
-
                 repository.read();
+
+                Log.d(LOG_TAG, "EntitiesComEnv.startRepoLoadingListOfDogs() call");
 
             } catch (Exception e) {
 
-                Log.d(LOG_TAG, "EntitiesComEnv.loadListOfDogsFromRepo() EXCEPTION: " + e);
+                Log.d(LOG_TAG, "EntitiesComEnv.startRepoLoadingListOfDogs() EXCEPTION: " + e);
 
             }
 
         }).start();
-
     }
 
     void subscribeModelForEvents(Event... events) {
@@ -173,6 +172,4 @@ public enum EntitiesCommonEnvironment implements Model {
 
         PUBLISHER.subscribeForEvent(LIST_OF_DOGS, Objects.requireNonNull(events));
     }
-
-
 }

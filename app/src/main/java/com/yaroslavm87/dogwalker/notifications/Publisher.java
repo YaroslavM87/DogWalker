@@ -1,5 +1,7 @@
 package com.yaroslavm87.dogwalker.notifications;
 
+import android.util.Log;
+
 import com.yaroslavm87.dogwalker.commands.CommandExecutor;
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 
@@ -12,20 +14,31 @@ public enum Publisher {
     INSTANCE;
 
     private final EnumMap<Event, List<Subscriber>> listsOfSubscribers;
+    private final String LOG_TAG;
 
-    Publisher() {
+    {
         listsOfSubscribers = new EnumMap<>(Event.class);
+        LOG_TAG = "myLogs";
     }
 
-    public void subscribeForEvent(Event event, Subscriber... subscribers) {
+
+    Publisher() {
+    }
+
+    public synchronized void subscribeForEvent(Event event, Subscriber... subscribers) {
 
         List<Subscriber> list = getAppropriateListOfSubscribers(event);
 
         for (Subscriber s : subscribers) {
+            Log.d(LOG_TAG, "Publisher.subscribeForEvent() event = " + event);
 
             if(!list.contains(s)) {
 
                 list.add(s);
+                Log.d(LOG_TAG, "------------------------- list of subscribers length = " + list.size());
+                Log.d(LOG_TAG, "------------------------- subscriber = " + s.toString());
+
+
             }
         }
     }
@@ -69,15 +82,13 @@ public enum Publisher {
     public void makeSubscribersReceiveUpdate(Event event, PassValToSubscriber command) {
 
         List<Subscriber> list = getAppropriateListOfSubscribers(event);
+        Log.d(LOG_TAG, "Publisher.makeSubscribersReceiveUpdate().listSize = " + list.size());
 
-        if (list != null) {
+        for (Subscriber subscriber : list) {
 
-            for (Subscriber subscriber : list) {
+            if (subscriber != null) {
 
-                if (subscriber != null) {
-
-                    CommandExecutor.execute(subscriber,command);
-                }
+                CommandExecutor.execute(subscriber,command);
             }
         }
     }

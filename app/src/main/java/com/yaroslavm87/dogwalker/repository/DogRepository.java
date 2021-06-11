@@ -43,7 +43,6 @@ public enum DogRepository implements Repository, Observable {
     }
 
     void notifyDataChanged(Event event, PassValToSubscriber command) {
-
         publisher.makeSubscribersReceiveUpdate(
                 event,
                 command
