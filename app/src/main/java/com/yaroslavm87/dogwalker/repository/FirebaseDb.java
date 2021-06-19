@@ -5,21 +5,37 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Logger;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.yaroslavm87.dogwalker.model.Dog;
+import com.yaroslavm87.dogwalker.model.WalkRecord;
 import com.yaroslavm87.dogwalker.notifications.Event;
 
-public class FirebaseDb extends DataSource<Dog> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class FirebaseDb extends DataSource {
 
     private FirebaseDatabase db;
+    private final String DOGS_NODE;
+    private final String WALK_RECORDS_NODE;
+
+    private ChildEventListener dogsNodeEventListener, walkRecordsNodeEventListener;
+
     private final String LOG_TAG;
 
     {
-        this.LOG_TAG = "myLogs";
+        DOGS_NODE = "dog";
+        WALK_RECORDS_NODE = "walkRecords";
+        LOG_TAG = "myLogs";
     }
 
     public FirebaseDb() {
@@ -30,46 +46,143 @@ public class FirebaseDb extends DataSource<Dog> {
     }
 
     @Override
-    public void read() {
-        Log.d(LOG_TAG, "FirebaseDb.read() call");
-        // TODO: query list with sorting by time
-        db.getReference("dog").addChildEventListener(createDogObjListenerForDb());
+    public void read(RepoOperations operation, Object value) {
+
+        switch(operation) {
+
+            case READ_LIST_OF_DOGS:
+                readListOfDogs();
+                break;
+
+            case READ_LIST_OF_WALKS_FOR_DOG:
+                if(value instanceof Dog) {
+                    readListOfWalkRecordsForDog((Dog) value);
+                }
+                break;
+        }
     }
 
     @Override
-    public void add(Dog dog) {
+    public void add(RepoOperations operation, Object value) {
+        switch(operation) {
 
-        Log.d(LOG_TAG, "FirebaseDb.add() call");
+            case CREATE_DOG:
+                if(value instanceof Dog) {
+                    createDog((Dog) value);
+                }
+                break;
 
-        db.getReference().child("dog").child(dog.getName()).setValue(dog);
+        }
     }
 
     @Override
-    public void update(Dog dog) {
+    public void update(RepoOperations operation, Object value) {
+        switch(operation) {
 
-        Log.d(LOG_TAG, "FirebaseDb.update() call");
-
-        db.getReference().child("dog").child(dog.getName()).setValue(dog);
+            case CREATE_RECORD_OF_DOG_WALK:
+                if(value instanceof Dog) {
+                    createRecordOfDogWalk((Dog) value);
+                }
+                break;
+        }
     }
 
     @Override
-    public void delete(Dog dog) {
-
-        Log.d(LOG_TAG, "FirebaseDb.delete() call");
-
-        db.getReference("dog").child(dog.getName()).setValue(null);
+    public void delete(RepoOperations operation, Object value) {
+//        Log.d(LOG_TAG, "FirebaseDb.delete() call");
+//        db.getReference("dog").child(dog.getName()).setValue(null);
     }
 
-    ChildEventListener createDogObjListenerForDb() {
+    void initDb() {
+        db = FirebaseDatabase.getInstance();
+        db.setLogLevel(Logger.Level.DEBUG);
+        Log.d(LOG_TAG, "DB ref " + db.getReference());
+    }
 
+    private void readListOfDogs() {
+        Log.d(LOG_TAG, "FirebaseDb.readListOfDogs() call");
+//        Query lastTimeWalkQuery = db.getReference(DOGS_NODE)
+//                .orderByChild("lastTimeWalk");
+        dogsNodeEventListener = db.getReference(DOGS_NODE).addChildEventListener(createDogNodeEventListener());
+    }
+
+    private void readListOfWalkRecordsForDog(Dog dog) {
+        Log.d(LOG_TAG, "FirebaseDb.readListOfWalksForDog() call");
+        Query listOfWalksForDogQuery = db.getReference(WALK_RECORDS_NODE).child(dog.getId())
+                .orderByChild("timestamp");
+
+//        listOfWalksForDogQuery.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DataSnapshot> task) {
+//                if (!task.isSuccessful()) {
+//                    Log.e("firebase", "Error getting data", task.getException());
+//                }
+//                else {
+//                    Log.d(LOG_TAG, "result class =" + task.getResult().getValue().getClass());
+//
+//                }
+//            }
+//        });
+
+        listOfWalksForDogQuery.addListenerForSingleValueEvent(createWalkRecordsNodeValueListener());
+        //listOfWalksForDogQuery.removeEventListener(walkRecordsNodeListener);
+        //walkRecordsNodeEventListener = listOfWalksForDogQuery.addChildEventListener(createWalkRecordsNodeListener());
+    }
+
+    private void createDog(Dog dog) {
+        Log.d(LOG_TAG, "FirebaseDb.createDog() call");
+        String key = db.getReference().child(DOGS_NODE).push().getKey();
+        if(key != null) {
+            dog.setId(key);
+            db.getReference().child(DOGS_NODE).child(key).setValue(dog);
+        }
+    }
+
+    private void createRecordOfDogWalk(Dog dog) {
+        Log.d(LOG_TAG, "FirebaseDb.createRecordOfDogWalk() call");
+
+        DatabaseReference dogs = db.getReference().child(DOGS_NODE);
+        DatabaseReference walkRecords = db.getReference().child(WALK_RECORDS_NODE);
+
+        //String key = db.getReference().child(WALK_RECORDS_NODE).push().getKey();
+        String key = db.getReference().child(WALK_RECORDS_NODE).child(dog.getId()).push().getKey();
+
+        if(key != null) {
+            walkRecords.child(dog.getId()).child(key).child("id").setValue(key);
+            walkRecords.child(dog.getId()).child(key).child("timestamp").setValue(dog.getLastTimeWalk());
+            walkRecords.child(dog.getId()).child(key).child("dogId").setValue(dog.getId());
+
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put("lastTimeWalk" , dog.getLastTimeWalk());
+            childUpdates.put("lastWalkRecordId", key);
+
+            dogs.child(dog.getId()).updateChildren(childUpdates);
+//
+//            dogs.child(dog.getId()).child("lastTimeWalk").setValue(dog.getLastTimeWalk());
+//            dogs.child(dog.getId()).child("lastWalkRecordId").setValue(key);
+        }
+    }
+
+    private void deleteDog(Dog dog) {
+//        Log.d(LOG_TAG, "FirebaseDb.deleteDog() call");
+//        String key = db.getReference().child(DOGS_NODE).push().getKey();
+//        if(key != null) {
+//            dog.setId(key);
+//            db.getReference().child(DOGS_NODE).child(key).setValue(dog);
+//        }
+    }
+
+    private ChildEventListener createDogNodeEventListener() {
         return new ChildEventListener() {
 
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildAdded() call");
-
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "----------- FIREBASE: NEW DOG OBJ AVAILABLE -----------");
+                Log.d(LOG_TAG, "--");
                 Dog dog = snapshot.getValue(Dog.class);
+                Log.d(LOG_TAG, "ChildEventListener.onChildAdded() call | dog name=" + dog.getName());
 
                 DogRepository.INSTANCE.notifyDataChanged(
                         Event.REPO_NEW_DOG_OBJ_AVAILABLE,
@@ -82,9 +195,7 @@ public class FirebaseDb extends DataSource<Dog> {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildChanged() call");
-
+                Log.d(LOG_TAG, "FirebaseDb.createDogNodeListener().onChildChanged() call");
                 Dog dog = snapshot.getValue(Dog.class);
 
                 DogRepository.INSTANCE.notifyDataChanged(
@@ -98,9 +209,7 @@ public class FirebaseDb extends DataSource<Dog> {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                Log.d(LOG_TAG, "FirebaseDb.addListenerToDB().onChildRemoved() call");
-
+                Log.d(LOG_TAG, "FirebaseDb.createDogNodeListener().onChildRemoved() call");
                 Dog dog = snapshot.getValue(Dog.class);
 
                 DogRepository.INSTANCE.notifyDataChanged(
@@ -115,18 +224,75 @@ public class FirebaseDb extends DataSource<Dog> {
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
 
+            //TODO: dispatch error
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
 
         };
     }
 
-    void initDb() {
+    private ChildEventListener createWalkRecordsNodeEventListener() {
+        return new ChildEventListener() {
 
-        db = FirebaseDatabase.getInstance();
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                WalkRecord walkRecord = snapshot.getValue(WalkRecord.class);
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "----------- NEW WALK RECORD id =" + walkRecord.getId() + "-----------");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "FirebaseDb.ChildWalkRecordsNodeListener().onChildAdded() call");
 
-        db.setLogLevel(Logger.Level.DEBUG);
+                DogRepository.INSTANCE.notifyDataChanged(
+                        Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
+                                walkRecord
+                        )
+                );
+            }
 
-        Log.d(LOG_TAG, "DB ref " + db.getReference());
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            //TODO: dispatch error
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+
+        };
+    }
+
+    private ValueEventListener createWalkRecordsNodeValueListener() {
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    WalkRecord walkRecord = snapshot.getValue(WalkRecord.class);
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "----------- FIREBASE: NEW WALK OBJ AVAILABLE id =" + walkRecord.getId() + "-----------");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "ValueEventListener.onDataChange().onChildAdded() call");
+
+                    DogRepository.INSTANCE.notifyDataChanged(
+                            Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
+                            (subscriber) -> subscriber.receiveUpdate(
+                                    Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
+                                    walkRecord
+                            )
+                    );
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
     }
 }

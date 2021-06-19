@@ -3,43 +3,42 @@ package com.yaroslavm87.dogwalker.view;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.yaroslavm87.dogwalker.R;
-import com.yaroslavm87.dogwalker.viewModel.ViewModelDogList;
+import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 //import com.yaroslavm87.dogwalker.databinding.ActivityMainBinding;
-import com.yaroslavm87.dogwalker.model.Dog;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 //public class ActivityDogList extends AppCompatActivity implements View.OnClickListener, FragmentDogList.OnFragmentViewClickListener {
 
 
-public class ActivityMain extends AppCompatActivity implements FragmentDogList.OnFragmentViewClickListener {
+public class ActivityMain extends AppCompatActivity implements FragmentDogList.OnDogListItemClickListener, FragmentDogInfo.OnDogInfoItemClickListener {
 
     //private ActivityMainBinding binding;
-    private ViewModelDogList viewModelDogList;
+    private AppViewModel appViewModel;
+    private NavController navController;
     private FragmentManager fragmentManager;
-    private FragmentDogList fragmentDogList;
-    private FragmentDogInfo fragmentDogInfo;
-    private final MutableLiveData<Dog> chosenDogLive;
+//    private FragmentDogList fragmentDogList;
+//    private FragmentDogInfo fragmentDogInfo;
+//    private FragmentWalkRecords fragmentWalkRecords;
     private static int SIGN_IN_REQUEST_CODE = 1;
     private final String LOG_TAG;
 
     {
-        chosenDogLive = new MutableLiveData<>();
         LOG_TAG = "myLogs";
     }
 
@@ -50,8 +49,8 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
 
         if (isCurrentUserAuthenticated()) {
             initVariables();
-            initViewElements();
-            subscribeViewElements();
+            //initViewElements();
+            //subscribeViewElements();
 
         } else {
             authenticateCurrentUser();
@@ -70,8 +69,8 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
                 //Snackbar.make(binding.activityMainRootLayout, "Вход выполнен", Snackbar.LENGTH_SHORT).show();
 
                 initVariables();
-                initViewElements();
-                subscribeViewElements();
+                //initViewElements();
+                //subscribeViewElements();
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -87,109 +86,54 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     }
 
     @Override
-    public void onFragmentViewClick() {
-        if(fragmentDogInfo == null) {
-            addFragmentDogInfo();
+    public boolean onSupportNavigateUp() {
+        return navController.navigateUp();
+    }
+
+    @Override
+    public void onDogListItemClick() {
+        navController.navigate(R.id.action_fragmentDogList_to_fragmentDogInfo);
+    }
+
+    @Override
+    public void onDogInfoItemClick(FragmentDogInfo.FragmentEvents event) {
+        switch (event) {
+
+            case WALK_DOG_CALL:
+                break;
+
+            case SEE_WALK_RECORDS_CALL:
+                navController.navigate(R.id.action_fragmentDogInfo_to_fragmentWalkRecords);
+                break;
         }
-        else {
-            showFragment(fragmentDogInfo);
-        }
-        hideFragment(fragmentDogList);
-        fragmentManager.executePendingTransactions();
     }
 
     private void initVariables() {
-
         fragmentManager = getSupportFragmentManager();
 
-        viewModelDogList = new ViewModelProvider(
+        NavHostFragment navHostFragment = (NavHostFragment) fragmentManager
+                .findFragmentById(R.id.nav_host_fragment);
+        assert navHostFragment != null;
+        navController = navHostFragment.getNavController();
+
+        appViewModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())
-        ).get(ViewModelDogList.class);
+        ).get(AppViewModel.class);
     }
 
     private void initViewElements() {
-        addFragmentDogList();
-//
-//        addFragmentDogInfo();
-//        hideFragment(fragmentDogInfo);
+        //addFragmentDogList();
     }
 
     private void subscribeViewElements() {
-
-        viewModelDogList.getChosenIndexOfDogFromListLive()
-                .observe(this,(index) -> {
-                    if(index < 0) {
-                        showFragment(fragmentDogList);
-                        hideFragment(fragmentDogInfo);
-                        fragmentManager.executePendingTransactions();
-                    }
-                }
-        );
-
-//        viewModelDogList.getListOfDogsLive().observe(
-//                this, fragmentDogList::receiveListOfDogs
+//        appViewModel.getChosenIndexOfDogFromListLive()
+//                .observe(this,(index) -> {
+//                    if(index < 0) {
+//                    showFragmentDogListHideFragmentDogInfo();
+//                    }
+//                }
 //        );
-//
-//        viewModelDogList.getInsertedDogIndexLive().observe(
-//                this, fragmentDogList::receiveIndexOfDogInsertedInList
-//        );
-    }
-
-    private void addFragmentDogList() {
-        if(fragmentDogInfo != null) return;
-        fragmentManager.beginTransaction()
-                .setReorderingAllowed(true)
-                .add(
-                        R.id.fragment_container_dog_list,
-                        FragmentDogList.class,
-                        null,
-                        "fragmentDogList"
-                )
-                //.addToBackStack(null)
-                .commit();
-        fragmentManager.executePendingTransactions();
-        fragmentDogList = (FragmentDogList) fragmentManager.findFragmentByTag("fragmentDogList");
-    }
-
-    private void addFragmentDogInfo() {
-        if(fragmentDogInfo != null) return;
-        fragmentManager.beginTransaction()
-                .setReorderingAllowed(true)
-                .add(
-                        R.id.fragment_container_dog_info,
-                        FragmentDogInfo.class,
-                        null,
-                        "fragmentDogInfo"
-                )
-                //.addToBackStack(null)
-                .commit();
-        fragmentManager.executePendingTransactions();
-        fragmentDogInfo = (FragmentDogInfo) fragmentManager.findFragmentByTag("fragmentDogInfo");
-    }
-
-    private void hideFragment(Fragment fragment) {
-        if(fragment == null) return;
-        if(fragment.isVisible()) {
-            fragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .hide(fragment)
-                    //.addToBackStack(null)
-                    .commit();
-            //fragmentManager.executePendingTransactions();
-        }
-    }
-
-    private void showFragment(Fragment fragment) {
-        if(fragment == null) return;
-        if(fragment.isHidden()) {
-            fragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .show(fragment)
-                    //.addToBackStack(null)
-                    .commit();
-            //fragmentManager.executePendingTransactions();
-        }
     }
 
     private boolean isCurrentUserAuthenticated() {
@@ -212,6 +156,35 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
         );
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStart() call");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStop() call");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
+    }
 }
 
 

@@ -1,6 +1,8 @@
 package com.yaroslavm87.dogwalker.view;
 
 import androidx.fragment.app.Fragment;
+
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +16,48 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.yaroslavm87.dogwalker.R;
-import com.yaroslavm87.dogwalker.viewModel.ViewModelDogList;
+import com.yaroslavm87.dogwalker.model.Dog;
+import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
+import com.yaroslavm87.dogwalker.viewModel.Functions;
 
 public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
-    private ViewModelDogList viewModelDogList;
-    private TextView dogInfoDogName, dogInfoDogDescription;
+    private AppViewModel appViewModel;
+    private TextView dogInfoDogName, dogInfoDogDescription, dogInfoDogLastWalk;
     private Button walkDog;
+    private Button seeWalkRecords;
+    private OnDogInfoItemClickListener onDogInfoItemClickListener;
+    private final StringBuilder SB;
+    private final String LOG_TAG;
+
+
+
+    {
+        SB = new StringBuilder();
+        LOG_TAG = "myLogs";
+    }
+
+    public interface OnDogInfoItemClickListener {
+        void onDogInfoItemClick(FragmentDogInfo.FragmentEvents event);
+    }
+
+    public enum FragmentEvents{
+        WALK_DOG_CALL,
+        SEE_WALK_RECORDS_CALL
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        if (context instanceof FragmentDogInfo.OnDogInfoItemClickListener) {
+            onDogInfoItemClickListener = (FragmentDogInfo.OnDogInfoItemClickListener) context;
+
+        } else {
+            throw new ClassCastException(context.toString()
+                    + " must implement FragmentDogList.OnDogListItemClickListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -31,34 +68,45 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(LOG_TAG, "----------- FRAGMENT DOG INFO onViewCreated -----------");
         initVariables();
         initViewElements(requireView());
         subscribeViewElements();
     }
 
+    //void clearWalkRecordList() {}
+
     private void initVariables() {
-        viewModelDogList = new ViewModelProvider(requireActivity()).get(ViewModelDogList.class);
+        appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
     }
 
     private void initViewElements(View view) {
-        dogInfoDogName = view.findViewById(R.id.dog_info_dog_name);
+        dogInfoDogName = view.findViewById(R.id.dog_info_textview_dog_name);
         dogInfoDogDescription = view.findViewById(R.id.dog_info_dog_description);
-        walkDog = view.findViewById(R.id.walk_dog);
-        walkDog.setTag("walk_dog");
+        dogInfoDogLastWalk = view.findViewById(R.id.dog_info_dog_last_walk);
+        walkDog = view.findViewById(R.id.dog_info_button_walk_dog);
         walkDog.setOnClickListener(this);
+        seeWalkRecords = view.findViewById(R.id.dog_info_button_see_walk_records);
+        seeWalkRecords.setOnClickListener(this);
     }
 
     private void subscribeViewElements() {
+        StringBuilder sb = new StringBuilder();
 
-        viewModelDogList.getChosenDogFromListLive().observe(
+        appViewModel.getChosenDogFromListLive().observe(
                 getViewLifecycleOwner(),(dog) -> {
 
                     if(dog != null) {
                         dogInfoDogName.setText(dog.getName());
-                        String description = dog.getId() + ", " + dog.getImageResId();
-                        dogInfoDogDescription.setText(description);
+                        dogInfoDogDescription.setText(buildDogDescription(dog));
+                        dogInfoDogLastWalk.setText(
+                                sb.append(getResources().getString(R.string.dog_last_walk))
+                                        .append("  ")
+                                .append(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
+                        );
 
                     } else {
+                        // TODO: hide button
                         dogInfoDogName.setText("");
                         dogInfoDogDescription.setText("");
                     }
@@ -66,19 +114,83 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         );
     }
 
-    @Override
+        @Override
     public void onClick(View v) {
 
-        Log.d("myTags", "FragmentDogInfo.onClick()");
+            switch(v.getTag().toString()) {
 
-        switch(v.getTag().toString()) {
-
-            case "walk_dog":
-
-                viewModelDogList.walkDog();
+            case "walkDog":
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "----------- WALK DOG BUTTON -----------");
+                Log.d(LOG_TAG, "--");
+                appViewModel.walkDog();
                 break;
 
+                case "seeWalkRecords":
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "----------- SEE WALKS BUTTON -----------");
+                    Log.d(LOG_TAG, "--");
+                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SEE_WALK_RECORDS_CALL);
+                    break;
+        }
+    }
+
+    private String buildDogDescription(Dog dog) {
+
+        String result;
+
+        if(dog.getDescription() == null) {
+            result = buildDefaultDogDescription();
+
+        } else {
+            result = dog.getDescription();
         }
 
+        return result;
+    }
+
+    private String buildDefaultDogDescription() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getResources().getString(R.string.dog_character))
+                .append(getResources().getString(R.string.dog_age))
+                .append(getResources().getString(R.string.dog_weight))
+                .append(getResources().getString(R.string.dog_color))
+                .append(getResources().getString(R.string.dog_home));
+        return sb.toString();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStart() call");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStop() call");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
+        appViewModel.resetDogBufferVariables();
     }
 }

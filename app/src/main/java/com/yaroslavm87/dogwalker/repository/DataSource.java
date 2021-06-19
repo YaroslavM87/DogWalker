@@ -1,6 +1,6 @@
 package com.yaroslavm87.dogwalker.repository;
 
-public abstract class DataSource<T> {
+public abstract class DataSource {
 
     public enum Type {
         LOCAL_STORAGE,
@@ -13,13 +13,13 @@ public abstract class DataSource<T> {
         this.dataSourceType = dataSourceType;
     }
 
-    public abstract void read();
+    public abstract void read(RepoOperations operation, Object value);
 
-    public abstract void add(T dataToAdd);
+    public abstract void add(RepoOperations operation, Object value);
 
-    public abstract void update(T updatedData);
+    public abstract void update(RepoOperations operation, Object value);
 
-    public abstract void delete(T dataToDelete);
+    public abstract void delete(RepoOperations operation, Object value);
 
     public Type getType() {
         return this.dataSourceType;

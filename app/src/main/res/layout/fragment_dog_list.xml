@@ -56,6 +56,16 @@
             android:layout_marginBottom="2dp"
             />
 
+        <EditText
+            android:id="@+id/dog_list_dog_name_edit_text"
+            style="@style/rootTextViewStyle"
+            />
+
+        <Button
+            android:id="@+id/dog_list_add_dog_button"
+            style="@style/rootTextViewStyle"
+            />
+
     </LinearLayout>
 
 </LinearLayout>

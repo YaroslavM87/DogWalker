@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.model.Model;
 import com.yaroslavm87.dogwalker.model.ModelBuilder;
+import com.yaroslavm87.dogwalker.model.WalkRecord;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.notifications.Subscriber;
@@ -16,16 +17,21 @@ import com.yaroslavm87.dogwalker.notifications.Subscriber;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implements Subscriber {
+public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements Subscriber {
 
     private Model model;
     private Publisher PUBLISHER;
     private MutableLiveData<ArrayList<Dog>> listOfDogsLive;
-    private MutableLiveData<Integer> insertedDogIndexLive, changedDogIndexLive, deletedDogIndexLive, chosenIndexOfDogFromListLive;
+    private MutableLiveData<ArrayList<WalkRecord>> listOfWalkRecordsLive;
+    private MutableLiveData<Integer> insertedDogIndexLive,
+            changedDogIndexLive,
+            deletedDogIndexLive,
+            chosenIndexOfDogFromListLive,
+            insertedWalkRecordIndexLive;
     private MutableLiveData<Dog> chosenDogFromListLive;
     private String LOG_TAG;
 
-    public ViewModelDogList(Application application) {
+    public AppViewModel(Application application) {
         super(application);
         initEntities(application);
         setEntities();
@@ -58,7 +64,7 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
             case MODEL_LIST_DOGS_ITEM_ADDED:
                 if(updatedValue instanceof Integer) {
-                    Log.d(LOG_TAG, "ViewModelDogList.receiveUpdate().dogAdded at index = " + (int) updatedValue);
+                    Log.d(LOG_TAG, "AppsViewModel.receiveUpdate().dogAdded at index = " + (int) updatedValue);
                     insertedDogIndexLive.postValue((int) updatedValue);
                 }
                 break;
@@ -72,6 +78,13 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
             case MODEL_LIST_DOGS_ITEM_DELETED:
                 if(updatedValue instanceof Integer) {
                     deletedDogIndexLive.postValue((int) updatedValue);
+                }
+                break;
+
+            case MODEL_LIST_WALK_RECORDS_ITEM_ADDED:
+                if(updatedValue instanceof Integer) {
+                    Log.d(LOG_TAG, "AppsViewModel.receiveUpdate().walkRecordAdded at index = " + (int) updatedValue);
+                    insertedWalkRecordIndexLive.postValue((int) updatedValue);
                 }
                 break;
 
@@ -96,35 +109,37 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
     }
 
     public void walkDog() {
-        Log.d(LOG_TAG, "ViewModelDogList.receiveUpdate().dogAdded at index = " + chosenIndexOfDogFromListLive.getValue());
+        Log.d(LOG_TAG, "AppsViewModel.walkDog() index = " + chosenIndexOfDogFromListLive.getValue());
 
         if(Objects.requireNonNull(chosenIndexOfDogFromListLive.getValue()) > -1) {
             model.walkDog(chosenIndexOfDogFromListLive.getValue());
-            resetDogBufferVariables();
+            //resetDogBufferVariables();
         }
     }
 
     public void sortName() {
-
-        model.getListOfDogs().sort(
+        model.getRefOfListDogs().sort(
                 (dog1, dog2) -> dog1.getName().compareTo(dog2.getName())
 
         );
 
-        listOfDogsLive.postValue(model.getListOfDogs());
+        listOfDogsLive.postValue(model.getRefOfListDogs());
     }
 
     public void sortTime() {
-
-        model.getListOfDogs().sort(
+        model.getRefOfListDogs().sort(
                 (dog1, dog2) -> (int) (dog1.getLastTimeWalk() - dog2.getLastTimeWalk())
         );
 
-        listOfDogsLive.postValue(model.getListOfDogs());
+        listOfDogsLive.postValue(model.getRefOfListDogs());
     }
 
     public void setCurrentChosenDog(Dog dog) {
-        //Log.d(LOG_TAG, "ViewModelDogList.setCurrentChosenDogByIndex() call = " + dog.getName());
+        Log.d(LOG_TAG, "--");
+        Log.d(LOG_TAG, "--");
+        Log.d(LOG_TAG, "----------- SET CURRENT DOG = " + dog.getName() + " -----------");
+        Log.d(LOG_TAG, "--");
+        Log.d(LOG_TAG, "AppsViewModel.setCurrentChosenDog()");
         chosenDogFromListLive.postValue(dog);
     }
 
@@ -133,9 +148,9 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
         chosenIndexOfDogFromListLive.postValue(index);
     }
 
-    public LiveData<ArrayList<Dog>> getListOfDogsLive() {
-        return listOfDogsLive;
-    }
+//    public LiveData<ArrayList<Dog>> getListOfDogsLive() {
+//        return listOfDogsLive;
+//    }
 
     public LiveData<Integer> getInsertedDogIndexLive() {
         return insertedDogIndexLive;
@@ -147,6 +162,14 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
 
     public LiveData<Integer> getDeletedDogIndexLive() {
         return deletedDogIndexLive;
+    }
+
+//    public LiveData<ArrayList<WalkRecord>> getListOfWalkRecordsLive() {
+//        return listOfWalkRecordsLive;
+//    }
+
+    public LiveData<Integer> getInsertedWalkRecordIndexLive() {
+        return insertedWalkRecordIndexLive;
     }
 
     public LiveData<Dog> getChosenDogFromListLive() {
@@ -166,9 +189,19 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
         insertedDogIndexLive = new MutableLiveData<>();
         changedDogIndexLive = new MutableLiveData<>();
         deletedDogIndexLive = new MutableLiveData<>();
+        listOfWalkRecordsLive = new MutableLiveData<>();
+        insertedWalkRecordIndexLive = new MutableLiveData<>();
         chosenDogFromListLive = new MutableLiveData<>();
         chosenIndexOfDogFromListLive = new MutableLiveData<>();
         LOG_TAG = "myLogs";
+    }
+
+    public ArrayList<Dog> getDogListReference() {
+        return model.getRefOfListDogs();
+    }
+
+    public ArrayList<WalkRecord> getWalkRecordsListReference(Dog dog) {
+        return model.getRefOfListWalkRecordsForDog(dog);
     }
 
     private void setEntities() {
@@ -177,15 +210,14 @@ public class ViewModelDogList extends androidx.lifecycle.AndroidViewModel implem
                 Event.MODEL_LIST_DOGS_ITEM_ADDED,
                 Event.MODEL_LIST_DOGS_ITEM_CHANGED,
                 Event.MODEL_LIST_DOGS_ITEM_DELETED,
+                Event.MODEL_LIST_WALK_RECORDS_ITEM_ADDED,
                 Event.MODEL_ERROR
         );
-
-        listOfDogsLive.setValue(model.getListOfDogs());
 
         resetDogBufferVariables();
     }
 
-    private void resetDogBufferVariables() {
+    public void resetDogBufferVariables() {
         chosenDogFromListLive.postValue(null);
         chosenIndexOfDogFromListLive.postValue(-1);
     }

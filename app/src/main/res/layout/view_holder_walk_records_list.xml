@@ -1,0 +1,14 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_holder_walk_records_list"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="?android:attr/selectableItemBackground" >
+
+    <TextView
+        android:id="@+id/view_holder_walk_records_list_timestamp"
+        style="@style/walkRecordsListTimestampTextViewStyle"
+        />
+
+</LinearLayout>

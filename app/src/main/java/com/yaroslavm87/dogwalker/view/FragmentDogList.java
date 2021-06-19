@@ -2,12 +2,16 @@ package com.yaroslavm87.dogwalker.view;
 
 import androidx.fragment.app.Fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,31 +21,31 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.yaroslavm87.dogwalker.R;
-import com.yaroslavm87.dogwalker.viewModel.ViewModelDogList;
+import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import com.yaroslavm87.dogwalker.model.Dog;
 
-import java.util.ArrayList;
+public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHolderItemClickListener, View.OnClickListener {
 
-public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHolderItemClickListener {
-
-    private ViewModelDogList viewModelDogList;
+    private AppViewModel appViewModel;
     private RecyclerView dogListView;
     private DogListAdapter dogListAdapter;
-    private FragmentDogList.OnFragmentViewClickListener onFragmentViewClickListener;
+    private Button addDogButton;
+    private EditText dogNameEditText;
+    private OnDogListItemClickListener onDogListItemClickListener;
     private String LOG_TAG;
 
     // Log.d(LOG_TAG, "FragmentDogList *** call -> ");
 
-    public interface OnFragmentViewClickListener {
-        void onFragmentViewClick();
+    public interface OnDogListItemClickListener {
+        void onDogListItemClick();
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        if (context instanceof FragmentDogList.OnFragmentViewClickListener) {
-            onFragmentViewClickListener = (FragmentDogList.OnFragmentViewClickListener) context;
+        if (context instanceof OnDogListItemClickListener) {
+            onDogListItemClickListener = (OnDogListItemClickListener) context;
 
         } else {
             throw new ClassCastException(context.toString()
@@ -65,14 +69,39 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     }
 
     @Override
+    public void onClick(View v) {
+
+        switch (v.getTag().toString()) {
+
+            case "addDogButton":
+                String s = dogNameEditText.getText().toString();
+                if(s.toCharArray().length > 1) {
+                    appViewModel.addNewDog(s);
+                    dogNameEditText.setText("");
+                }
+                hideKeyboard();
+                break;
+
+        }
+
+    }
+
+    @Override
     public void onViewHolderItemClick(View view, int position, Dog dog) {
-        viewModelDogList.setCurrentChosenDog(dog);
-        viewModelDogList.setCurrentIndexOfChosenDog(position);
-        onFragmentViewClickListener.onFragmentViewClick();
+
+        // TODO: move this logics to appViewModel
+        if(appViewModel.getChosenIndexOfDogFromListLive().getValue() != null) {
+            if(position == (int) appViewModel.getChosenIndexOfDogFromListLive().getValue())
+                return;
+
+            appViewModel.setCurrentChosenDog(dog);
+            appViewModel.setCurrentIndexOfChosenDog(position);
+            onDogListItemClickListener.onDogListItemClick();
+        }
     }
 
     private void initVariables() {
-        viewModelDogList = new ViewModelProvider(requireActivity()).get(ViewModelDogList.class);
+        appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
         LOG_TAG = "myLogs";
     }
 
@@ -81,7 +110,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         dogListView = (RecyclerView) view.findViewById(R.id.dog_list_view);
         dogListView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        dogListAdapter = new DogListAdapter(new ArrayList<>());
+        dogListAdapter = new DogListAdapter(appViewModel.getDogListReference());
         dogListAdapter.setOnViewHolderItemClickListener(this);
 
         dogListView.setAdapter(dogListAdapter);
@@ -91,28 +120,46 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
                 )
         );
         dogListView.setItemAnimator(new DefaultItemAnimator());
+
+        dogNameEditText = view.findViewById(R.id.dog_list_dog_name_edit_text);
+
+        addDogButton = view.findViewById(R.id.dog_list_add_dog_button);
+        addDogButton.setTag("addDogButton");
+        addDogButton.setOnClickListener(this);
     }
 
     private void subscribeViewElements() {
 
-        viewModelDogList.getListOfDogsLive().observe(
-                getViewLifecycleOwner(),(dogList) -> {
-                    dogListAdapter.setDogList(dogList);
-                    dogListAdapter.notifyDataSetChanged();
-                }
-        );
+//        appViewModel.getListOfDogsLive().observe(
+//                getViewLifecycleOwner(),(dogList) -> {
+//                    dogListAdapter.setDogList(dogList);
+//                    dogListAdapter.notifyDataSetChanged();
+//                }
+//        );
 
-        viewModelDogList.getInsertedDogIndexLive().observe(
+        appViewModel.getInsertedDogIndexLive().observe(
         getViewLifecycleOwner(),(index) -> {
-            dogListAdapter.notifyItemInserted(index);
-            Log.d(LOG_TAG, "FragmentDogList.notifyItemInserted() call");
+                    Log.d(LOG_TAG, "FragmentDogList.subscribeViewElements().getInsertedDogIndexLive() call");
+                    //dogListAdapter.notifyItemInserted(index);
+                    dogListAdapter.notifyDataSetChanged();
                 });
 
-        viewModelDogList.getChangedDogIndexLive().observe(
+        appViewModel.getChangedDogIndexLive().observe(
                 getViewLifecycleOwner(),(index) -> dogListAdapter.notifyItemChanged(index));
 
-        viewModelDogList.getDeletedDogIndexLive().observe(
+        appViewModel.getDeletedDogIndexLive().observe(
                 getViewLifecycleOwner(),(index) -> dogListAdapter.notifyItemRemoved(index));
+    }
+
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = requireActivity().getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(requireActivity());
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 
@@ -132,5 +179,38 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
 //    void receiveIndexOfDogInListDeleted(int dogIndex) {
 //        dogListAdapter.notifyItemRemoved(dogIndex);
 //    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStart() call");
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStop() call");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
+    }
 
 }

@@ -99,6 +99,9 @@
         <item name="android:layout_weight">4</item>
     </style>
 
+    <style name="walkRecordsListTimestampTextViewStyle" parent="rootTextViewStyle">
+    </style>
+
     <style name="dogListLastImeWalkTextViewStyle" parent="rootTextViewStyle">
         <item name="android:layout_weight">6</item>
     </style>

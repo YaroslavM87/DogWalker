@@ -12,34 +12,34 @@ public enum DogRepository implements Repository, Observable {
 
     INSTANCE;
 
-    private final DataSource<Dog> remoteStorage;
+    private final DataSource remoteStorage;
     private final Publisher publisher;
     private final String LOG_TAG;
 
     {
-        this.remoteStorage = new FirebaseDb();
-        this.publisher = Publisher.INSTANCE;
-        this.LOG_TAG = "myLogs";
+        remoteStorage = new FirebaseDb();
+        publisher = Publisher.INSTANCE;
+        LOG_TAG = "myLogs";
     }
 
     @Override
-    public void read() {
-        remoteStorage.read();
+    public void read(RepoOperations operation, Object value) {
+        remoteStorage.read(operation, value);
     }
 
     @Override
-    public void add(Dog dog) {
-        remoteStorage.add(dog);
+    public void add(RepoOperations operation, Object value) {
+        remoteStorage.add(operation, value);
     }
 
     @Override
-    public void update(Dog dog) {
-        remoteStorage.update(dog);
+    public void update(RepoOperations operation, Object value) {
+        remoteStorage.update(operation, value);
     }
 
     @Override
-    public void delete(Dog dog) {
-        remoteStorage.delete(dog);
+    public void delete(RepoOperations operation, Object value) {
+        remoteStorage.delete(operation, value);
     }
 
     void notifyDataChanged(Event event, PassValToSubscriber command) {

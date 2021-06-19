@@ -1,10 +1,8 @@
 package com.yaroslavm87.dogwalker.notifications;
 
 import android.util.Log;
-
 import com.yaroslavm87.dogwalker.commands.CommandExecutor;
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
-
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,11 +11,11 @@ public enum Publisher {
 
     INSTANCE;
 
-    private final EnumMap<Event, List<Subscriber>> listsOfSubscribers;
+    private final EnumMap<Event, List<Subscriber>> LIST_OF_SUBSCRIBERS;
     private final String LOG_TAG;
 
     {
-        listsOfSubscribers = new EnumMap<>(Event.class);
+        LIST_OF_SUBSCRIBERS = new EnumMap<>(Event.class);
         LOG_TAG = "myLogs";
     }
 
@@ -30,13 +28,13 @@ public enum Publisher {
         List<Subscriber> list = getAppropriateListOfSubscribers(event);
 
         for (Subscriber s : subscribers) {
-            Log.d(LOG_TAG, "Publisher.subscribeForEvent() event = " + event);
+            //Log.d(LOG_TAG, "Publisher.subscribeForEvent() event = " + event);
 
             if(!list.contains(s)) {
 
                 list.add(s);
-                Log.d(LOG_TAG, "------------------------- list of subscribers length = " + list.size());
-                Log.d(LOG_TAG, "------------------------- subscriber = " + s.toString());
+                //Log.d(LOG_TAG, "------------------------- list of subscribers length = " + list.size());
+                //Log.d(LOG_TAG, "------------------------- subscriber = " + s.toString());
 
 
             }
@@ -53,7 +51,7 @@ public enum Publisher {
 
     public void cancelSubscription(Subscriber subscriber, Event event) {
 
-        if(!listsOfSubscribers.containsKey(event)) return;
+        if(!LIST_OF_SUBSCRIBERS.containsKey(event)) return;
 
         List<Subscriber> list = getAppropriateListOfSubscribers(event);
 
@@ -63,7 +61,7 @@ public enum Publisher {
 
             if (list.isEmpty()) {
 
-                listsOfSubscribers.remove(event);
+                LIST_OF_SUBSCRIBERS.remove(event);
             }
         }
     }
@@ -72,14 +70,14 @@ public enum Publisher {
 
         for(Event e : events) {
 
-            if(listsOfSubscribers.containsKey(e)) {
+            if(LIST_OF_SUBSCRIBERS.containsKey(e)) {
 
                 cancelSubscription(subscriber, e);
             }
         }
     }
 
-    public void makeSubscribersReceiveUpdate(Event event, PassValToSubscriber command) {
+    public synchronized void makeSubscribersReceiveUpdate(Event event, PassValToSubscriber command) {
 
         List<Subscriber> list = getAppropriateListOfSubscribers(event);
         Log.d(LOG_TAG, "Publisher.makeSubscribersReceiveUpdate().listSize = " + list.size());
@@ -95,15 +93,15 @@ public enum Publisher {
 
     private List<Subscriber> getAppropriateListOfSubscribers(Event event) {
 
-        if (listsOfSubscribers.containsKey(event)) {
+        if (LIST_OF_SUBSCRIBERS.containsKey(event)) {
 
-            return listsOfSubscribers.get(event);
+            return LIST_OF_SUBSCRIBERS.get(event);
 
         } else {
 
             List<Subscriber> list = new LinkedList<>();
 
-            listsOfSubscribers.put(event, list);
+            LIST_OF_SUBSCRIBERS.put(event, list);
 
             return list;
         }

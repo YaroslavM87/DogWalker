@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/fragment_dog_info"
         tools:context=".view.ActivityMain"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/linear_layout_left_side"
-            android:layout_width="200dp"
-            android:layout_height="300dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/linear_layout_right_side"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/dog_info_dog_name"
-                android:tag="dogInfoDogName"
+                android:id="@+id/dog_info_textview_dog_name"
                 style="@style/dogInfoNameTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:tag="dogInfoDogName"
                 android:text="Флинт" />
 
             <TextView
@@ -38,50 +35,41 @@
                 android:tag="dogInfoDogDescription"
                 style="@style/dogInfoDescriptionTextViewStyle"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
                 android:text="Описание" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linear_layout_right_side"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/linear_layout_left_side"
-            app:layout_constraintTop_toTopOf="parent"
-            >
 
             <TextView
-                android:id="@+id/dog_info_dog_walks_list_header"
-                android:tag="dogInfoDogWalksListHeader"
-                style="@style/rootTextViewStyle"
+                android:id="@+id/dog_info_dog_last_walk"
+                android:tag="dogInfoDogLastWalk"
+                style="@style/dogInfoDescriptionTextViewStyle"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:text="Все прогулки" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="Прогулки" />
 
             <Button
-                android:id="@+id/walk_dog"
+                android:id="@+id/dog_info_button_walk_dog"
                 android:tag="walkDog"
-
                 style="@style/dogInfoWalkDogButtonStyle"
-
+                android:text="Погулять"
                 app:elevation="0dp"
                 app:iconTint="#FFFFFF"
                 app:rippleColor="#9C9C9C"
-                app:strokeWidth="1dp"
                 app:strokeColor="#050505"
+                app:strokeWidth="1dp"
+                />
 
-                android:text="Погулять"
+            <Button
+                android:id="@+id/dog_info_button_see_walk_records"
+                style="@style/dogInfoWalkDogButtonStyle"
+                android:tag="seeWalkRecords"
+                android:text="Посмотреть все прогулки"
+                app:elevation="0dp"
+                app:iconTint="#FFFFFF"
+                app:rippleColor="#9C9C9C"
+                app:strokeColor="#050505"
+                app:strokeWidth="1dp"
 
                 />
         </LinearLayout>

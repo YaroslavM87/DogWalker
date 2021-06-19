@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragmentDogList">
+
+    <fragment
+        android:id="@+id/fragmentDogList"
+        android:name="com.yaroslavm87.dogwalker.view.FragmentDogList"
+        android:label="FragmentDogList" >
+        <action
+            android:id="@+id/action_fragmentDogList_to_fragmentDogInfo"
+            app:destination="@id/fragmentDogInfo" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentDogInfo"
+        android:name="com.yaroslavm87.dogwalker.view.FragmentDogInfo"
+        android:label="FragmentDogInfo" >
+        <action
+            android:id="@+id/action_fragmentDogInfo_to_fragmentWalkRecords"
+            app:destination="@id/fragmentWalkRecords" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentWalkRecords"
+        android:name="com.yaroslavm87.dogwalker.view.FragmentWalkRecords"
+        android:label="FragmentWalkRecords"
+        app:popUpTo="@+id/fragmentDogList"
+        app:popUpToInclusive="true"
+        />
+</navigation>

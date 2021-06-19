@@ -34,6 +34,7 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
             itemView.setOnClickListener(this);
         }
 
+        // TODO: it suggested to implement onClick in onCreateViewHolder - check
         @Override
         public void onClick(View v) {
 
@@ -53,7 +54,7 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
     private final String LOG_TAG;
 
     {
-        viewHolderLayout = R.layout.view_holder;
+        viewHolderLayout = R.layout.view_holder_dog_list;
         LOG_TAG = "myLogs";
     }
 
@@ -79,7 +80,7 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
         Dog dog = dogList.get(position);
 
         holder.dogName.setText(dog.getName());
-        holder.dogLastTimeWalk.setText(Functions.parseMillsToDate(dog.getLastTimeWalk()));
+        holder.dogLastTimeWalk.setText(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM"));
 
         Functions.setColorToViewsDependingOnLastTimeWalk(
                 dog.getLastTimeWalk(),
@@ -101,5 +102,11 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
     public void setDogList(ArrayList<Dog> dogList) {
         Log.d(LOG_TAG, "DogListAdapter.setDogList() call");
         this.dogList = dogList;
+    }
+
+    public void clearDogList() {
+        Log.d(LOG_TAG, "DogListAdapter.clearDogList() call");
+        dogList.clear();
+
     }
 }

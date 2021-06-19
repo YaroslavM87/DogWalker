@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 public interface Model {
 
-    ArrayList<Dog> getListOfDogs();
+    ArrayList<Dog> getRefOfListDogs();
+
+    ArrayList<WalkRecord> getRefOfListWalkRecordsForDog(Dog dog);
 
     void createDog(String name);
 

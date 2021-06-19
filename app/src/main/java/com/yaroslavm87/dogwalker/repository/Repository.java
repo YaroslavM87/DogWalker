@@ -4,11 +4,11 @@ import com.yaroslavm87.dogwalker.model.Dog;
 
 public interface Repository {
 
-    void read();
+    void read(RepoOperations operation, Object value);
 
-    void add(Dog dog);
+    void add(RepoOperations operation, Object value);
 
-    void update(Dog dog);
+    void update(RepoOperations operation, Object value);
 
-    void delete(Dog dog);
+    void delete(RepoOperations operation, Object value);
 }
