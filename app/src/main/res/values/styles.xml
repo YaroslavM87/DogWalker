@@ -2,11 +2,22 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents">
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+
+
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+
 
         <!-- Customize your theme here. -->
 
         <!--
+            <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -91,26 +102,43 @@
         -->
     </style>
 
+
+    <style name="dog_list_header_name_txtv" parent="rootTextViewStyle">
+        <item name="android:layout_width">250dp</item>
+    </style>
+    <style name="dog_list_header_last_time_walk_txtv" parent="rootTextViewStyle">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="dog_list_vh_name_txtv" parent="rootTextViewStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:gravity">start</item>
+        <item name="android:background">@drawable/doglist_item_background_top</item>
+        <item name="android:paddingStart">40dp</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+    <style name="dog_list_vh_last_time_walk_txtv" parent="rootTextViewStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:gravity">end</item>
+        <item name="android:background">@drawable/doglist_item_background_bottom</item>
+        <item name="android:paddingEnd">40dp</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
     <style name="dogInfoNameTextViewStyle" parent="rootTextViewStyle">
         <item name="android:textSize">40sp</item>
     </style>
+    <style name="dogInfoDescriptionTextViewStyle" parent="rootTextViewStyle">
 
-    <style name="dogListNameTextViewStyle" parent="rootTextViewStyle">
-        <item name="android:layout_weight">4</item>
     </style>
 
     <style name="walkRecordsListTimestampTextViewStyle" parent="rootTextViewStyle">
     </style>
 
-    <style name="dogListLastImeWalkTextViewStyle" parent="rootTextViewStyle">
-        <item name="android:layout_weight">6</item>
-    </style>
-
-    <style name="dogInfoDescriptionTextViewStyle" parent="rootTextViewStyle">
-
-    </style>
-
-    <style name="rootButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+    <style name="root_btn" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:layout_margin">2dp</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:layout_width">wrap_content</item>
@@ -151,7 +179,18 @@
         -->
     </style>
 
-    <style name="dogInfoWalkDogButtonStyle" parent="rootButtonStyle">
+    <style name="dog_add_dog_btn" parent="root_btn">
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">40dp</item>
+        <!--
+        -->
+    </style>
+
+    <style name="dog_info_walk_dog_btn" parent="root_btn">
+
+
+
         <!--
         -->
     </style>

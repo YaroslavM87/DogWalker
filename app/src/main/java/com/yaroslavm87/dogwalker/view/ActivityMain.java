@@ -1,11 +1,9 @@
 package com.yaroslavm87.dogwalker.view;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.Intent;
@@ -46,6 +44,9 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         if (isCurrentUserAuthenticated()) {
             initVariables();
@@ -99,11 +100,17 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     public void onDogInfoItemClick(FragmentDogInfo.FragmentEvents event) {
         switch (event) {
 
-            case WALK_DOG_CALL:
+            case WALK_CALL:
+                appViewModel.walkDog();
                 break;
 
             case SEE_WALK_RECORDS_CALL:
                 navController.navigate(R.id.action_fragmentDogInfo_to_fragmentWalkRecords);
+                break;
+
+            case REMOVE_FROM_LIST_CALL:
+                navController.popBackStack();
+                appViewModel.deleteDog();
                 break;
         }
     }

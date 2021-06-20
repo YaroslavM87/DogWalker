@@ -19,7 +19,7 @@ public class ModelBuilder {
         //model.setRepository(new SQLiteDbAdapter(context));
 
         if(!initialized) {
-            model.setRepository(DogRepository.INSTANCE);
+            model.setRepo(DogRepository.INSTANCE);
 
 //            model.subscribeModelForEvents(
 //                    Event.REPO_NEW_DOG_OBJ_AVAILABLE,

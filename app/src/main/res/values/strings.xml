@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">DogWalker</string>
 
-    <string name="dog_character">Характер:</string>
-    <string name="dog_age">\n\nВозраст:</string>
-    <string name="dog_weight">\n\nВес:</string>
-    <string name="dog_color">\n\nРост:</string>
-    <string name="dog_home">\n\nПрописка:</string>
-    <string name="dog_last_walk">\n\nПрогулки:</string>
+    <string name="dog_list_header">Питомцы приюта</string>
+
+
+    <string name="dog_character">Характер</string>
+    <string name="dog_home">\n\n\nПрописка</string>
+    <string name="dog_last_walk">\n\n\nГулял(а)</string>
 
 </resources>

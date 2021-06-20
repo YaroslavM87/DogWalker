@@ -24,16 +24,11 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     private AppViewModel appViewModel;
     private TextView dogInfoDogName, dogInfoDogDescription, dogInfoDogLastWalk;
-    private Button walkDog;
-    private Button seeWalkRecords;
+    private Button walkDog,seeWalkRecords, removeDogFromList;
     private OnDogInfoItemClickListener onDogInfoItemClickListener;
-    private final StringBuilder SB;
     private final String LOG_TAG;
-
-
-
+    
     {
-        SB = new StringBuilder();
         LOG_TAG = "myLogs";
     }
 
@@ -42,8 +37,9 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     }
 
     public enum FragmentEvents{
-        WALK_DOG_CALL,
-        SEE_WALK_RECORDS_CALL
+        WALK_CALL,
+        SEE_WALK_RECORDS_CALL,
+        REMOVE_FROM_LIST_CALL
     }
 
     @Override
@@ -74,13 +70,12 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         subscribeViewElements();
     }
 
-    //void clearWalkRecordList() {}
-
     private void initVariables() {
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
     }
 
     private void initViewElements(View view) {
+
         dogInfoDogName = view.findViewById(R.id.dog_info_textview_dog_name);
         dogInfoDogDescription = view.findViewById(R.id.dog_info_dog_description);
         dogInfoDogLastWalk = view.findViewById(R.id.dog_info_dog_last_walk);
@@ -88,20 +83,23 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         walkDog.setOnClickListener(this);
         seeWalkRecords = view.findViewById(R.id.dog_info_button_see_walk_records);
         seeWalkRecords.setOnClickListener(this);
+        removeDogFromList = view.findViewById(R.id.dog_info_button_remove_dog);
+        removeDogFromList.setOnClickListener(this);
     }
 
     private void subscribeViewElements() {
-        StringBuilder sb = new StringBuilder();
 
         appViewModel.getChosenDogFromListLive().observe(
                 getViewLifecycleOwner(),(dog) -> {
 
                     if(dog != null) {
-                        dogInfoDogName.setText(dog.getName());
+                        StringBuilder sb = new StringBuilder();
+                        dogInfoDogName.setText(Functions.capitalize(dog.getName()));
                         dogInfoDogDescription.setText(buildDogDescription(dog));
+                        //dogInfoDogLastWalk.setText("");
                         dogInfoDogLastWalk.setText(
                                 sb.append(getResources().getString(R.string.dog_last_walk))
-                                        .append("  ")
+                                        .append(" ")
                                 .append(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
                         );
 
@@ -112,6 +110,28 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                     }
                 }
         );
+
+        appViewModel.getChangedDogLive().observe(
+                getViewLifecycleOwner(), (dog) -> {
+
+                    Dog chosenDog = appViewModel.getChosenDogFromListLive().getValue();
+
+                    assert dog != null;
+                    assert chosenDog != null;
+
+                    if(chosenDog.equals(dog)) {
+                        StringBuilder sb = new StringBuilder();
+                        dogInfoDogDescription.setText(buildDogDescription(dog));
+                        dogInfoDogLastWalk.setText("");
+                        dogInfoDogLastWalk.setText(
+                                sb.append(getResources().getString(R.string.dog_last_walk))
+                                        .append(" ")
+                                        .append(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
+                        );
+                    }
+                }
+        );
+
     }
 
         @Override
@@ -119,13 +139,13 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
             switch(v.getTag().toString()) {
 
-            case "walkDog":
+            case "walk":
                 Log.d(LOG_TAG, "--");
                 Log.d(LOG_TAG, "--");
                 Log.d(LOG_TAG, "--");
                 Log.d(LOG_TAG, "----------- WALK DOG BUTTON -----------");
                 Log.d(LOG_TAG, "--");
-                appViewModel.walkDog();
+                onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.WALK_CALL);
                 break;
 
                 case "seeWalkRecords":
@@ -135,6 +155,15 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                     Log.d(LOG_TAG, "----------- SEE WALKS BUTTON -----------");
                     Log.d(LOG_TAG, "--");
                     onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SEE_WALK_RECORDS_CALL);
+                    break;
+
+                case "removeFromList":
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "----------- REMOVE BUTTON -----------");
+                    Log.d(LOG_TAG, "--");
+                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.REMOVE_FROM_LIST_CALL);
                     break;
         }
     }
@@ -156,9 +185,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     private String buildDefaultDogDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append(getResources().getString(R.string.dog_character))
-                .append(getResources().getString(R.string.dog_age))
-                .append(getResources().getString(R.string.dog_weight))
-                .append(getResources().getString(R.string.dog_color))
                 .append(getResources().getString(R.string.dog_home));
         return sb.toString();
     }

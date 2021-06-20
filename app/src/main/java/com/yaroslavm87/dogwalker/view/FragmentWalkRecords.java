@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
+import com.yaroslavm87.dogwalker.viewModel.Functions;
 
 import java.util.ArrayList;
 
@@ -84,7 +85,7 @@ public class FragmentWalkRecords extends Fragment {
                     if(dog != null) {
                         walkRecordsListAdapter.setWalkRecordsList(appViewModel.getWalkRecordsListReference(dog));
                         walkRecordsListAdapter.notifyDataSetChanged();
-                        String headerLine = "Все прогулки питомца " + dog.getName();
+                        String headerLine = "Все прогулки питомца " + Functions.capitalize(dog.getName());
                         walkRecordsListHeader.setText(headerLine);
 
                     } else {

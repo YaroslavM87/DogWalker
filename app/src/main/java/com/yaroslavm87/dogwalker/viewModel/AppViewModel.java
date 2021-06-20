@@ -28,7 +28,7 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
             deletedDogIndexLive,
             chosenIndexOfDogFromListLive,
             insertedWalkRecordIndexLive;
-    private MutableLiveData<Dog> chosenDogFromListLive;
+    private MutableLiveData<Dog> chosenDogFromListLive, changedDogLive;
     private String LOG_TAG;
 
     public AppViewModel(Application application) {
@@ -72,6 +72,9 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
             case MODEL_LIST_DOGS_ITEM_CHANGED:
                 if(updatedValue instanceof Integer) {
                     changedDogIndexLive.postValue((int) updatedValue);
+
+                } else if (updatedValue instanceof Dog) {
+                    changedDogLive.postValue((Dog) updatedValue);
                 }
                 break;
 
@@ -118,20 +121,20 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     }
 
     public void sortName() {
-        model.getRefOfListDogs().sort(
+        model.getReferenceDogs().sort(
                 (dog1, dog2) -> dog1.getName().compareTo(dog2.getName())
 
         );
 
-        listOfDogsLive.postValue(model.getRefOfListDogs());
+        listOfDogsLive.postValue(model.getReferenceDogs());
     }
 
     public void sortTime() {
-        model.getRefOfListDogs().sort(
+        model.getReferenceDogs().sort(
                 (dog1, dog2) -> (int) (dog1.getLastTimeWalk() - dog2.getLastTimeWalk())
         );
 
-        listOfDogsLive.postValue(model.getRefOfListDogs());
+        listOfDogsLive.postValue(model.getReferenceDogs());
     }
 
     public void setCurrentChosenDog(Dog dog) {
@@ -176,6 +179,10 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         return chosenDogFromListLive;
     }
 
+    public LiveData<Dog> getChangedDogLive() {
+        return changedDogLive;
+    }
+
     public LiveData<Integer> getChosenIndexOfDogFromListLive() {
         return chosenIndexOfDogFromListLive;
     }
@@ -192,16 +199,17 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         listOfWalkRecordsLive = new MutableLiveData<>();
         insertedWalkRecordIndexLive = new MutableLiveData<>();
         chosenDogFromListLive = new MutableLiveData<>();
+        changedDogLive = new MutableLiveData<>();
         chosenIndexOfDogFromListLive = new MutableLiveData<>();
         LOG_TAG = "myLogs";
     }
 
     public ArrayList<Dog> getDogListReference() {
-        return model.getRefOfListDogs();
+        return model.getReferenceDogs();
     }
 
     public ArrayList<WalkRecord> getWalkRecordsListReference(Dog dog) {
-        return model.getRefOfListWalkRecordsForDog(dog);
+        return model.getReferenceWalkRecords(dog);
     }
 
     private void setEntities() {

@@ -27,6 +27,8 @@ public class FirebaseDb extends DataSource {
     private FirebaseDatabase db;
     private final String DOGS_NODE;
     private final String WALK_RECORDS_NODE;
+    private final String REMOVED_DOGS_NODE;
+
 
     private ChildEventListener dogsNodeEventListener, walkRecordsNodeEventListener;
 
@@ -35,6 +37,7 @@ public class FirebaseDb extends DataSource {
     {
         DOGS_NODE = "dog";
         WALK_RECORDS_NODE = "walkRecords";
+        REMOVED_DOGS_NODE= "removedDogs";
         LOG_TAG = "myLogs";
     }
 
@@ -72,6 +75,12 @@ public class FirebaseDb extends DataSource {
                 }
                 break;
 
+            case ADD_DOG_TO_LIST_OF_REMOVED_DOGS:
+                if(value instanceof Dog) {
+                    addDogToListOfRemovedDogs((Dog) value);
+                }
+                break;
+
         }
     }
 
@@ -89,8 +98,14 @@ public class FirebaseDb extends DataSource {
 
     @Override
     public void delete(RepoOperations operation, Object value) {
-//        Log.d(LOG_TAG, "FirebaseDb.delete() call");
-//        db.getReference("dog").child(dog.getName()).setValue(null);
+        switch(operation) {
+
+            case DELETE_DOG:
+                if(value instanceof Dog) {
+                    deleteDog((Dog) value);
+                }
+                break;
+        }
     }
 
     void initDb() {
@@ -164,12 +179,13 @@ public class FirebaseDb extends DataSource {
     }
 
     private void deleteDog(Dog dog) {
-//        Log.d(LOG_TAG, "FirebaseDb.deleteDog() call");
-//        String key = db.getReference().child(DOGS_NODE).push().getKey();
-//        if(key != null) {
-//            dog.setId(key);
-//            db.getReference().child(DOGS_NODE).child(key).setValue(dog);
-//        }
+        Log.d(LOG_TAG, "FirebaseDb.deleteDog() call");
+        db.getReference().child(DOGS_NODE).child(dog.getId()).setValue(null);
+    }
+
+    private void addDogToListOfRemovedDogs(Dog dog) {
+        Log.d(LOG_TAG, "FirebaseDb.addDogToListOfRemovedDogs() call");
+        db.getReference().child(REMOVED_DOGS_NODE).child(dog.getId()).setValue(dog);
     }
 
     private ChildEventListener createDogNodeEventListener() {

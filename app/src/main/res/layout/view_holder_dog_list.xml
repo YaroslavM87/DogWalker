@@ -1,19 +1,52 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/view_holder"
+    android:id="@+id/list_dogs_view_holder_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:gravity="start"
     android:background="?android:attr/selectableItemBackground" >
 
-    <TextView
-        android:id="@+id/view_holder_dog_list_name"
-        style="@style/dogListNameTextViewStyle"
-        />
+    <LinearLayout
+        android:id="@+id/list_dogs_view_holder_left"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:gravity="center"
+        >
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="#B8B6B6"
+            />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/view_holder_dog_list_last_time_walk"
-        style="@style/dogListLastImeWalkTextViewStyle"
-        />
+    <LinearLayout
+        android:id="@+id/list_dogs_view_holder_right"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        >
 
+        <TextView
+            android:id="@+id/view_holder_dog_list_name"
+            style="@style/dog_list_vh_name_txtv"
+            />
+
+        <TextView
+            android:id="@+id/view_holder_dog_list_last_time_walk"
+            style="@style/dog_list_vh_last_time_walk_txtv"
+            />
+
+    </LinearLayout>
 </LinearLayout>
+
+<!--<ImageView-->
+<!--android:id="@+id/icon"-->
+<!--android:layout_width="40dp"-->
+<!--android:layout_height="match_parent"-->
+<!--android:background="#fa2255"-->
+<!--android:src="@drawable/catlove"-->
+<!--    />-->

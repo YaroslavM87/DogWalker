@@ -76,17 +76,15 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
     @Override
     public void onBindViewHolder(@NonNull DogListViewHolder holder, int position) {
         //Log.d(LOG_TAG, "RVAdapter.onBindViewHolder() call");
-
         Dog dog = dogList.get(position);
-
-        holder.dogName.setText(dog.getName());
+        holder.dogName.setText(Functions.capitalize(dog.getName()));
         holder.dogLastTimeWalk.setText(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM"));
 
-        Functions.setColorToViewsDependingOnLastTimeWalk(
-                dog.getLastTimeWalk(),
-                holder.dogName,
-                holder.dogLastTimeWalk
-        );
+//        Functions.setColorToViewsDependingOnLastTimeWalk(
+//                dog.getLastTimeWalk(),
+//                holder.dogName,
+//                holder.dogLastTimeWalk
+//        );
     }
 
     @Override

@@ -64,6 +64,13 @@ public class ListOfDogs implements Observable, Subscriber {
                                 indexOfDogToReplace
                         )
                 );
+                PUBLISHER.makeSubscribersReceiveUpdate(
+                        Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                                dog
+                        )
+                );
                 break;
             }
         }

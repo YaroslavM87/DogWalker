@@ -34,40 +34,28 @@ public enum AppModel implements Model {
         Log.d(LOG_TAG, "Model() constructor call");
     }
 
-    //TODO: разделить на два метода - проверка списка и запрос в БД если пустой, и возврат списка
-    public ArrayList<Dog> getRefOfListDogs() {
-//
-//        if(LIST_OF_DOGS.getList().isEmpty()) {
-//
-//            Log.d(LOG_TAG, "EntitiesComEnv.getListOfDogs() call");
-//
-//            startRepoLoadingListOfDogs();
-//        }
+    public ArrayList<Dog> getReferenceDogs() {
+        Log.d(LOG_TAG, "--");
+        Log.d(LOG_TAG, "--");
+        Log.d(LOG_TAG, "----------- GET REF OF DOG LIST -----------");
+        Log.d(LOG_TAG, "--");
+        Log.d(LOG_TAG, "Model.getReferenceDogs() call");
+
         LIST_OF_DOGS.getList().clear();
-        startRepoLoadingListOfDogs();
+        repoReadDogs();
         return LIST_OF_DOGS.getList();
     }
 
-    public ArrayList<WalkRecord> getRefOfListWalkRecordsForDog(Dog dog) {
-//
-//        if(LIST_OF_DOGS.getList().isEmpty()) {
-//
-//            Log.d(LOG_TAG, "EntitiesComEnv.getListOfDogs() call");
-//
-//            startRepoLoadingListOfDogs();
-//        }
+    public ArrayList<WalkRecord> getReferenceWalkRecords(Dog dog) {
         Log.d(LOG_TAG, "--");
         Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "----------- GET REF OF WALKS LIST -----------");
+        Log.d(LOG_TAG, "----------- GET REF OF WALK LIST -----------");
         Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "Model.getRefOfListWalkRecordsForDog() call");
-
-        //if(LIST_OF_WALK_RECORDS_FOR_DOG.getList().size() != 0)
+        Log.d(LOG_TAG, "Model.getReferenceWalkRecords(Dog dog) call");
 
         // TODO: check if duplicating method can be removed from rvadapter
         LIST_OF_WALK_RECORDS_FOR_DOG.clearList();
-
-        startRepoLoadingListOfWalkRecordsForDog(dog);
+        repoReadWalkRecords(dog);
         return LIST_OF_WALK_RECORDS_FOR_DOG.getList();
     }
 
@@ -86,18 +74,10 @@ public enum AppModel implements Model {
                             "error message"
                     )
             );
-            return;
+
+        } else {
+            repoAddDog(newDog);
         }
-
-        new Thread(() -> {
-            try{
-                Log.d(LOG_TAG, "Model.createDog().repository.add(newDog) call");
-                repository.add(RepoOperations.CREATE_DOG, newDog);
-
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.createDog() EXCEPTION: " + e);
-            }
-        }).start();
     }
 
     public void walkDog(int index) {
@@ -108,17 +88,10 @@ public enum AppModel implements Model {
         long timeDelta = currentTime - updatedDog.getLastTimeWalk();
 
         if(timeDelta == 0 || timeDelta >= TIME_TO_REST_AFTER_WALK) {
+
             updatedDog.setLastTimeWalk(currentTime);
 
-            new Thread(() -> {
-                try{
-                    Log.d(LOG_TAG, "Model.walkDog().repository.update(updatedDog) call");
-                    repository.update(RepoOperations.CREATE_RECORD_OF_DOG_WALK, updatedDog);
-
-                } catch (Exception e) {
-                    Log.d(LOG_TAG, "Model.createDog() EXCEPTION: " + e);
-                }
-            }).start();
+            repoAddWalkRecord(updatedDog);
 
         } else {
             long timeUntilNextWalk = TIME_TO_REST_AFTER_WALK - timeDelta;
@@ -136,45 +109,88 @@ public enum AppModel implements Model {
 
     public void deleteDog(int index) {
         Log.d(LOG_TAG, "Model.deleteDog() call");
-        new Thread(() -> {
-            try{
-                this.repository.delete(RepoOperations.DELETE_DOG, LIST_OF_DOGS.getDog(index));
+        Dog dogToDelete = LIST_OF_DOGS.getDog(index);
 
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.deleteDog() EXCEPTION: " + e);
-            }
-        }).start();
+        repoDeleteDog(dogToDelete);
+
+        repoAddDogToRemoved(dogToDelete);
     }
 
-    void setRepository(Repository repository) {
+    void setRepo(Repository repository) {
         Log.d(LOG_TAG, "Model.setRepository() call");
         this.repository = repository;
     }
 
-    void startRepoLoadingListOfDogs() {
+    private void repoReadDogs() {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.startRepoLoadingListOfDogs() call");
+                Log.d(LOG_TAG, "Model.repoReadDogs() call");
                 repository.read(RepoOperations.READ_LIST_OF_DOGS, null);
 
             } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.startRepoLoadingListOfDogs() EXCEPTION: " + e);
+                Log.d(LOG_TAG, "Model.repoReadDogs() EXCEPTION: " + e);
             }
         }).start();
     }
 
-    void startRepoLoadingListOfWalkRecordsForDog(Dog dog) {
-        //if (count++ < 1) {
+    private void repoReadWalkRecords(Dog dog) {
             new Thread(() -> {
                 try {
-                    Log.d(LOG_TAG, "Model.startRepoLoadingListOfWalkRecordsForDog() call");
+                    Log.d(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) call");
                     repository.read(RepoOperations.READ_LIST_OF_WALKS_FOR_DOG, dog);
 
                 } catch (Exception e) {
-                    Log.d(LOG_TAG, "Model.startRepoLoadingListOfWalkRecordsForDog() EXCEPTION: " + e);
+                    Log.d(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) EXCEPTION: " + e);
                 }
             }).start();
-       // }
+    }
+
+    private void repoAddDog(Dog newDog) {
+        new Thread(() -> {
+            try{
+                Log.d(LOG_TAG, "Model.repoAddDog(Dog newDog) call");
+                repository.add(RepoOperations.CREATE_DOG, newDog);
+
+            } catch (Exception e) {
+                Log.d(LOG_TAG, "Model.repoAddDog(Dog newDog) EXCEPTION: " + e);
+            }
+        }).start();
+    }
+
+    private void repoAddWalkRecord(Dog updatedDog) {
+        new Thread(() -> {
+            try{
+                Log.d(LOG_TAG, "Model.repoAddWalkRecord(Dog updatedDog) call");
+                repository.update(RepoOperations.CREATE_RECORD_OF_DOG_WALK, updatedDog);
+
+            } catch (Exception e) {
+                Log.d(LOG_TAG, "Model.repoAddWalkRecord(Dog updatedDog) EXCEPTION: " + e);
+            }
+        }).start();
+    }
+
+    private void repoDeleteDog(Dog dogToDelete) {
+        new Thread(() -> {
+            try{
+                Log.d(LOG_TAG, "Model.repoDeleteDog(Dog dogToDelete) call");
+                this.repository.delete(RepoOperations.DELETE_DOG, dogToDelete);
+
+            } catch (Exception e) {
+                Log.d(LOG_TAG, "Model.repoDeleteDog(Dog dogToDelete) EXCEPTION: " + e);
+            }
+        }).start();
+    }
+
+    private void repoAddDogToRemoved(Dog dogRemoved) {
+        new Thread(() -> {
+            try{
+                Log.d(LOG_TAG, "Model.repoAddDogToRemoved(Dog dogRemoved) call");
+                repository.add(RepoOperations.ADD_DOG_TO_LIST_OF_REMOVED_DOGS, dogRemoved);
+
+            } catch (Exception e) {
+                Log.d(LOG_TAG, "Model.repoAddDogToRemoved(Dog dogRemoved) EXCEPTION: " + e);
+            }
+        }).start();
     }
 
 //    void subscribeModelForEvents(Event... events) {
