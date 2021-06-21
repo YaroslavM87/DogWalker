@@ -10,10 +10,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import com.yaroslavm87.dogwalker.R;
-import com.yaroslavm87.dogwalker.viewModel.Functions;
+import com.yaroslavm87.dogwalker.viewModel.Tools;
 import com.yaroslavm87.dogwalker.model.Dog;
 
-public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListViewHolder> {
+public class DogListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface OnViewHolderItemClickListener {
         void onViewHolderItemClick(View view, int position, Dog dog);
@@ -28,8 +28,8 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
             super(itemView);
             //Log.d(LOG_TAG, "RVAdapter.MyViewHolder() instance just created");
 
-            dogName = itemView.findViewById(R.id.view_holder_dog_list_name);
-            dogLastTimeWalk = itemView.findViewById(R.id.view_holder_dog_list_last_time_walk);
+            dogName = itemView.findViewById(R.id.name);
+            dogLastTimeWalk = itemView.findViewById(R.id.description);
 
             itemView.setOnClickListener(this);
         }
@@ -52,9 +52,11 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
     private OnViewHolderItemClickListener onViewHolderItemClickListener;
     private final int viewHolderLayout;
     private final String LOG_TAG;
+    private int animation_type = 0;
+
 
     {
-        viewHolderLayout = R.layout.view_holder_dog_list;
+        viewHolderLayout = R.layout.test;
         LOG_TAG = "myLogs";
     }
 
@@ -65,26 +67,36 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
 
     @NonNull
     @Override
-    public DogListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //Log.d(LOG_TAG, "RVAdapter.onCreateViewHolder() call");
-
-        return new DogListViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(viewHolderLayout, parent, false)
-        );
+        RecyclerView.ViewHolder vh;
+        View v = LayoutInflater.from(parent.getContext()).inflate(viewHolderLayout, parent, false);
+        vh = new DogListViewHolder(v);
+        return vh;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DogListViewHolder holder, int position) {
-        //Log.d(LOG_TAG, "RVAdapter.onBindViewHolder() call");
-        Dog dog = dogList.get(position);
-        holder.dogName.setText(Functions.capitalize(dog.getName()));
-        holder.dogLastTimeWalk.setText(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM"));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+        if (holder instanceof DogListViewHolder) {
+            //Log.d(LOG_TAG, "RVAdapter.onBindViewHolder() call");
+            DogListViewHolder originalHolder = (DogListViewHolder) holder;
 
-//        Functions.setColorToViewsDependingOnLastTimeWalk(
-//                dog.getLastTimeWalk(),
-//                holder.dogName,
-//                holder.dogLastTimeWalk
-//        );
+            Dog dog = dogList.get(position);
+//            Tools.displayImageRound(ctx, view.image, p.image);
+            originalHolder.dogName.setText(Tools.capitalize(dog.getName()));
+            originalHolder.dogLastTimeWalk.setText(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM"));
+
+            Tools.setColorTextToViewsDependingOnLastTimeWalk(
+                    dog.getLastTimeWalk(),
+                    //originalHolder.dogName,
+                    originalHolder.dogLastTimeWalk
+            );
+
+            setAnimation(originalHolder.itemView, position);
+        }
+
+
+
     }
 
     @Override
@@ -105,6 +117,34 @@ public class DogListAdapter extends RecyclerView.Adapter<DogListAdapter.DogListV
     public void clearDogList() {
         Log.d(LOG_TAG, "DogListAdapter.clearDogList() call");
         dogList.clear();
+    }
 
+    public void setAnimationType(int type) {
+        animation_type = type;
+    }
+
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                on_attach = false;
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+
+
+
+    private int lastPosition = -1;
+    private boolean on_attach = true;
+
+    private void setAnimation(View view, int position) {
+        if (position > lastPosition) {
+            ItemAnimation.animate(view, on_attach ? position : -1, animation_type);
+            lastPosition = position;
+        }
     }
 }

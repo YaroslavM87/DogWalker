@@ -1,5 +1,7 @@
 package com.yaroslavm87.dogwalker.view;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
@@ -9,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,12 +21,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
-import com.yaroslavm87.dogwalker.viewModel.Functions;
+import com.yaroslavm87.dogwalker.viewModel.Tools;
 
 public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     private AppViewModel appViewModel;
-    private TextView dogInfoDogName, dogInfoDogDescription, dogInfoDogLastWalk;
+    private Toolbar toolbar;
+    private ImageView dogInfoDogName;
+    private TextView dogInfoDogDescription, dogInfoDogLastWalk;
     private Button walkDog,seeWalkRecords, removeDogFromList;
     private OnDogInfoItemClickListener onDogInfoItemClickListener;
     private final String LOG_TAG;
@@ -76,6 +81,9 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     private void initViewElements(View view) {
 
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().hide();
+
+        toolbar = view.findViewById(R.id.dog_info_toolbar);
         dogInfoDogName = view.findViewById(R.id.dog_info_textview_dog_name);
         dogInfoDogDescription = view.findViewById(R.id.dog_info_dog_description);
         dogInfoDogLastWalk = view.findViewById(R.id.dog_info_dog_last_walk);
@@ -94,18 +102,19 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
                     if(dog != null) {
                         StringBuilder sb = new StringBuilder();
-                        dogInfoDogName.setText(Functions.capitalize(dog.getName()));
+                        toolbar.setTitle(Tools.capitalize(dog.getName()));
+                        //dogInfoDogName.setText(Functions.capitalize(dog.getName()));
                         dogInfoDogDescription.setText(buildDogDescription(dog));
                         //dogInfoDogLastWalk.setText("");
                         dogInfoDogLastWalk.setText(
                                 sb.append(getResources().getString(R.string.dog_last_walk))
                                         .append(" ")
-                                .append(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
+                                .append(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
                         );
 
                     } else {
                         // TODO: hide button
-                        dogInfoDogName.setText("");
+                        //dogInfoDogName.setText("");
                         dogInfoDogDescription.setText("");
                     }
                 }
@@ -126,7 +135,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                         dogInfoDogLastWalk.setText(
                                 sb.append(getResources().getString(R.string.dog_last_walk))
                                         .append(" ")
-                                        .append(Functions.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
+                                        .append(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
                         );
                     }
                 }

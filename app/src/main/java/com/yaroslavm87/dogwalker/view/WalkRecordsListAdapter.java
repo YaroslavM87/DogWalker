@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.model.WalkRecord;
-import com.yaroslavm87.dogwalker.viewModel.Functions;
+import com.yaroslavm87.dogwalker.viewModel.Tools;
 
 import java.util.ArrayList;
 
@@ -56,7 +56,7 @@ public class WalkRecordsListAdapter extends RecyclerView.Adapter<WalkRecordsList
     public void onBindViewHolder(@NonNull WalkRecordsListAdapter.WalkRecordListViewHolder holder, int position) {
         //Log.d(LOG_TAG, "WalkRecordsAdapter.onBindViewHolder() call");
         WalkRecord walkRecord = walkRecordsList.get(position);
-        holder.walkRecordTime.setText(Functions.parseMillsToDate(walkRecord.getTimestamp(), "dd MMMM yyyy"));
+        holder.walkRecordTime.setText(Tools.parseMillsToDate(walkRecord.getTimestamp(), "dd MMMM yyyy"));
     }
 
     @Override

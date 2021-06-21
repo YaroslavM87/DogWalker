@@ -3,6 +3,7 @@
 
     <string name="dog_list_header">Питомцы приюта</string>
 
+    <string name="dog_name">Кличка</string>
 
     <string name="dog_character">Характер</string>
     <string name="dog_home">\n\n\nПрописка</string>

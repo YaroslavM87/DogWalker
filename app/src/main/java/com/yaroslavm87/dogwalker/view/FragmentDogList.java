@@ -32,12 +32,18 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     private Button addDogButton;
     private EditText dogNameEditText;
     private OnDogListItemClickListener onDogListItemClickListener;
+    private int animation_type = ItemAnimation.FADE_IN;
     private String LOG_TAG;
 
     // Log.d(LOG_TAG, "FragmentDogList *** call -> ");
 
     public interface OnDogListItemClickListener {
-        void onDogListItemClick();
+        void onDogListItemClick(FragmentDogList.FragmentEvents event);
+    }
+
+    public enum FragmentEvents{
+        ADD_DOG_CALL,
+        DOG_LIST_ITEM_CLICKED
     }
 
     @Override
@@ -79,11 +85,10 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
                     appViewModel.addNewDog(s);
                     dogNameEditText.setText("");
                 }
-                hideKeyboard();
+
+                onDogListItemClickListener.onDogListItemClick(FragmentEvents.ADD_DOG_CALL);
                 break;
-
         }
-
     }
 
     @Override
@@ -96,7 +101,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
 
             appViewModel.setCurrentChosenDog(dog);
             appViewModel.setCurrentIndexOfChosenDog(position);
-            onDogListItemClickListener.onDogListItemClick();
+            onDogListItemClickListener.onDogListItemClick(FragmentEvents.DOG_LIST_ITEM_CLICKED);
         }
     }
 
@@ -112,14 +117,15 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
 
         dogListAdapter = new DogListAdapter(appViewModel.getDogListReference());
         dogListAdapter.setOnViewHolderItemClickListener(this);
+        dogListAdapter.setAnimationType(animation_type);
 
         dogListView.setAdapter(dogListAdapter);
-        dogListView.addItemDecoration(new DividerItemDecoration(
-                view.getContext(),
-                DividerItemDecoration.VERTICAL
-                )
-        );
-        dogListView.setItemAnimator(new DefaultItemAnimator());
+//        dogListView.addItemDecoration(new DividerItemDecoration(
+//                view.getContext(),
+//                DividerItemDecoration.VERTICAL
+//                )
+//        );
+//        dogListView.setItemAnimator(new DefaultItemAnimator());
 
         dogNameEditText = view.findViewById(R.id.dog_list_dog_name_edit_text);
 
@@ -151,17 +157,6 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
                 getViewLifecycleOwner(),(index) -> dogListAdapter.notifyItemRemoved(index));
     }
 
-    public void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = requireActivity().getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(requireActivity());
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
 
 //    void receiveListOfDogs(ArrayList<Dog> dogList){
 //        dogListAdapter.setDogList(dogList);
@@ -191,7 +186,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     public void onResume() {
         super.onResume();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
-
+        dogListAdapter.notifyDataSetChanged();
     }
 
     @Override

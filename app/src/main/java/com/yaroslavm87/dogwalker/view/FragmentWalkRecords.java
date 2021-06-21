@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
-import com.yaroslavm87.dogwalker.viewModel.Functions;
+import com.yaroslavm87.dogwalker.viewModel.Tools;
 
 import java.util.ArrayList;
 
@@ -85,7 +84,7 @@ public class FragmentWalkRecords extends Fragment {
                     if(dog != null) {
                         walkRecordsListAdapter.setWalkRecordsList(appViewModel.getWalkRecordsListReference(dog));
                         walkRecordsListAdapter.notifyDataSetChanged();
-                        String headerLine = "Все прогулки питомца " + Functions.capitalize(dog.getName());
+                        String headerLine = "Все прогулки питомца " + Tools.capitalize(dog.getName());
                         walkRecordsListHeader.setText(headerLine);
 
                     } else {

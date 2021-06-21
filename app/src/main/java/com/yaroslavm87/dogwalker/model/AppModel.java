@@ -41,7 +41,7 @@ public enum AppModel implements Model {
         Log.d(LOG_TAG, "--");
         Log.d(LOG_TAG, "Model.getReferenceDogs() call");
 
-        LIST_OF_DOGS.getList().clear();
+        //LIST_OF_DOGS.getList().clear();
         repoReadDogs();
         return LIST_OF_DOGS.getList();
     }

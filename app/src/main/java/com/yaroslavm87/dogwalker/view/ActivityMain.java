@@ -1,14 +1,18 @@
 package com.yaroslavm87.dogwalker.view;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -92,8 +96,17 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     }
 
     @Override
-    public void onDogListItemClick() {
-        navController.navigate(R.id.action_fragmentDogList_to_fragmentDogInfo);
+    public void onDogListItemClick(FragmentDogList.FragmentEvents event) {
+        switch (event) {
+
+            case ADD_DOG_CALL:
+                hideKeyboard();
+                break;
+
+            case DOG_LIST_ITEM_CLICKED:
+                navController.navigate(R.id.action_fragmentDogList_to_fragmentDogInfo);
+            break;
+        }
     }
 
     @Override
@@ -191,6 +204,29 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
+    }
+
+
+
+    private void signOut() {
+        AuthUI.getInstance().signOut(this).addOnCompleteListener(task -> {
+
+            //Snackbar.make(findViewById(R.id.activity_dog_list), "Выход выполнен", Snackbar.LENGTH_SHORT).show();
+            finish();
+
+        });
+    }
+
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = this.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
 
