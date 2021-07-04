@@ -2,6 +2,7 @@ package com.yaroslavm87.dogwalker.view;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -24,6 +25,7 @@ import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 //public class ActivityDogList extends AppCompatActivity implements View.OnClickListener, FragmentDogList.OnFragmentViewClickListener {
 
@@ -48,12 +50,15 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
+            // .hide();
         }
 
         if (isCurrentUserAuthenticated()) {
             initVariables();
+            //initToolbar();
             //initViewElements();
             //subscribeViewElements();
 
@@ -105,7 +110,7 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
 
             case DOG_LIST_ITEM_CLICKED:
                 navController.navigate(R.id.action_fragmentDogList_to_fragmentDogInfo);
-            break;
+                break;
         }
     }
 

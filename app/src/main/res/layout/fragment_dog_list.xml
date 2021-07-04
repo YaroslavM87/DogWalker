@@ -1,143 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_dog_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="top"
     >
 
     <LinearLayout
-        android:id="@+id/fragment_dog_list_ll_top"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        >
-
-        <TextView
-            android:id="@+id/fragment_dog_list_name_header"
-            style="@style/dog_list_header_name_txtv"
-            android:text="@string/dog_list_header" />
-
-        <EditText
-            android:id="@+id/dog_list_dog_name_edit_text"
-            style="@style/rootTextViewStyle"
-            android:width="50dp"
-            />
-
-        <Button
-            android:id="@+id/dog_list_add_dog_button"
-            style="@style/dog_add_dog_btn"
-            app:icon="@drawable/doglist_add_icon"
-            />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/fragment_dog_list_ll_bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="top"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="top"
         android:orientation="vertical"
         >
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dog_list_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            />
-
-    </LinearLayout>
-
-</LinearLayout>
-
-
-
-<!--
-
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/fragment_dog_list_root_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
         <LinearLayout
-            android:id="@+id/fragment_dog_list_ll_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
             android:gravity="center"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/fragment_dog_list_root_layout">
+            android:padding="@dimen/spacing_small"
+            android:background="@color/main_dark"
+
+            >
 
             <TextView
-                android:id="@+id/fragment_dog_list_name_header"
-                style="@style/dogListNameTextViewStyle"
-                android:tag="fragmentDogListNameHeader"
-                android:text="Dog name" />
+                android:id="@+id/tv_dog_list_dog_name"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/spacing_mxlarge"
+                android:gravity="center"
+                android:text="@string/dog_name_lc"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                />
+
+            <ImageButton
+                android:id="@+id/ibtn_dog_list_sort_name"
+                android:tag="createDescription"
+                android:layout_width="@dimen/spacing_mxlarge"
+                android:layout_height="@dimen/spacing_mxlarge"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                app:srcCompat="@drawable/ic_sort"
+                />
+
+            <View
+                android:layout_width="@dimen/spacing_xxxlarge"
+                android:layout_height="@dimen/spacing_mxlarge"
+                />
 
             <TextView
-                android:id="@+id/fragment_dog_list_last_time_walk_header"
-                style="@style/dogListLastImeWalkTextViewStyle"
-                android:tag="fragmentDogListNameHeader"
-                android:text="Dog last time walk" />
+                android:id="@+id/tv_dog_list_walk"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/spacing_mxlarge"
+                android:gravity="center"
+                android:text="@string/walk_time_lc"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                />
 
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/fragment_dog_list_ll_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_dog_list_ll_top"
-            app:layout_constraintVertical_bias="0.0">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/dog_list_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:layout_marginBottom="2dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            <ImageButton
+                android:id="@+id/ibtn_dog_list_sort_walk"
+                android:tag="createDescription"
+                android:layout_width="@dimen/spacing_mxlarge"
+                android:layout_height="@dimen/spacing_mxlarge"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                app:srcCompat="@drawable/ic_sort"
                 />
 
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/fragment_lyt_dog_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/dog_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/spacing_medium"
+                android:scrollbars="vertical"
+                android:scrollingCache="true"
+                />
 
+        </LinearLayout>
+    </LinearLayout>
 
--->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_dog_list_add_dog"
+        android:tag="add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="@android:color/white"
+        app:backgroundTint="@color/dogDidNotWalkThisWeek"
+        app:fabSize="normal"
+        app:layout_anchor="@id/fragment_lyt_dog_list"
+        android:layout_gravity="bottom"
+        app:layout_anchorGravity="bottom|right|end"
+        app:srcCompat="@drawable/ic_add"
+        android:layout_margin="@dimen/spacing_mlarge"
+        android:contentDescription="TODO"
+        android:clickable="true"
+        android:focusable="true"
+        />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -5,8 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +29,7 @@ public class FirebaseDb extends DataSource {
 
 
     private ChildEventListener dogsNodeEventListener;
+    private ChildEventListener walkRecordsNodeEventListener;
 
     private final String LOG_TAG;
 
@@ -93,6 +92,12 @@ public class FirebaseDb extends DataSource {
                     createRecordOfDogWalk((Dog) value);
                 }
                 break;
+
+            case UPDATE_DOG_DESCRIPTION:
+                if(value instanceof Dog) {
+                    updateDogDescription((Dog) value);
+                }
+                break;
         }
     }
 
@@ -109,17 +114,22 @@ public class FirebaseDb extends DataSource {
     }
 
     void initDb() {
-        db = FirebaseDatabase.getInstance();
-        db.setLogLevel(Logger.Level.DEBUG);
-        Log.d(LOG_TAG, "DB ref " + db.getReference());
+        new Thread(
+                () -> {
+                    db = FirebaseDatabase.getInstance();
+                    db.setLogLevel(Logger.Level.DEBUG);
+                    Log.d(LOG_TAG, "DB ref " + db.getReference());
+                },
+                "Firebase"
+        ).start();
     }
 
     private void readListOfDogs() {
         Log.d(LOG_TAG, "FirebaseDb.readListOfDogs() call");
-//        Query lastTimeWalkQuery = db.getReference(DOGS_NODE)
-//                .orderByChild("lastTimeWalk");
+        Query lastTimeWalkQuery = db.getReference(DOGS_NODE)
+                .orderByChild("name");
         if(dogsNodeEventListener == null) {
-            dogsNodeEventListener = db.getReference(DOGS_NODE).addChildEventListener(createDogNodeEventListener());
+            dogsNodeEventListener = lastTimeWalkQuery.addChildEventListener(createDogNodeEventListener());
         }
     }
 
@@ -127,6 +137,15 @@ public class FirebaseDb extends DataSource {
         Log.d(LOG_TAG, "FirebaseDb.readListOfWalksForDog() call");
         Query listOfWalksForDogQuery = db.getReference(WALK_RECORDS_NODE).child(dog.getId())
                 .orderByChild("timestamp");
+
+        if(walkRecordsNodeEventListener != null) {
+            listOfWalksForDogQuery.removeEventListener(walkRecordsNodeEventListener);
+        }
+
+        listOfWalksForDogQuery.addChildEventListener(createWalkRecordsNodeEventListener());
+
+
+
 
 //        listOfWalksForDogQuery.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
 //            @Override
@@ -141,7 +160,6 @@ public class FirebaseDb extends DataSource {
 //            }
 //        });
 
-        listOfWalksForDogQuery.addListenerForSingleValueEvent(createWalkRecordsNodeValueListener());
         //listOfWalksForDogQuery.removeEventListener(walkRecordsNodeListener);
         //walkRecordsNodeEventListener = listOfWalksForDogQuery.addChildEventListener(createWalkRecordsNodeListener());
     }
@@ -165,16 +183,24 @@ public class FirebaseDb extends DataSource {
         String key = db.getReference().child(WALK_RECORDS_NODE).child(dog.getId()).push().getKey();
 
         if(key != null) {
-            walkRecords.child(dog.getId()).child(key).child("id").setValue(key);
-            walkRecords.child(dog.getId()).child(key).child("timestamp").setValue(dog.getLastTimeWalk());
-            walkRecords.child(dog.getId()).child(key).child("dogId").setValue(dog.getId());
+            Map<String, Object> walkRecordsNewChild = new HashMap<>();
+            walkRecordsNewChild.put("id", key);
+            walkRecordsNewChild.put("dogId", dog.getId());
+            walkRecordsNewChild.put("timestamp", dog.getLastTimeWalk());
+            walkRecords.child(dog.getId()).child(key).updateChildren(walkRecordsNewChild);
 
-            Map<String, Object> childUpdates = new HashMap<>();
-            childUpdates.put("lastTimeWalk" , dog.getLastTimeWalk());
-            childUpdates.put("lastWalkRecordId", key);
-
-            dogs.child(dog.getId()).updateChildren(childUpdates);
+            Map<String, Object> dogChildUpdates = new HashMap<>();
+            dogChildUpdates.put("lastTimeWalk" , dog.getLastTimeWalk());
+            dogChildUpdates.put("lastWalkRecordId", key);
+            dogs.child(dog.getId()).updateChildren(dogChildUpdates);
         }
+    }
+
+    private void updateDogDescription(Dog dog) {
+        Log.d(LOG_TAG, "FirebaseDb.updateDogDescription() call");
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("description" , dog.getDescription());
+        db.getReference().child(DOGS_NODE).child(dog.getId()).updateChildren(childUpdates);
     }
 
     private void deleteDog(Dog dog) {
@@ -246,42 +272,42 @@ public class FirebaseDb extends DataSource {
         };
     }
 
-//    private ChildEventListener createWalkRecordsNodeEventListener() {
-//        return new ChildEventListener() {
-//
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-//                WalkRecord walkRecord = snapshot.getValue(WalkRecord.class);
-//                Log.d(LOG_TAG, "--");
-//                Log.d(LOG_TAG, "--");
-//                Log.d(LOG_TAG, "----------- NEW WALK RECORD id =" + walkRecord.getId() + "-----------");
-//                Log.d(LOG_TAG, "--");
-//                Log.d(LOG_TAG, "FirebaseDb.ChildWalkRecordsNodeListener().onChildAdded() call");
-//
-//                DogRepository.INSTANCE.notifyDataChanged(
-//                        Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
-//                        (subscriber) -> subscriber.receiveUpdate(
-//                                Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
-//                                walkRecord
-//                        )
-//                );
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-//
-//            //TODO: dispatch error
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {}
-//
-//        };
-//    }
+    private ChildEventListener createWalkRecordsNodeEventListener() {
+        return new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                WalkRecord walkRecord = snapshot.getValue(WalkRecord.class);
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "----------- NEW WALK RECORD id =" + walkRecord.getId() + "-----------");
+                Log.d(LOG_TAG, "--");
+                Log.d(LOG_TAG, "FirebaseDb.ChildWalkRecordsNodeListener().onChildAdded() call");
+
+                DogRepository.INSTANCE.notifyDataChanged(
+                        Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
+                        (subscriber) -> subscriber.receiveUpdate(
+                                Event.REPO_NEW_WALK_RECORD_OBJ_AVAILABLE,
+                                walkRecord
+                        )
+                );
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            //TODO: dispatch error
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+
+        };
+    }
 
     private ValueEventListener createWalkRecordsNodeValueListener() {
         return new ValueEventListener() {

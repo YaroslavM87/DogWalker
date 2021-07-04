@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:id="@+id/lyt_parent"
+<LinearLayout android:id="@+id/dog_list_view_holder_lyt_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,7 +10,7 @@
     android:clickable="true"
     >
 
-    <ImageView android:id="@+id/image"
+    <ImageView android:id="@+id/dog_list_profile_icon"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginLeft="@dimen/spacing_large"
@@ -35,7 +35,7 @@
             android:paddingTop="@dimen/spacing_middle"
             >
 
-            <TextView android:id="@+id/name"
+            <TextView android:id="@+id/dog_list_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_middle"
@@ -45,7 +45,7 @@
                 android:textColor="@color/grey_90"
                 />
 
-            <TextView android:id="@+id/description"
+            <TextView android:id="@+id/dog_list_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_middle"

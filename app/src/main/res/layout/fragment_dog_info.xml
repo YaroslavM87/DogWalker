@@ -1,207 +1,270 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/fragment_dog_info"
-        tools:context=".view.ActivityMain"
+<!--    <ListView-->
+<!--        android:id="@+id/listView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:scrollbars="vertical"-->
+<!--        android:scrollingCache="true"-->
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+<!--        />-->
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/dog_info_app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         >
 
-        <com.google.android.material.appbar.AppBarLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:fitsSystemWindows="true"
-            android:background="@drawable/doginfo_appbar_background"
-
+            android:layout_height="match_parent"
+            android:background="@color/main_dark"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_xlarge"
             >
 
-            <com.google.android.material.appbar.CollapsingToolbarLayout
+            <com.mikhaellopez.circularimageview.CircularImageView
+                android:id="@+id/dog_list_profile_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/lana"
+                android:scaleType="centerCrop"
+                app:civ_shadow="true"
+                app:civ_shadow_radius="0dp"
+                app:civ_border="true"
+                app:civ_border_width="3dp"
+                />
+
+            <TextView
+                android:id="@+id/tv_dog_info_dog_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:text="@string/dog_name"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
+                android:textSize="24sp"
+                android:textColor="@android:color/white"
+                />
+
+            <TextView
+                android:id="@+id/tv_dog_info_last_walk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/grey_10"
+                />
+
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:scrollbars="none"
+        android:scrollingCache="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:expandedTitleTextAppearance="@android:color/transparent"
-                android:fitsSystemWindows="true"
-                >
-
-                <ImageView
-                    android:id="@+id/dog_info_textview_dog_name"
-                    style="@style/dogInfoNameTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="500dp"
-                    app:layout_collapseMode="parallax"
-                    android:scaleType="centerCrop"
-
-                    />
-
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/dog_info_toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:layout_collapseMode="parallax"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                    app:title="Name"
-                    >
-
-                </androidx.appcompat.widget.Toolbar>
-            </com.google.android.material.appbar.CollapsingToolbarLayout>
-        </com.google.android.material.appbar.AppBarLayout>
-
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="23dp"
-            android:layout_marginBottom="5dp"
-            android:clipToPadding="false"
-            android:gravity="top"
-            android:background="@drawable/doginfo_scrollview_background"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
+                android:layout_height="@dimen/spacing_xxlarge"
+                />
 
             <LinearLayout
-                android:id="@+id/dog_info_linear_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/spacing_large"
                 >
 
+                <ImageButton
+                    android:layout_width="@dimen/spacing_mxlarge"
+                    android:layout_height="@dimen/spacing_mxlarge"
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/ic_dog"
+                    app:tint="@color/grey_60"
+                    />
 
-                <TextView
-                    android:id="@+id/dog_info_dog_description"
-                    android:tag="dogInfoDogDescription"
-                    style="@style/dogInfoDescriptionTextViewStyle"
+                <View
+                    android:layout_width="@dimen/spacing_large"
+                    android:layout_height="match_parent"
+                    />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
-                    android:gravity="start"
-                    android:text="Описание" />
+                    android:orientation="vertical"
+                    >
 
-                <TextView
-                    android:id="@+id/dog_info_dog_last_walk"
-                    android:tag="dogInfoDogLastWalk"
-                    style="@style/dogInfoDescriptionTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:text="Прогулки" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
 
-                <Button
-                    android:id="@+id/dog_info_button_walk_dog"
-                    android:tag="walk"
-                    style="@style/dog_info_walk_dog_btn"
-                    android:text="Погулять"
-                    android:textAllCaps="false"
-                    app:elevation="0dp"
-                    app:iconTint="#FFFFFF"
-                    app:rippleColor="#9C9C9C"
-                    app:strokeColor="#050505"
-                    app:strokeWidth="1dp"
-                    />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dog_info_about_dog"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold"
+                            />
 
-                <Button
-                    android:id="@+id/dog_info_button_see_walk_records"
-                    style="@style/dog_info_walk_dog_btn"
-                    android:tag="seeWalkRecords"
-                    android:text="Посмотреть все"
-                    android:textAllCaps="false"
-                    app:elevation="0dp"
-                    app:iconTint="#FFFFFF"
-                    app:rippleColor="#9C9C9C"
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="end"
+                            >
+
+                            <ImageButton
+                                android:id="@+id/ibtn_dog_description_create"
+                                android:tag="createDescription"
+                                android:layout_width="@dimen/spacing_mxlarge"
+                                android:layout_height="@dimen/spacing_mxlarge"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_marginEnd="@dimen/spacing_large"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:srcCompat="@drawable/ic_create"
+                                app:tint="@color/grey_60"
+                                />
 
 
-                    />
+                        </LinearLayout>
+                    </LinearLayout>
 
-                <Button
-                    android:id="@+id/dog_info_button_remove_dog"
-                    style="@style/dog_info_walk_dog_btn"
-                    android:tag="removeFromList"
-                    android:text="Убрать из списка"
-                    android:textAllCaps="false"
-                    app:elevation="0dp"
-                    app:iconTint="#FFFFFF"
-                    app:rippleColor="#9C9C9C"
-                    />
+                    <TextView
+                        android:id="@+id/tv_dog_info_dog_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_middle"
+                        android:lineSpacingExtra="2dp"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/grey_60"
+                        />
 
+                </LinearLayout>
             </LinearLayout>
 
-        </androidx.core.widget.NestedScrollView>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_large"
+                />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/spacing_large"
+                >
 
-<!--        <LinearLayout-->
-<!--            android:id="@+id/linear_layout_left_side"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginTop="100dp"-->
-<!--            android:orientation="vertical"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent">-->
+                <ImageButton
+                    android:layout_width="@dimen/spacing_mxlarge"
+                    android:layout_height="@dimen/spacing_mxlarge"
+                    android:background="@android:color/transparent"
+                    app:srcCompat="@drawable/ic_history"
+                    app:tint="@color/grey_60"
+                    />
 
+                <View
+                    android:layout_width="@dimen/spacing_large"
+                    android:layout_height="match_parent"
+                    />
 
-<!--            <TextView-->
-<!--                android:id="@+id/dog_info_dog_description"-->
-<!--                android:tag="dogInfoDogDescription"-->
-<!--                style="@style/dogInfoDescriptionTextViewStyle"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:gravity="start"-->
-<!--                android:text="Описание" />-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
 
-<!--            <TextView-->
-<!--                android:id="@+id/dog_info_dog_last_walk"-->
-<!--                android:tag="dogInfoDogLastWalk"-->
-<!--                style="@style/dogInfoDescriptionTextViewStyle"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:gravity="start"-->
-<!--                android:text="Прогулки" />-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
 
-<!--            <Button-->
-<!--                android:id="@+id/dog_info_button_walk_dog"-->
-<!--                android:tag="walk"-->
-<!--                style="@style/dog_info_walk_dog_btn"-->
-<!--                android:text="Погулять"-->
-<!--                android:textAllCaps="false"-->
-<!--                app:elevation="0dp"-->
-<!--                app:iconTint="#FFFFFF"-->
-<!--                app:rippleColor="#9C9C9C"-->
-<!--                app:strokeColor="#050505"-->
-<!--                app:strokeWidth="1dp"-->
-<!--                />-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dog_info_recent_walks"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                            android:textColor="@color/colorPrimary"
+                            android:textStyle="bold"
+                            />
 
-<!--            <Button-->
-<!--                android:id="@+id/dog_info_button_see_walk_records"-->
-<!--                style="@style/dog_info_walk_dog_btn"-->
-<!--                android:tag="seeWalkRecords"-->
-<!--                android:text="Посмотреть все"-->
-<!--                android:textAllCaps="false"-->
-<!--                app:elevation="0dp"-->
-<!--                app:iconTint="#FFFFFF"-->
-<!--                app:rippleColor="#9C9C9C"-->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="end"
+                            >
 
+                            <ImageButton
+                                android:id="@+id/ibtn_dog_see_walks_list"
+                                android:tag="seeWalks"
+                                android:layout_width="@dimen/spacing_mxlarge"
+                                android:layout_height="@dimen/spacing_mxlarge"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_marginEnd="@dimen/spacing_large"
+                                android:clickable="true"
+                                android:focusable="true"
+                                app:srcCompat="@drawable/ic_list"
+                                app:tint="@color/grey_60"
+                                />
+                         </LinearLayout>
 
-<!--                />-->
+                </LinearLayout>
 
-<!--            <Button-->
-<!--                android:id="@+id/dog_info_button_remove_dog"-->
-<!--                style="@style/dog_info_walk_dog_btn"-->
-<!--                android:tag="removeFromList"-->
-<!--                android:text="Убрать из списка"-->
-<!--                android:textAllCaps="false"-->
-<!--                app:elevation="0dp"-->
-<!--                app:iconTint="#FFFFFF"-->
-<!--                app:rippleColor="#9C9C9C"-->
-<!--                />-->
-<!--        </LinearLayout>-->
+                <TextView
+                    android:id="@+id/tv_dog_info_recent_walks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_middle"
+                    android:lineSpacingExtra="2dp"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_60"
+                    />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                </LinearLayout>
+            </LinearLayout>
 
-</layout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_dog_info_walk_dog"
+        android:tag="walk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="@android:color/white"
+        app:backgroundTint="@color/colorAccent"
+        app:fabSize="normal"
+        app:layout_anchor="@id/dog_info_app_bar_layout"
+        app:layout_anchorGravity="bottom|right|end"
+        app:srcCompat="@drawable/ic_arrow_back"
+        android:layout_margin="@dimen/spacing_mlarge"
+        android:contentDescription="TODO"
+        android:clickable="true"
+        android:focusable="true"
+        />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

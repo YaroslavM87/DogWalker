@@ -9,7 +9,7 @@ public class WalkRecord {
     private String id;
     private String dogId;
     private long timestamp;
-    private String userId;
+    //private String userId;
 
     public WalkRecord() {
     }
@@ -17,13 +17,13 @@ public class WalkRecord {
     public WalkRecord(
             String id,
             String dogId,
-            long timestamp,
-            String userId
+            long timestamp
+            //String userId
     ) {
         setId(id);
         setDogId(dogId);
         setTimestamp(timestamp);
-        setUserId(userId);
+        //setUserId(userId);
     }
 
     public String getId() {
@@ -38,9 +38,9 @@ public class WalkRecord {
         return timestamp;
     }
 
-    public String getUserId() {
-        return userId;
-    }
+//    public String getUserId() {
+//        return userId;
+//    }
 
     public void setId(String id) {
         this.id = Objects.requireNonNull(id);
@@ -55,9 +55,9 @@ public class WalkRecord {
         this.timestamp = timestamp;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+//    public void setUserId(String userId) {
+//        this.userId = userId;
+//    }
 
     @NonNull
     @Override
@@ -66,7 +66,7 @@ public class WalkRecord {
                 "id='" + id + '\'' +
                 ", dogId='" + dogId + '\'' +
                 ", timestamp=" + timestamp +
-                ", userId='" + userId + '\'' +
+                //", userId='" + userId + '\'' +
                 '}';
     }
 

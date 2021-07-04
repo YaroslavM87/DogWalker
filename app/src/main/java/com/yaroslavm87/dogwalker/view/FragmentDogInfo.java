@@ -1,39 +1,55 @@
 package com.yaroslavm87.dogwalker.view;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.model.Dog;
+import com.yaroslavm87.dogwalker.model.WalkRecord;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import com.yaroslavm87.dogwalker.viewModel.Tools;
+
+import java.util.LinkedList;
+import java.util.Objects;
 
 public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     private AppViewModel appViewModel;
-    private Toolbar toolbar;
-    private ImageView dogInfoDogName;
-    private TextView dogInfoDogDescription, dogInfoDogLastWalk;
-    private Button walkDog,seeWalkRecords, removeDogFromList;
+//    private ImageView imgDogPic;
+    private TextView tvDogName, tvDogLastWalk, tvDogDescription, tvRecentWalks, tvDialogHeader;
+    private EditText etvDialogContent;
+    private Button btnDialogCancel, btnDialogSubmit;
+    private FloatingActionButton btnWalkDog;
+    private ImageButton ibtnCreateDescription, btnSeeWalkRecords;
+    private Dialog dialog;
     private OnDogInfoItemClickListener onDogInfoItemClickListener;
+    private LinkedList<String> listRecentWalks;
+    private final byte MAX_LIST_SIZE;
     private final String LOG_TAG;
     
     {
+        MAX_LIST_SIZE = 5;
         LOG_TAG = "myLogs";
     }
 
@@ -71,99 +87,154 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         Log.d(LOG_TAG, "----------- FRAGMENT DOG INFO onViewCreated -----------");
         initVariables();
-        initViewElements(requireView());
-        subscribeViewElements();
+        initViewComponents(requireView());
+        subscribeForLiveData();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "----------------------");
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
+        setToolbar();
     }
 
     private void initVariables() {
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
+        listRecentWalks = new LinkedList<>();
     }
 
-    private void initViewElements(View view) {
+    private void initViewComponents(View view) {
+        tvDogName = view.findViewById(R.id.tv_dog_info_dog_name);
+        tvDogLastWalk = view.findViewById(R.id.tv_dog_info_last_walk);
+        tvDogDescription = view.findViewById(R.id.tv_dog_info_dog_description);
+        tvRecentWalks = view.findViewById(R.id.tv_dog_info_recent_walks);
+        ibtnCreateDescription = (view.findViewById(R.id.ibtn_dog_description_create));
+        ibtnCreateDescription.setOnClickListener(this);
+        btnWalkDog = view.findViewById(R.id.btn_dog_info_walk_dog);
+        btnWalkDog.setOnClickListener(this);
+        btnSeeWalkRecords = view.findViewById(R.id.ibtn_dog_see_walks_list);
+        btnSeeWalkRecords.setOnClickListener(this);
+//        removeDogFromList = view.findViewById(R.id.dog_info_button_remove_dog);
+        //removeDogFromList.setOnClickListener(this);
 
-        ((AppCompatActivity) requireActivity()).getSupportActionBar().hide();
-
-        toolbar = view.findViewById(R.id.dog_info_toolbar);
-        dogInfoDogName = view.findViewById(R.id.dog_info_textview_dog_name);
-        dogInfoDogDescription = view.findViewById(R.id.dog_info_dog_description);
-        dogInfoDogLastWalk = view.findViewById(R.id.dog_info_dog_last_walk);
-        walkDog = view.findViewById(R.id.dog_info_button_walk_dog);
-        walkDog.setOnClickListener(this);
-        seeWalkRecords = view.findViewById(R.id.dog_info_button_see_walk_records);
-        seeWalkRecords.setOnClickListener(this);
-        removeDogFromList = view.findViewById(R.id.dog_info_button_remove_dog);
-        removeDogFromList.setOnClickListener(this);
+        Dog dog = appViewModel.getChosenDogFromListLive().getValue();
+        if(dog != null) {
+            tvDogName.setText(Tools.capitalize(dog.getName()));
+            String content = dog.getLastTimeWalk() == 0L ?
+                    requireContext().getResources().getString(R.string.dog_did_not_walk) :
+                    Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy");
+            tvDogLastWalk.setText(content);
+            tvDogDescription.setText(dog.getDescription());
+        }
     }
 
-    private void subscribeViewElements() {
+    private void setToolbar() {
+        ActionBar actionBar = Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar());
+        actionBar.setTitle(R.string.dog_info_header);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
 
-        appViewModel.getChosenDogFromListLive().observe(
-                getViewLifecycleOwner(),(dog) -> {
-
-                    if(dog != null) {
-                        StringBuilder sb = new StringBuilder();
-                        toolbar.setTitle(Tools.capitalize(dog.getName()));
-                        //dogInfoDogName.setText(Functions.capitalize(dog.getName()));
-                        dogInfoDogDescription.setText(buildDogDescription(dog));
-                        //dogInfoDogLastWalk.setText("");
-                        dogInfoDogLastWalk.setText(
-                                sb.append(getResources().getString(R.string.dog_last_walk))
-                                        .append(" ")
-                                .append(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
-                        );
-
-                    } else {
-                        // TODO: hide button
-                        //dogInfoDogName.setText("");
-                        dogInfoDogDescription.setText("");
-                    }
+    private void subscribeForLiveData() {
+        appViewModel.getWalkTimestampsLive().observe(
+                getViewLifecycleOwner(), (walkRecords) -> {
+                    fillWalkRecordsList(walkRecords);
+                    setTvRecentWalks();
                 }
         );
 
+//                    if(walkRecord != null) {
+//                        Log.d(LOG_TAG, "FragmentDogInfo.getInsertedWalkRecordLive " + walkRecord.getDogId());
+//                        String strLastWalk = Tools.parseMillsToDate(
+//                                walkRecord.getTimestamp(),
+//                                "dd MMMM yyyy");
+//
+//                        if(!isInWalkList(strLastWalk)) {
+//                            addRecentWalkToList(strLastWalk);
+//
+//                            StringBuilder result = new StringBuilder();
+//                            for(String s : listRecentWalks) {
+//                                result.append(s).append("\n");
+//                            }
+//                            tvRecentWalks.setText(result.toString());
+//                        }
+//                    }
+//                }
+//        );
         appViewModel.getChangedDogLive().observe(
                 getViewLifecycleOwner(), (dog) -> {
-
                     Dog chosenDog = appViewModel.getChosenDogFromListLive().getValue();
-
                     assert dog != null;
                     assert chosenDog != null;
-
                     if(chosenDog.equals(dog)) {
-                        StringBuilder sb = new StringBuilder();
-                        dogInfoDogDescription.setText(buildDogDescription(dog));
-                        dogInfoDogLastWalk.setText("");
-                        dogInfoDogLastWalk.setText(
-                                sb.append(getResources().getString(R.string.dog_last_walk))
-                                        .append(" ")
-                                        .append(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy")).toString()
-                        );
+                        tvDogLastWalk.setText(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy"));
+                        tvDogDescription.setText(dog.getDescription());
                     }
                 }
         );
-
     }
 
-        @Override
+    private void fillWalkRecordsList(LinkedList<WalkRecord> walkRecords) {
+        listRecentWalks.clear();
+        for(WalkRecord wr : walkRecords) {
+
+            if(listRecentWalks.size() >= MAX_LIST_SIZE) break;
+
+            if(wr != null) {
+                Log.d(LOG_TAG, "FragmentDogInfo.getRecentWalkTimestampsLive " + wr.getDogId());
+
+                String strLastWalk = Tools.parseMillsToDate(
+                        wr.getTimestamp(),
+                        "dd MMMM yyyy");
+
+                if(!isInWalkList(strLastWalk)) {
+                    listRecentWalks.addLast(strLastWalk);
+                }
+            }
+        }
+    }
+
+    private boolean isInWalkList(String walkRecord) {
+        if(listRecentWalks.size() > 0 && listRecentWalks.peekFirst() != null) {
+            return listRecentWalks.peekLast().equals(walkRecord);
+        } else return false;
+    }
+
+    private void setTvRecentWalks() {
+        if(listRecentWalks.size() == 0) {
+            tvRecentWalks.setText(R.string.dog_have_no_walk_records);
+            return;
+        }        StringBuilder result = new StringBuilder();
+        for(String s : listRecentWalks) {
+            result.append(s).append("\n");
+        }
+        tvRecentWalks.setText(result.toString());
+    }
+
+    @Override
     public void onClick(View v) {
 
             switch(v.getTag().toString()) {
 
-            case "walk":
-                Log.d(LOG_TAG, "--");
-                Log.d(LOG_TAG, "--");
-                Log.d(LOG_TAG, "--");
-                Log.d(LOG_TAG, "----------- WALK DOG BUTTON -----------");
-                Log.d(LOG_TAG, "--");
-                onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.WALK_CALL);
-                break;
+                case "walk":
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "----------- WALK DOG BUTTON -----------");
+                    Log.d(LOG_TAG, "--");
+                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.WALK_CALL);
+                    break;
 
-                case "seeWalkRecords":
+                case "seeWalks":
                     Log.d(LOG_TAG, "--");
                     Log.d(LOG_TAG, "--");
                     Log.d(LOG_TAG, "--");
                     Log.d(LOG_TAG, "----------- SEE WALKS BUTTON -----------");
                     Log.d(LOG_TAG, "--");
-                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SEE_WALK_RECORDS_CALL);
+                    if(Objects.requireNonNull(appViewModel.getChosenDogFromListLive().getValue()).getLastTimeWalk() > 1000L) {
+                        onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SEE_WALK_RECORDS_CALL);
+                    }
                     break;
 
                 case "removeFromList":
@@ -174,40 +245,64 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                     Log.d(LOG_TAG, "--");
                     onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.REMOVE_FROM_LIST_CALL);
                     break;
+
+                case "createDescription":
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "--");
+                    Log.d(LOG_TAG, "----------- CREATE DSCR -----------");
+                    Log.d(LOG_TAG, "--");
+                    showCustomDialog();
+                    break;
+
+                case "cancel":
+                    dialog.dismiss();
+                    break;
+
+                case "submit":
+                    String review = etvDialogContent.getText().toString().trim();
+                    if (review.equals("")) {
+                        Toast.makeText(getContext(), R.string.dialog_warning_description_is_empty, Toast.LENGTH_SHORT).show();
+                    } else {
+                        //appViewModel.updateDescription();
+                        dialog.dismiss();
+                        Toast.makeText(getContext(), R.string.dog_info_dialog_success, Toast.LENGTH_SHORT).show();
+                        appViewModel.updateDogDescription(review);
+                        //tvDogDescription.setText(review);
+                    }
+                    break;
         }
     }
 
-    private String buildDogDescription(Dog dog) {
+    private void showCustomDialog() {
+        dialog = new Dialog(getContext());
 
-        String result;
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
+        dialog.setContentView(R.layout.dog_info_dialog_about);
+        dialog.setCancelable(true);
 
-        if(dog.getDescription() == null) {
-            result = buildDefaultDogDescription();
+        tvDialogHeader = dialog.findViewById(R.id.tv_dog_info_dialog_about_header);
+        tvDialogHeader.setText(Tools.capitalize(Objects.requireNonNull(appViewModel.getChosenDogFromListLive().getValue()).getName()));
+        etvDialogContent = dialog.findViewById(R.id.etv_dog_info_dialog_about_content);
+        etvDialogContent.setText(Objects.requireNonNull(appViewModel.getChosenDogFromListLive().getValue()).getDescription());
+        btnDialogCancel = dialog.findViewById(R.id.btn_dog_info_dialog_cancel);
+        btnDialogSubmit = dialog.findViewById(R.id.btn_dog_info_dialog_submit);
+        btnDialogCancel.setOnClickListener(this);
+        btnDialogSubmit.setOnClickListener(this);
 
-        } else {
-            result = dog.getDescription();
-        }
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(dialog.getWindow().getAttributes());
+        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
-        return result;
-    }
-
-    private String buildDefaultDogDescription() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getResources().getString(R.string.dog_character))
-                .append(getResources().getString(R.string.dog_home));
-        return sb.toString();
+        dialog.show();
+        dialog.getWindow().setAttributes(layoutParams);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStart() call");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
     }
 
     @Override

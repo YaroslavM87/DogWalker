@@ -2,6 +2,8 @@ package com.yaroslavm87.dogwalker.repository;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.yaroslavm87.dogwalker.commands.PassValToSubscriber;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.notifications.Event;
@@ -17,9 +19,16 @@ public enum DogRepository implements Repository, Observable {
     private final String LOG_TAG;
 
     {
-        remoteStorage = new FirebaseDb();
+        remoteStorage = initRemoteStorage();
         publisher = Publisher.INSTANCE;
         LOG_TAG = "myLogs";
+    }
+
+    @NonNull
+    private DataSource initRemoteStorage() {
+        final DataSource remoteStorage;
+        remoteStorage = new FirebaseDb();
+        return remoteStorage;
     }
 
     @Override

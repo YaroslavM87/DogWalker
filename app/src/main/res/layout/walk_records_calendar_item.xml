@@ -1,0 +1,24 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/spacing_small"
+    android:orientation="horizontal"
+    android:gravity="center"
+    >
+
+<!--    <View android:layout_width="@dimen/spacing_large"-->
+<!--        android:layout_height="match_parent"-->
+<!--        />-->
+
+    <TextView android:id="@+id/calendar_day"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="@dimen/spacing_small"
+        android:gravity="center"
+        android:background="@drawable/bgr_calendar_day"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textSize="12sp"
+        android:textColor="@color/grey_90"
+        />
+    </LinearLayout>

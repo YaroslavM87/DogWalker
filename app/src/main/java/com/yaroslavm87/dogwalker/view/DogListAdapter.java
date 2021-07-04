@@ -2,6 +2,7 @@ package com.yaroslavm87.dogwalker.view;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,8 +29,8 @@ public class DogListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             super(itemView);
             //Log.d(LOG_TAG, "RVAdapter.MyViewHolder() instance just created");
 
-            dogName = itemView.findViewById(R.id.name);
-            dogLastTimeWalk = itemView.findViewById(R.id.description);
+            dogName = itemView.findViewById(R.id.dog_list_name);
+            dogLastTimeWalk = itemView.findViewById(R.id.dog_list_description);
 
             itemView.setOnClickListener(this);
         }
@@ -51,18 +52,20 @@ public class DogListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private ArrayList<Dog> dogList;
     private OnViewHolderItemClickListener onViewHolderItemClickListener;
     private final int viewHolderLayout;
+    private Context ctx;
     private final String LOG_TAG;
     private int animation_type = 0;
 
 
     {
-        viewHolderLayout = R.layout.test;
+        viewHolderLayout = R.layout.dog_list_view_holder;
         LOG_TAG = "myLogs";
     }
 
-    public DogListAdapter(ArrayList<Dog> dogList) {
+    public DogListAdapter(ArrayList<Dog> dogList, Context context) {
         //Log.d(LOG_TAG, "RVAdapter() constructor call");
         this.dogList = dogList;
+        ctx = context;
     }
 
     @NonNull
@@ -84,13 +87,17 @@ public class DogListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             Dog dog = dogList.get(position);
 //            Tools.displayImageRound(ctx, view.image, p.image);
             originalHolder.dogName.setText(Tools.capitalize(dog.getName()));
-            originalHolder.dogLastTimeWalk.setText(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM"));
+            String content = dog.getLastTimeWalk() == 0L ?
+                    ctx.getResources().getString(R.string.dog_did_not_walk) :
+                    Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy");
+            originalHolder.dogLastTimeWalk.setText(content);
 
-            Tools.setColorTextToViewsDependingOnLastTimeWalk(
-                    dog.getLastTimeWalk(),
-                    //originalHolder.dogName,
-                    originalHolder.dogLastTimeWalk
-            );
+//            Tools.setColorTextToViewsDependingOnLastTimeWalk(
+//                    ctx,
+//                    dog.getLastTimeWalk(),
+//                    //originalHolder.dogName,
+//                    originalHolder.dogLastTimeWalk
+//            );
 
             setAnimation(originalHolder.itemView, position);
         }

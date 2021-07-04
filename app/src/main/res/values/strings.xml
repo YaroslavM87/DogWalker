@@ -1,12 +1,52 @@
 <resources>
     <string name="app_name">DogWalker</string>
 
-    <string name="dog_list_header">Питомцы приюта</string>
+    <string name="model_warning_dog_is_already_exists">Питомец с такой кличкой уже есть в списке!</string>
 
-    <string name="dog_name">Кличка</string>
 
+    <string name="dog_name">Кличка питомца</string>
+    <string name="dog_name_short">Кличка</string>
+    <string name="dog_name_lc">кличка</string>
+    <string name="walk_time_lc">прогука</string>
+    
+    <string-array name="month">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+
+    <string name="dog_did_not_walk">Еще не гулял(а)</string>
+    <string name="dog_have_no_walk_records">Записей о прогулках нет</string>
     <string name="dog_character">Характер</string>
     <string name="dog_home">\n\n\nПрописка</string>
-    <string name="dog_last_walk">\n\n\nГулял(а)</string>
+
+    <string name="dog_list_header">Питомцы приюта</string>
+    <string name="dog_list_dialog_header">Профиль нового питомца</string>
+
+
+    <string name="dog_info_header">Профиль</string>
+    <string name="dog_info_about_dog">О питомце</string>
+    <string name="dog_info_dialog_about_dog">Расскажите про питомца…</string>
+    <string name="dog_info_recent_walks">Недавние прогулки</string>
+
+    <string name="dog_info_dialog_btn_cancel">Отменить</string>
+    <string name="dog_info_dialog_btn_apply">Добавить</string>
+    <string name="dialog_warning_description_is_empty">Описание отсутствует</string>
+    <string name="dog_info_dialog_success">Описание добавлено</string>
+
+
+    <string name="long_lorem_ipsum_2">
+        Vivamus porttitor, erat at aliquam mollis, risus ligula suscipit metus, id semper nisi dui lacinia leo. Praesent at feugiat sem. Vivamus consectetur arcu sit amet metus efficitur dapibus. Sed metus ligula, efficitur quis finibus nec, pellentesque nec nulla. Nunc nec magna iaculis turpis vehicula condimentum id lobortis lectus.
+        \n\nQuisque augue diam, convallis nec mollis in, placerat nec elit. Aliquam non erat tristique, consequat tortor ultricies, sodales erat. Aliquam quis enim eu nulla facilisis sollicitudin eu mollis mauris. Donec ornare urna non libero volutpat tempus. Mauris elementum egestas ex, a laoreet urna. Ut a magna mattis, sodales massa a, blandit justo.
+    </string>
 
 </resources>

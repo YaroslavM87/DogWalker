@@ -1,14 +1,19 @@
 package com.yaroslavm87.dogwalker.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public interface Model {
 
     ArrayList<Dog> getReferenceDogs();
 
-    ArrayList<WalkRecord> getReferenceWalkRecords(Dog dog);
+    LinkedList<WalkRecord> getReferenceWalkRecords();
 
-    void createDog(String name);
+    void dispatchWalkRecordsFor(Dog dog);
+
+    void createDog(String name, String description);
+
+    void updateDogDescription(int dogIndex, String updatedDescription);
 
     void walkDog(int dogIndex);
 

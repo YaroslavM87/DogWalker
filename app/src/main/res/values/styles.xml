@@ -2,17 +2,19 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.DogWalker">
 
         <item name="android:background">@color/colorBackgroundPrimary</item>
+
+
 
 
 
         <!--        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>-->
 
 
-<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
-<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 <!--        <item name="colorAccent">@color/colorAccent</item>-->
 
 
