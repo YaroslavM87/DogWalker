@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,13 +23,15 @@ import com.yaroslavm87.dogwalker.viewModel.Tools;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class FragmentWalkRecords extends Fragment {
 
     private AppViewModel appViewModel;
     private RecyclerView walkRecordsListView;
     //private WalkRecordsListAdapter walkRecordsListAdapter;
-    private AdapterRecyclerViewSectioned adapterRecyclerViewSectioned;
+    private WalkRecordListAdapterSectioned walkRecordListAdapterSectioned;
 
     private TextView walkRecordsListHeader;
     private String LOG_TAG = "myLogs";
@@ -43,11 +47,15 @@ public class FragmentWalkRecords extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Log.d(LOG_TAG, "----------- FRAGMENT WALK RECORDS onViewCreated -----------");
         initVariables();
-        initViewElements(requireView());
-        subscribeViewElements();
+        initViewElements(view);
     }
 
-    //void clearWalkRecordList() {}
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
+        setToolbar();
+    }
 
     private void initVariables() {
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
@@ -55,85 +63,76 @@ public class FragmentWalkRecords extends Fragment {
 
     private void initViewElements(View view) {
         initRecyclerView(view);
-        //walkRecordsListHeader = view.findViewById(R.id.walk_records_list_header);
     }
 
-
-
-    private void subscribeViewElements() {
-
-//        appViewModel.getListOfWalkRecordsLive().observe(
-//                getViewLifecycleOwner(),(walkRecordsList) -> {
-//                    walkRecordsListAdapter.setWalkRecordsList(walkRecordsList);
-//                    walkRecordsListAdapter.notifyDataSetChanged();
-//                }
-//        );
-
-//        appViewModel.getChosenDogFromListLive().observe(
-//                getViewLifecycleOwner(),(dog) -> {
-//
-//                    if(dog != null) {
-//                        walkRecordsListAdapter.setWalkRecordsList(appViewModel.getWalkRecordsListReference(dog));
-//                        walkRecordsListAdapter.notifyDataSetChanged();
-//                        String headerLine = "Все прогулки питомца " + Tools.capitalize(dog.getName());
-//                        walkRecordsListHeader.setText(headerLine);
-//
-//                    } else {
-//                        // TODO: if fragment still visible then show error
-//                        walkRecordsListAdapter.clearWalkRecordList();
-//                        String headerLine = "Error";
-//                        walkRecordsListHeader.setText(headerLine);
-//                    }
-//                }
-//        );
-
-//        appViewModel.getInsertedWalkRecordIndexLive().observe(
-//                getViewLifecycleOwner(),(index) -> {
-//                    walkRecordsListAdapter.notifyItemInserted(index);
-//                }
-//        );
+    private void setToolbar() {
+        ActionBar actionBar = Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar());
+        actionBar.setTitle(R.string.walk_list_header);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     private void initRecyclerView(View view) {
         walkRecordsListView = (RecyclerView) view.findViewById(R.id.walk_records_list_view);
         walkRecordsListView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        LinkedList<WalkRecord> list = appViewModel.getWalkTimestampsLive().getValue();
-        if(list != null) {
-            long[] walkTimestamps = new long[list.size()];
-            int counter = list.size() - 1;
-            for(int i = 0; i < list.size(); i++) {
-                walkTimestamps[i] = list.get(counter).getTimestamp();
-                --counter;
-            }
-            ArrayList<WalkRecordListItem> itemList = Tools.generateWalkCalendar(walkTimestamps);
+        long[] walkTimestamps = Objects.requireNonNull(appViewModel.getWalkTimestampsLive().getValue())
+                .stream()
+                .distinct().collect(Collectors.toList())
+                .stream().mapToLong(WalkRecord::getTimestamp)
+                .toArray();
 
-            Tools.printCalendar(itemList);
+        ArrayList<WalkRecordListItem> itemList = Tools.generateWalkCalendar(walkTimestamps);
 
-            adapterRecyclerViewSectioned = new AdapterRecyclerViewSectioned(
-                    requireContext(),
-                    itemList
-            );
-            walkRecordsListView.setAdapter(adapterRecyclerViewSectioned);
-        }
+        Tools.printCalendar(itemList);
 
+        walkRecordListAdapterSectioned = new WalkRecordListAdapterSectioned(
+                requireContext(),
+                itemList
+        );
+        walkRecordsListView.setAdapter(walkRecordListAdapterSectioned);
 
-        //        walkRecordsListAdapter = new WalkRecordsListAdapter(
-//                appViewModel.getWalkRecordsListReference(
-//                        appViewModel.getChosenDogFromListLive().getValue()
-//                )
-//        );
+//        LinkedList<WalkRecord> list = appViewModel.getWalkTimestampsLive().getValue();
+//
+//        if(list != null) {
+//            long[] walkTimestamps = new long[list.size()];
+//            int counter = list.size() - 1;
+//            for(int i = 0; i < list.size(); i++) {
+//                walkTimestamps[i] = list.get(counter).getTimestamp();
+//                --counter;
+//            }
+//            ArrayList<WalkRecordListItem> itemList = Tools.generateWalkCalendar(walkTimestamps);
+//
+//            Tools.printCalendar(itemList);
+//
+//            walkRecordListAdapterSectioned = new WalkRecordListAdapterSectioned(
+//                    requireContext(),
+//                    itemList
+//            );
+//            walkRecordsListView.setAdapter(walkRecordListAdapterSectioned);
+//        }
+    }
 
-//        walkRecordsListAdapter.setWalkRecordsList(
-//                appViewModel.getWalkRecordsListReference(
-//                        appViewModel.getChosenDogFromListLive().getValue()
-//                )
-//        );
-//        walkRecordsListView.addItemDecoration(new DividerItemDecoration(
-//                    view.getContext(),
-//                    DividerItemDecoration.VERTICAL
-//                )
-//        );
-//        walkRecordsListView.setItemAnimator(new DefaultItemAnimator());
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStart() call");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStop() call");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
     }
 }

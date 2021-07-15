@@ -35,7 +35,7 @@
 
             <ImageButton
                 android:id="@+id/ibtn_dog_list_sort_name"
-                android:tag="createDescription"
+                android:tag="sortByName"
                 android:layout_width="@dimen/spacing_mxlarge"
                 android:layout_height="@dimen/spacing_mxlarge"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -60,8 +60,8 @@
                 />
 
             <ImageButton
-                android:id="@+id/ibtn_dog_list_sort_walk"
-                android:tag="createDescription"
+                android:id="@+id/ibtn_dog_list_sort_date"
+                android:tag="sortByDate"
                 android:layout_width="@dimen/spacing_mxlarge"
                 android:layout_height="@dimen/spacing_mxlarge"
                 android:background="?attr/selectableItemBackgroundBorderless"

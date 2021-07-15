@@ -32,7 +32,6 @@
     <string name="dog_list_header">Питомцы приюта</string>
     <string name="dog_list_dialog_header">Профиль нового питомца</string>
 
-
     <string name="dog_info_header">Профиль</string>
     <string name="dog_info_about_dog">О питомце</string>
     <string name="dog_info_dialog_about_dog">Расскажите про питомца…</string>
@@ -42,6 +41,9 @@
     <string name="dog_info_dialog_btn_apply">Добавить</string>
     <string name="dialog_warning_description_is_empty">Описание отсутствует</string>
     <string name="dog_info_dialog_success">Описание добавлено</string>
+
+    <string name="walk_list_header">Все прогулки</string>
+
 
 
     <string name="long_lorem_ipsum_2">

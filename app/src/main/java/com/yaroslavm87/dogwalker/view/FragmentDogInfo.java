@@ -6,6 +6,10 @@ import androidx.fragment.app.Fragment;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,25 +27,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.model.WalkRecord;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import com.yaroslavm87.dogwalker.viewModel.Tools;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.Objects;
 
 public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     private AppViewModel appViewModel;
-//    private ImageView imgDogPic;
     private TextView tvDogName, tvDogLastWalk, tvDogDescription, tvRecentWalks, tvDialogHeader;
     private EditText etvDialogContent;
     private Button btnDialogCancel, btnDialogSubmit;
     private FloatingActionButton btnWalkDog;
     private ImageButton ibtnCreateDescription, btnSeeWalkRecords;
+    private CircularImageView profilePic;
     private Dialog dialog;
     private OnDogInfoItemClickListener onDogInfoItemClickListener;
     private LinkedList<String> listRecentWalks;
@@ -58,6 +70,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     }
 
     public enum FragmentEvents{
+        SET_PROFILE_PIC,
         WALK_CALL,
         SEE_WALK_RECORDS_CALL,
         REMOVE_FROM_LIST_CALL
@@ -87,8 +100,8 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         Log.d(LOG_TAG, "----------- FRAGMENT DOG INFO onViewCreated -----------");
         initVariables();
-        initViewComponents(requireView());
-        subscribeForLiveData();
+        initViewComponents(view);
+        setViewComponents();
 
     }
 
@@ -98,6 +111,14 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         Log.d(LOG_TAG, "----------------------");
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
         setToolbar();
+        subscribeForLiveData();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
+        unsubscribeFromLiveData();
     }
 
     private void initVariables() {
@@ -116,8 +137,29 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         btnWalkDog.setOnClickListener(this);
         btnSeeWalkRecords = view.findViewById(R.id.ibtn_dog_see_walks_list);
         btnSeeWalkRecords.setOnClickListener(this);
+        profilePic = view.findViewById(R.id.dog_info_profile_icon);
+        profilePic.setOnClickListener(this);
+
+
+
 //        removeDogFromList = view.findViewById(R.id.dog_info_button_remove_dog);
         //removeDogFromList.setOnClickListener(this);
+
+
+    }
+
+    private void setToolbar() {
+        ActionBar actionBar = Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar());
+        actionBar.setTitle(R.string.dog_info_header);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void setViewComponents() {
+        if(appViewModel.getDogProfileImagePathLive().getValue() != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(appViewModel.getDogProfileImagePathLive().getValue());
+            if(bitmap == null) Log.d(LOG_TAG, "bitmap null");
+            profilePic.setImageBitmap(bitmap);
+        }
 
         Dog dog = appViewModel.getChosenDogFromListLive().getValue();
         if(dog != null) {
@@ -127,52 +169,40 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                     Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy");
             tvDogLastWalk.setText(content);
             tvDogDescription.setText(dog.getDescription());
+            Tools.loadImageWithGlide(this, dog, profilePic, R.drawable.ic_photo);
         }
-    }
-
-    private void setToolbar() {
-        ActionBar actionBar = Objects.requireNonNull(((AppCompatActivity) requireActivity()).getSupportActionBar());
-        actionBar.setTitle(R.string.dog_info_header);
-        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     private void subscribeForLiveData() {
         appViewModel.getWalkTimestampsLive().observe(
-                getViewLifecycleOwner(), (walkRecords) -> {
+                getViewLifecycleOwner(),
+                (walkRecords) -> {
                     fillWalkRecordsList(walkRecords);
                     setTvRecentWalks();
                 }
         );
 
-//                    if(walkRecord != null) {
-//                        Log.d(LOG_TAG, "FragmentDogInfo.getInsertedWalkRecordLive " + walkRecord.getDogId());
-//                        String strLastWalk = Tools.parseMillsToDate(
-//                                walkRecord.getTimestamp(),
-//                                "dd MMMM yyyy");
-//
-//                        if(!isInWalkList(strLastWalk)) {
-//                            addRecentWalkToList(strLastWalk);
-//
-//                            StringBuilder result = new StringBuilder();
-//                            for(String s : listRecentWalks) {
-//                                result.append(s).append("\n");
-//                            }
-//                            tvRecentWalks.setText(result.toString());
-//                        }
-//                    }
-//                }
-//        );
         appViewModel.getChangedDogLive().observe(
-                getViewLifecycleOwner(), (dog) -> {
+                getViewLifecycleOwner(),
+                (dog) -> {
                     Dog chosenDog = appViewModel.getChosenDogFromListLive().getValue();
                     assert dog != null;
                     assert chosenDog != null;
                     if(chosenDog.equals(dog)) {
-                        tvDogLastWalk.setText(Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy"));
+                        String content = dog.getLastTimeWalk() == 0L ?
+                                requireContext().getResources().getString(R.string.dog_did_not_walk) :
+                                Tools.parseMillsToDate(dog.getLastTimeWalk(), "dd MMMM yyyy");
+                        tvDogLastWalk.setText(content);
                         tvDogDescription.setText(dog.getDescription());
+                        Tools.loadImageWithGlide(this, dog, profilePic, R.drawable.ic_photo);
                     }
                 }
         );
+    }
+
+    private void unsubscribeFromLiveData() {
+        appViewModel.getWalkTimestampsLive().removeObservers(getViewLifecycleOwner());
+        appViewModel.getChangedDogLive().removeObservers(getViewLifecycleOwner());
     }
 
     private void fillWalkRecordsList(LinkedList<WalkRecord> walkRecords) {
@@ -182,7 +212,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
             if(listRecentWalks.size() >= MAX_LIST_SIZE) break;
 
             if(wr != null) {
-                Log.d(LOG_TAG, "FragmentDogInfo.getRecentWalkTimestampsLive " + wr.getDogId());
+                Log.d(LOG_TAG, "FragmentDogInfo.getRecentWalkTimestampsLive " + wr.getId());
 
                 String strLastWalk = Tools.parseMillsToDate(
                         wr.getTimestamp(),
@@ -214,44 +244,30 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-
             switch(v.getTag().toString()) {
 
+                case "setProfilePic":
+                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SET_PROFILE_PIC);
+                    break;
+
                 case "walk":
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "----------- WALK DOG BUTTON -----------");
-                    Log.d(LOG_TAG, "--");
                     onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.WALK_CALL);
+                    Log.d(LOG_TAG, String.valueOf(
+                            Tools.getDay(System.currentTimeMillis())
+                    ));
                     break;
 
                 case "seeWalks":
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "----------- SEE WALKS BUTTON -----------");
-                    Log.d(LOG_TAG, "--");
                     if(Objects.requireNonNull(appViewModel.getChosenDogFromListLive().getValue()).getLastTimeWalk() > 1000L) {
                         onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SEE_WALK_RECORDS_CALL);
                     }
                     break;
 
                 case "removeFromList":
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "----------- REMOVE BUTTON -----------");
-                    Log.d(LOG_TAG, "--");
                     onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.REMOVE_FROM_LIST_CALL);
                     break;
 
                 case "createDescription":
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "--");
-                    Log.d(LOG_TAG, "----------- CREATE DSCR -----------");
-                    Log.d(LOG_TAG, "--");
                     showCustomDialog();
                     break;
 
@@ -264,7 +280,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                     if (review.equals("")) {
                         Toast.makeText(getContext(), R.string.dialog_warning_description_is_empty, Toast.LENGTH_SHORT).show();
                     } else {
-                        //appViewModel.updateDescription();
                         dialog.dismiss();
                         Toast.makeText(getContext(), R.string.dog_info_dialog_success, Toast.LENGTH_SHORT).show();
                         appViewModel.updateDogDescription(review);
@@ -306,12 +321,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStop() call");
@@ -321,6 +330,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
-        appViewModel.resetDogBufferVariables();
     }
 }
+

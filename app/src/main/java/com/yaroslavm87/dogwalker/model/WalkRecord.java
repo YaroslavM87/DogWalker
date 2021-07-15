@@ -2,6 +2,8 @@ package com.yaroslavm87.dogwalker.model;
 
 import androidx.annotation.NonNull;
 
+import com.yaroslavm87.dogwalker.viewModel.Tools;
+
 import java.util.Objects;
 
 public class WalkRecord {
@@ -70,18 +72,16 @@ public class WalkRecord {
                 '}';
     }
 
-    // TODO: replace with clone()
-    /*
-     copy of walkRecords is made to avoid controversy between
-     walkRecord's values in model's listOfWalkRecords and those in database,
-     as all changes to dog's values go through database updates
-    */
-//    public static WalkRecord getCopy(WalkRecord walkRecordToCopy) {
-//        return new WalkRecord(
-//                walkRecordToCopy.getId(),
-//                walkRecordToCopy.getDogId(),
-//                walkRecordToCopy.getTimeStamp(),
-//                walkRecordToCopy.getUserId()
-//        );
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WalkRecord that = (WalkRecord) o;
+        return Tools.getMomentOfStartDay(getTimestamp()) == Tools.getMomentOfStartDay(that.getTimestamp());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Tools.getMomentOfStartDay(getTimestamp()));
+    }
 }

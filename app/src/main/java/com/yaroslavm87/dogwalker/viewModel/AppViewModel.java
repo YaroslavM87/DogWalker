@@ -1,7 +1,7 @@
 package com.yaroslavm87.dogwalker.viewModel;
 
 import android.app.Application;
-import android.util.Log;
+import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -15,7 +15,7 @@ import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.notifications.Subscriber;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -36,6 +36,9 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     private LinkedList<WalkRecord> refListOfWalkTimestamps;
     private MutableLiveData<LinkedList<WalkRecord>> walkTimestampsLive;
 
+    private MutableLiveData<Uri> dogProfileImageUriLive;
+    private MutableLiveData<String> dogProfileImagePathLive;
+
     private MutableLiveData<String> modelErrorMessageLive;
     private String LOG_TAG;
 
@@ -43,20 +46,6 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         super(application);
         initEntities(application);
         setEntities();
-
-        //TODO: find another solution to sort the list
-//        new Thread(() -> {
-//
-//            try{
-//                Thread.sleep(5000);
-//
-//            } catch(InterruptedException e) {
-//                Log.d(LOG_TAG, "ViewModelDogList constructor call -> " + e);
-//            }
-//
-//            sortTime();
-//
-//        }).start();
     }
 
     @Override
@@ -72,7 +61,6 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
 
             case MODEL_LIST_DOGS_ITEM_ADDED:
                 if(updatedValue instanceof Integer) {
-                    Log.d(LOG_TAG, "AppsViewModel.receiveUpdate().dogAdded at index = " + (int) updatedValue);
                     insertedDogIndexLive.setValue((int) updatedValue);
                 }
                 break;
@@ -93,9 +81,6 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
                 break;
 
             case MODEL_LIST_WALK_RECORDS_ITEM_ADDED:
-                if (updatedValue instanceof WalkRecord) {
-                    Log.d(LOG_TAG, "AppViewModel.receiveUpdate().walkRecordAdded WalkRecord = " + updatedValue);
-                }
                 if(refListOfWalkTimestamps != null && refListOfWalkTimestamps.size() > 0) {
                     walkTimestampsLive.setValue(refListOfWalkTimestamps);
                 }
@@ -103,7 +88,6 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
 
             case MODEL_MESSAGE:
                 if(updatedValue instanceof String) {
-                    Log.d(LOG_TAG, "AppViewModel.receiveUpdate().MODEL_ERROR");
                     modelErrorMessageLive.setValue((String) updatedValue);
                 }
                 break;
@@ -115,17 +99,11 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     }
 
     public void setCurrentChosenDog(Dog dog) {
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "----------- SET CURRENT DOG = " + dog.getName() + " -----------");
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "AppsViewModel.setCurrentChosenDog()");
         model.dispatchWalkRecordsFor(dog);
         chosenDogFromListLive.setValue(dog);
     }
 
     public void setCurrentIndexOfChosenDog(int index) {
-        //Log.d(LOG_TAG, "ViewModelDogList.setCurrentChosenDogByIndex() call = " + index);
         chosenIndexOfDogFromListLive.postValue(index);
     }
 
@@ -141,39 +119,62 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     }
 
     public void updateDogDescription(String updatedDescription) {
-        Log.d(LOG_TAG, "AppsViewModel.updateDogDescription() index = " + chosenIndexOfDogFromListLive.getValue());
         if(Objects.requireNonNull(chosenIndexOfDogFromListLive.getValue()) > -1) {
             model.updateDogDescription(chosenIndexOfDogFromListLive.getValue(), updatedDescription);
         }
     }
 
+    public void updateDogImage(String imageUri) {
+        if(Objects.requireNonNull(chosenIndexOfDogFromListLive.getValue()) > -1) {
+            model.updateDogImage(chosenIndexOfDogFromListLive.getValue(), imageUri);
+        }
+    }
+
     public void walkDog() {
-        Log.d(LOG_TAG, "AppsViewModel.walkDog() index = " + chosenIndexOfDogFromListLive.getValue());
         if(Objects.requireNonNull(chosenIndexOfDogFromListLive.getValue()) > -1) {
             model.walkDog(chosenIndexOfDogFromListLive.getValue());
         }
     }
 
+    private Comparator<Dog> nameComp;
+
+    private final Comparator<Dog> ascNameComp = (dog1, dog2) -> dog1.getName().compareTo(dog2.getName());
+
+    private final Comparator<Dog> descNameComp = (dog1, dog2) -> ascNameComp.compare(dog2, dog1);
+
+    private Comparator<Dog> dateComp;
+
+    private final Comparator<Dog> ascDateComp = (dog1, dog2) -> {
+        int x = 0;
+        long d = dog1.getLastTimeWalk() - dog2.getLastTimeWalk();
+        if (d != 0L) x = dog1.getLastTimeWalk() - dog2.getLastTimeWalk() < 0 ? -1 : 1;
+        return x;
+    };
+
+    private final Comparator<Dog> descDateComp = (dog1, dog2) -> ascDateComp.compare(dog2, dog1);
+
     public void sortName() {
-        model.getReferenceDogs().sort(
-                (dog1, dog2) -> dog1.getName().compareTo(dog2.getName())
-
-        );
-
-        listOfDogsLive.postValue(model.getReferenceDogs());
+        nameComp = (nameComp == descNameComp) ? ascNameComp : descNameComp;
+        model.getReferenceDogs().sort(nameComp);
+        listOfDogsLive.setValue(model.getReferenceDogs());
+        dateComp = descDateComp;
     }
 
-    public void sortTime() {
-        model.getReferenceDogs().sort(
-                (dog1, dog2) -> (int) (dog1.getLastTimeWalk() - dog2.getLastTimeWalk())
-        );
-
-        listOfDogsLive.postValue(model.getReferenceDogs());
+    public void sortDate() {
+        dateComp = (dateComp == descDateComp) ? ascDateComp : descDateComp;
+        model.getReferenceDogs().sort(dateComp);
+        listOfDogsLive.setValue(model.getReferenceDogs());
+        nameComp = descNameComp;
     }
 
-
+    public void receiveDogProfilePicUri(Uri uri) {
+        dogProfileImageUriLive.setValue(uri);
+    }
 
     // for FragmentDogList
+    public LiveData<ArrayList<Dog>> getListOfDogsLive() {
+        return listOfDogsLive;
+    }
     public LiveData<Integer> getChosenIndexOfDogFromListLive() {
         return chosenIndexOfDogFromListLive;
     }
@@ -194,6 +195,14 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     public LiveData<LinkedList<WalkRecord>> getWalkTimestampsLive() {
         return walkTimestampsLive;
     }
+
+    public LiveData<Uri> getDogProfileImageUriLive() {
+        return dogProfileImageUriLive;
+    }
+    public LiveData<String> getDogProfileImagePathLive() {
+        return dogProfileImagePathLive;
+    }
+
 //        public LiveData<WalkRecord> getInsertedWalkRecordLive() {
 //        return insertedWalkRecordLive;
 //    }
@@ -226,6 +235,10 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
 
         // for FragmentDogInfo to get updated list of 5 last walks
         walkTimestampsLive = new MutableLiveData<>();
+
+        // for FragmentDogInfo to get Uri of pic from gallery
+        dogProfileImageUriLive = new MutableLiveData<>();
+        dogProfileImagePathLive = new MutableLiveData<>();
 
         chosenIndexOfDogFromListLive = new MutableLiveData<>();
         modelErrorMessageLive = new MutableLiveData<>();

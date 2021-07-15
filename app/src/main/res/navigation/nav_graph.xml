@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
     app:startDestination="@id/fragmentDogList">
@@ -10,23 +11,44 @@
         android:label="FragmentDogList" >
         <action
             android:id="@+id/action_fragmentDogList_to_fragmentDogInfo"
-            app:destination="@id/fragmentDogInfo" />
+            app:destination="@id/fragmentDogInfo"
+            />
     </fragment>
 
     <fragment
         android:id="@+id/fragmentDogInfo"
         android:name="com.yaroslavm87.dogwalker.view.FragmentDogInfo"
-        android:label="FragmentDogInfo" >
+        android:label="FragmentDogInfo"
+        app:popUpTo="@+id/fragmentDogList"
+        app:popUpToInclusive="true"
+        >
         <action
             android:id="@+id/action_fragmentDogInfo_to_fragmentWalkRecords"
-            app:destination="@id/fragmentWalkRecords" />
+            app:destination="@id/fragmentWalkRecords"
+            />
+        <action
+            android:id="@+id/action_fragmentDogInfo_to_fragmentImageCrop"
+            app:destination="@id/fragmentImageCrop"
+            />
     </fragment>
 
     <fragment
         android:id="@+id/fragmentWalkRecords"
         android:name="com.yaroslavm87.dogwalker.view.FragmentWalkRecords"
         android:label="FragmentWalkRecords"
-        app:popUpTo="@+id/fragmentDogList"
-        app:popUpToInclusive="true"
+        app:popUpTo="@+id/fragmentDogInfo"
         />
+
+    <fragment
+        android:id="@+id/fragmentImageCrop"
+        android:name="com.yaroslavm87.dogwalker.view.FragmentImageCrop"
+        android:label="FragmentImageCrop"
+        app:popUpTo="@+id/fragmentDogInfo"
+        />
+    <action
+    android:id="@+id/action_fragmentImageCrop_to_fragmentDogInfo"
+    app:destination="@id/fragmentDogInfo"
+    />
 </navigation>
+
+<!--    app:popUpToInclusive="true"-->

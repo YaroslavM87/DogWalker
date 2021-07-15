@@ -1,8 +1,6 @@
 package com.yaroslavm87.dogwalker.view;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -10,7 +8,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,21 +25,20 @@ import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 //public class ActivityDogList extends AppCompatActivity implements View.OnClickListener, FragmentDogList.OnFragmentViewClickListener {
 
 
-public class ActivityMain extends AppCompatActivity implements FragmentDogList.OnDogListItemClickListener, FragmentDogInfo.OnDogInfoItemClickListener {
+public class ActivityMain extends AppCompatActivity implements FragmentDogList.OnDogListItemClickListener,
+        FragmentDogInfo.OnDogInfoItemClickListener,
+        FragmentImageCrop.OnImageCropItemClickListener {
 
     //private ActivityMainBinding binding;
     private AppViewModel appViewModel;
     private NavController navController;
     private FragmentManager fragmentManager;
-//    private FragmentDogList fragmentDogList;
-//    private FragmentDogInfo fragmentDogInfo;
-//    private FragmentWalkRecords fragmentWalkRecords;
     private static int SIGN_IN_REQUEST_CODE = 1;
+    private static int PICK_GALLERY_PICTURE_REQUEST_CODE = 2;
     private final String LOG_TAG;
 
     {
@@ -50,11 +49,6 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        if (getSupportActionBar() != null) {
-            // .hide();
-        }
 
         if (isCurrentUserAuthenticated()) {
             initVariables();
@@ -93,6 +87,22 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
                 finish();
             }
         }
+
+        if (requestCode == PICK_GALLERY_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+
+                navController.navigate(R.id.action_fragmentDogInfo_to_fragmentImageCrop);
+
+                // this is the image selected by the user
+                String path = data.getData().getPath();
+                Uri uri = data.getData();
+
+                Log.d(LOG_TAG, this.getClass().getCanonicalName() + " path = " + "content://media" + path);
+                Log.d(LOG_TAG, this.getClass().getCanonicalName() + " uri = " + uri);
+                //appViewModel.receiveDogProfilePicPath(path);
+                appViewModel.receiveDogProfilePicUri(uri);
+            }
+        }
     }
 
     @Override
@@ -118,6 +128,10 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
     public void onDogInfoItemClick(FragmentDogInfo.FragmentEvents event) {
         switch (event) {
 
+            case SET_PROFILE_PIC:
+                getProfilePicFromGallery();
+                break;
+
             case WALK_CALL:
                 appViewModel.walkDog();
                 break;
@@ -129,6 +143,16 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
             case REMOVE_FROM_LIST_CALL:
                 navController.popBackStack();
                 appViewModel.deleteDog();
+                break;
+        }
+    }
+
+    @Override
+    public void onImageCropItemClick(FragmentImageCrop.FragmentEvents event) {
+        switch (event) {
+
+            case IMAGE_CROP_DONE:
+                navController.navigate(R.id.action_fragmentImageCrop_to_fragmentDogInfo);
                 break;
         }
     }
@@ -145,20 +169,6 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())
         ).get(AppViewModel.class);
-    }
-
-    private void initViewElements() {
-        //addFragmentDogList();
-    }
-
-    private void subscribeViewElements() {
-//        appViewModel.getChosenIndexOfDogFromListLive()
-//                .observe(this,(index) -> {
-//                    if(index < 0) {
-//                    showFragmentDogListHideFragmentDogInfo();
-//                    }
-//                }
-//        );
     }
 
     private boolean isCurrentUserAuthenticated() {
@@ -178,6 +188,20 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
                         .setAvailableProviders(providers)
                         .build(),
                 SIGN_IN_REQUEST_CODE
+        );
+    }
+
+    private void getProfilePicFromGallery() {
+
+        Intent pictureActionIntent = new Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        );
+        // Create and launch sign-in intent,
+
+        startActivityForResult(
+                pictureActionIntent,
+                PICK_GALLERY_PICTURE_REQUEST_CODE
         );
     }
 
@@ -234,285 +258,3 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
-
-
-
-
-
-
-/*
-*
-*
-* protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        //setContentView(R.layout.activity_alt);
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-
-
-
-        if (isCurrentUserAuthenticated()) {
-
-            viewModelDogList = new ViewModelProvider(
-                    this,
-                    ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())
-            ).get(ViewModelDogList.class);
-
-            initViewElements();
-
-            subscribeViewElements();
-
-            // Choose authentication providers
-            List<AuthUI.IdpConfig> providers = Collections.singletonList(
-                    new AuthUI.IdpConfig.EmailBuilder().build()
-            );
-
-            // Create and launch sign-in intent
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(providers)
-                            .build(),
-                    SIGN_IN_REQUEST_CODE
-            );
-
-        } else {
-            authenticateCurrentUser();
-
-
-
-
-            //viewModelDogList.requestDogList();
-
-//            subscribeViewElements();
-//            viewModelDogList.requestDogList();
-
-//            if(savedInstanceState == null) {
-//                initViewElements();
-//                subscribeViewElements();
-//            }
-        }
-    }
-
-    private boolean isCurrentUserAuthenticated() {
-        return FirebaseAuth.getInstance().getCurrentUser() != null;
-    }
-
-    private void authenticateCurrentUser() {
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Collections.singletonList(
-                new AuthUI.IdpConfig.EmailBuilder().build()
-        );
-
-        // Create and launch sign-in intent
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                SIGN_IN_REQUEST_CODE
-        );
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SIGN_IN_REQUEST_CODE) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
-                // Successfully signed in
-                //Snackbar.make(binding.activityDogList, "Вход выполнен", Snackbar.LENGTH_SHORT).show();
-
-//                initViewElements();
-//                subscribeViewElements();
-
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-            } else {
-                // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ...
-                //Snackbar.make(binding.activityDogList, "Вход не выполнен", Snackbar.LENGTH_SHORT).show();
-                finish();
-            }
-        }
-    }
-
-    private void initViewElements() {
-
-//        getSupportFragmentManager().beginTransaction()
-//                .setReorderingAllowed(true)
-//                .add(
-//                        R.id.fragment_container_dog_list,
-//                        FragmentDogList.class,
-//                        null,
-//                        "DogList"
-//                )
-//                .commit();
-
-//        recyclerView = findViewById(R.id.dog_list_view);
-//
-//        dogListAdapter = new DogListAdapter(new ArrayList<>());
-//        dogListAdapter.setViewHolderLayout(viewHolderLayout);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        recyclerView.setAdapter(dogListAdapter);
-//        RecyclerView.ItemDecoration itemDecoration = new
-//                DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-//        recyclerView.addItemDecoration(itemDecoration);
-//        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-
-//        SnapHelper snapHelper = new LinearSnapHelper();
-//        snapHelper.attachToRecyclerView(recyclerView);
-
-    }
-
-    private void subscribeViewElements() {
-
-//        viewModelDogList.getListOfDogsLive().observe(
-//                this,(dogArrayList) -> {
-//                    dogListAdapter.setDogList(dogArrayList);
-//                    dogListAdapter.notifyDataSetChanged();
-//                });
-//
-//        viewModelDogList.getInsertedDogIndexLive().observe(
-//                this,(index) -> {
-//                    dogListAdapter.notifyItemInserted(index);
-//                });
-
-
-//        FragmentDogList fragmentDogList = (FragmentDogList) getSupportFragmentManager()
-//                .findFragmentById(R.id.fragment_container_dog_list);
-//
-//        if(fragmentDogList != null) {
-//
-//            viewModelDogList.getListOfDogsLive().observe(
-//                    this,
-//                    fragmentDogList::receiveNewDogList
-//            );
-//
-//            viewModelDogList.getInsertedDogIndexLive().observe(
-//                    this,
-//                    fragmentDogList::receiveIndexOfInsertedDogInList
-//            );
-//
-//            viewModelDogList.getChangedDogIndexLive().observe(
-//                    this,
-//                    fragmentDogList::receiveIndexOfChangedDogInList
-//            );
-//
-//            viewModelDogList.getDeletedDogIndexLive().observe(
-//                    this,
-//                    fragmentDogList::receiveIndexOfDeletedDogFromList
-//            );
-//        } else {
-//
-//            Log.d(LOG_TAG, "ActivityMain -> fragmentDogList == null");
-//
-//        }
-
-//        new Thread(() -> {
-//
-//            try{
-//                Thread.sleep(5000);
-//
-//            } catch(InterruptedException e) {
-//                Log.d(LOG_TAG, "ViewModelDogList constructor call -> " + e);
-//            }
-//
-//
-//        }).start();
-
-
-    }
-
-    //@RequiresApi(api = Build.VERSION_CODES.M)
-//    @Override
-//    public void onClick(View v) {
-//
-//        switch (Objects.requireNonNull(v.getTag().toString())) {
-//
-//            case "addDogButton":
-//
-//                String s = binding.dogNameEditText.getText().toString();
-//
-//                if(s.toCharArray().length > 1) {
-//
-//                    viewModelDogList.addNewDog(s);
-//                    binding.dogNameEditText.setText("");
-//                }
-//                hideKeyboard();
-//                break;
-//
-//            case "deleteDogButton":
-//
-//                viewModelDogList.deleteDog();
-//                break;
-//
-//            case "walkDogButton":
-//
-//                viewModelDogList.walkDog();
-//                break;
-//
-//            case "sortNameButton":
-//
-//                viewModelDogList.sortName();
-//                break;
-//
-//            case "sortTimeButton":
-//
-//                viewModelDogList.sortTime();
-//                break;
-//
-//            case "signOutButton":
-//                signOut();
-//                break;
-//        }
-//    }
-
-//    @Override
-//    public void onViewHolderItemClick(View view, int position) {
-//        Log.d(LOG_TAG, "ActivityDogList.onViewHolderItemClick() call");
-//        viewModelDogList.setCurrentChosenDogByIndex(position);
-//        LinearLayout ll = (LinearLayout) view;
-//
-//        Log.d(LOG_TAG, "ActivityDogList.ll.getChildCount() call = " + ll.getChildCount());
-//        for(int i = 0; i < ll.getChildCount(); i++) {
-//            TextView tv = (TextView) ll.getChildAt(i);
-//            tv.setLines(5);
-//        }
-//        ll.getChildAt(0);
-//
-//    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) this.getApplicationContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = this.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(this);
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
-
-    private void signOut() {
-        AuthUI.getInstance().signOut(this).addOnCompleteListener(task -> {
-
-            //Snackbar.make(findViewById(R.id.activity_dog_list), "Выход выполнен", Snackbar.LENGTH_SHORT).show();
-            finish();
-
-        });
-    }
-}
-*
-*
-*
-*
-* */

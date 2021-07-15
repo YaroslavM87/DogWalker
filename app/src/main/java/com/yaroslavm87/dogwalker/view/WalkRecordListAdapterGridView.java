@@ -1,6 +1,7 @@
 package com.yaroslavm87.dogwalker.view;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AdapterGridView  extends BaseAdapter {
+public class WalkRecordListAdapterGridView extends BaseAdapter {
 
     private int[] setOfDays;
     private Integer[] walkDays;
@@ -27,7 +28,7 @@ public class AdapterGridView  extends BaseAdapter {
         walkDays = new Integer[0];
     }
 
-    public AdapterGridView(Context ctx) {
+    public WalkRecordListAdapterGridView(Context ctx) {
         this.context = ctx;
         layoutInflater = LayoutInflater.from(ctx);
     }
@@ -75,6 +76,7 @@ public class AdapterGridView  extends BaseAdapter {
     public void setPayload(WalkRecordListItem item) {
         setOfDays = item.getSetOfDays();
         walkDays = item.getWalkDays();
+        //Arrays.stream(walkDays).forEach(x -> Log.d("myLogs", String.valueOf(x)));
         notifyDataSetChanged();
     }
 

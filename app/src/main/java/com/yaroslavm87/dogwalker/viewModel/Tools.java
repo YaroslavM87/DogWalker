@@ -3,20 +3,33 @@ package com.yaroslavm87.dogwalker.viewModel;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.view.WalkRecordListItem;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class Tools {
@@ -93,6 +106,35 @@ public class Tools {
 
     public static String capitalize(String string) {
         return string.substring(0, 1).toUpperCase() + string.substring(1);
+    }
+
+    public static void loadImageWithGlide(Fragment fragment, Dog dog, ImageView profilePic, int placeholderId) {
+        Glide.with(fragment)
+                .load(dog.getImageUri())
+                .timeout(60000)
+                //.placeholder(placeholderId)
+                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(
+                            @Nullable GlideException e,
+                            Object model,
+                            Target<Drawable> target,
+                            boolean isFirstResource
+                    ) {
+                        return false;
+                    }
+                    @Override
+                    public boolean onResourceReady(
+                            Drawable resource,
+                            Object model,
+                            Target<Drawable> target,
+                            DataSource dataSource,
+                            boolean isFirstResource
+                    ) {
+                        return false;
+                    }
+                }).into(profilePic);
     }
 
     public static ArrayList<WalkRecordListItem> generateWalkCalendar(long[] walkTimestamps) {
@@ -227,7 +269,7 @@ public class Tools {
                 }
 
             } else {
-                int counter = 1;
+                int dayCounter = 1;
                 String msg = "";
 
                 for (int day : item.getSetOfDays()) {
@@ -235,29 +277,29 @@ public class Tools {
                     if (day == 7) {
 
                         for (int w : item.getWalkDays()) {
-                            if (counter == w) {
+                            if (dayCounter == w) {
                                 msg = "w";
                                 break;
                             }
                         }
 
-                        Log.d(LOG_TAG, counter + msg);
+                        Log.d(LOG_TAG, dayCounter + msg);
                         msg = "";
-                        counter++;
+                        dayCounter++;
                         Log.d(LOG_TAG,"");
 
                     } else if (day > 0) {
 
                         for (int w : item.getWalkDays()) {
-                            if (counter == w) {
+                            if (dayCounter == w) {
                                 msg = "w";
                                 break;
                             }
                         }
 
-                        Log.d(LOG_TAG, counter + msg);
+                        Log.d(LOG_TAG, dayCounter + msg);
                         msg = "";
-                        counter++;
+                        dayCounter++;
 
                     } else {
                         Log.d(LOG_TAG, msg);
@@ -273,8 +315,9 @@ public class Tools {
         final long FOUR_YEAR_PERIOD = 126230400000L;  // 365 + 365 + 366 + 365
         final long COMMON_YEAR_PERIOD = 31536000000L; // 365
         final long LEAP_YEAR_PERIOD = 31622400000L;   // 366
+        final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
-        long from4YPeriodEnd = moment % FOUR_YEAR_PERIOD;
+        long from4YPeriodEnd = MOMENT_WITH_TZ_OFFSET % FOUR_YEAR_PERIOD;
         return from4YPeriodEnd >= COMMON_YEAR_PERIOD * 2 && from4YPeriodEnd < COMMON_YEAR_PERIOD * 2 + LEAP_YEAR_PERIOD;
     }
 
@@ -282,9 +325,10 @@ public class Tools {
         final long FOUR_YEAR_PERIOD = 126230400000L;
         final long COMMON_YEAR_PERIOD = 31536000000L;
         final long LEAP_YEAR_PERIOD = 31622400000L;
+        final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
-        long from4YPeriodEnd = moment % FOUR_YEAR_PERIOD;
-        long endOf4YPeriod = moment - from4YPeriodEnd;
+        long from4YPeriodEnd = MOMENT_WITH_TZ_OFFSET % FOUR_YEAR_PERIOD;
+        long endOf4YPeriod = MOMENT_WITH_TZ_OFFSET - from4YPeriodEnd;
         long yearStart;
 
         if (isMomentInLeapY(moment)) {
@@ -294,7 +338,8 @@ public class Tools {
                 yearStart = (COMMON_YEAR_PERIOD * 2) + LEAP_YEAR_PERIOD + endOf4YPeriod;
             } else {
                 yearStart =
-                        (from4YPeriodEnd - COMMON_YEAR_PERIOD) > 0 ? COMMON_YEAR_PERIOD + endOf4YPeriod
+                        (from4YPeriodEnd - COMMON_YEAR_PERIOD) > 0
+                                ? COMMON_YEAR_PERIOD + endOf4YPeriod
                                 : endOf4YPeriod;
             }
         }
@@ -309,9 +354,10 @@ public class Tools {
         final int YEARS_BEFORE_LEAP_YEAR_IN_FOUR_YEAR_PERIOD = 2;
         final int YEARS_BEFORE_LAST_YEAR_IN_FOUR_YEAR_PERIOD = 3;
         final int START_YEAR = 1970;
+        final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
-        long from4YPeriodEnd = moment % FOUR_YEAR_PERIOD;
-        int yrsTill4YEnd = (int) (((moment - from4YPeriodEnd) / FOUR_YEAR_PERIOD) * YEARS_IN_FOUR_YEAR_PERIOD);
+        long from4YPeriodEnd = MOMENT_WITH_TZ_OFFSET % FOUR_YEAR_PERIOD;
+        int yrsTill4YEnd = (int) (((MOMENT_WITH_TZ_OFFSET - from4YPeriodEnd) / FOUR_YEAR_PERIOD) * YEARS_IN_FOUR_YEAR_PERIOD);
         int currentY;
         if (isMomentInLeapY(moment)) {
             currentY = START_YEAR + yrsTill4YEnd + YEARS_BEFORE_LEAP_YEAR_IN_FOUR_YEAR_PERIOD;
@@ -338,10 +384,12 @@ public class Tools {
         long yearStart = getMomentOfStartYear(moment);
         int[] daySet = getDaysForEachMonthInYear(moment);
         final long DAY_PERIOD = 86400000L;
+        final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
+
         long monthStart = yearStart;
         for (int amDays : daySet) {
             long nextMonth = DAY_PERIOD * amDays;
-            if (monthStart + nextMonth > moment)
+            if (monthStart + nextMonth > MOMENT_WITH_TZ_OFFSET)
                 break;
             monthStart = monthStart + nextMonth;
         }
@@ -367,9 +415,11 @@ public class Tools {
     public static long getMomentOfStartDay(long moment) {
         long monthStart = getMomentOfStartMonth(moment);
         final long DAY_PERIOD = 86400000L;
+        final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
+
         long dayStart = monthStart;
         for (int day = 1; day <= 31; day++) {
-            if (dayStart + DAY_PERIOD > moment)
+            if (dayStart + DAY_PERIOD > MOMENT_WITH_TZ_OFFSET)
                 break;
             dayStart = dayStart + DAY_PERIOD;
         }
@@ -392,10 +442,10 @@ public class Tools {
     public static int getWeekDay(long moment) {
         final long DAY = 86400000L;
         final int GLOBAL_WEEK_DAY_START = 4;
-        int currentWeekDay;
+        final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
-        long beginningOfDay = moment - (moment % DAY);
-        currentWeekDay = (int)((beginningOfDay / DAY) % 7) + GLOBAL_WEEK_DAY_START;
+        long beginningOfDay = MOMENT_WITH_TZ_OFFSET - (MOMENT_WITH_TZ_OFFSET % DAY);
+        int currentWeekDay = (int)((beginningOfDay / DAY) % 7) + GLOBAL_WEEK_DAY_START;
         if (currentWeekDay > 7) {
             currentWeekDay = currentWeekDay % 7;
         }
@@ -489,3 +539,4 @@ public class Tools {
 //        }
 //    }
 }
+//

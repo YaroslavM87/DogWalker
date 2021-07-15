@@ -25,43 +25,30 @@ public enum AppModel implements Model {
         LIST_OF_DOGS = new ListOfDogs();
         LIST_OF_WALK_RECORDS_FOR_DOG = new ListOfWalkRecords();
         PUBLISHER = Publisher.INSTANCE;
-        TIME_TO_REST_AFTER_WALK = 0L;
+        TIME_TO_REST_AFTER_WALK = 60000L;
         LOG_TAG = "myLogs";
     }
 
-    AppModel() {
-        Log.d(LOG_TAG, "Model() constructor call");
-    }
+    AppModel() {}
 
     public ArrayList<Dog> getReferenceDogs() {
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "----------- GET REF OF DOG LIST -----------");
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "Model.getReferenceDogs() call");
-
-        repoReadDogs();
+        if(!isListOfDogsLoaded()) repoReadDogs();
         return LIST_OF_DOGS.getList();
     }
 
+    private boolean isListOfDogsLoaded() {
+        if(LIST_OF_DOGS.getList() != null) {
+            return LIST_OF_DOGS.getList().size() > 0;
+        } else return false;
+    }
+
     public LinkedList<WalkRecord> getReferenceWalkRecords() {
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "----------- GET REF OF WALK LIST -----------");
-        Log.d(LOG_TAG, "--");
         return LIST_OF_WALK_RECORDS_FOR_DOG.getList();
     }
 
     public void dispatchWalkRecordsFor(Dog dog) {
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "----------- GET WALK LIST FOR DOG -----------");
-        Log.d(LOG_TAG, "--");
-        Log.d(LOG_TAG, "Model.getWalkRecordsFor(Dog dog) call");
-
-        Log.d(LOG_TAG, "ListOfWalkRecords size =" + LIST_OF_WALK_RECORDS_FOR_DOG.getList().size());
         if(!isListOfWalkRecordsLoaded(dog)) {
             LIST_OF_WALK_RECORDS_FOR_DOG.clearList();
-            Log.d(LOG_TAG, "ListOfWalkRecords size =" + LIST_OF_WALK_RECORDS_FOR_DOG.getList().size());
             repoReadWalkRecords(dog);
         }
     }
@@ -74,7 +61,6 @@ public enum AppModel implements Model {
     }
 
     public void createDog(String name, String description) {
-        Log.d(LOG_TAG, "Model.createDog() call");
         if(name.equals("")) {
             String errorMsg = "Напишите имя питомца!";
             dispatchMessage(errorMsg);
@@ -100,7 +86,14 @@ public enum AppModel implements Model {
         Log.d(LOG_TAG, "Model.updateDogDescription() call");
         Dog updatedDog = Dog.getCopy(LIST_OF_DOGS.getDog(index));
         updatedDog.setDescription(updatedDescription);
-        repoUpdateDog(updatedDog);
+        repoUpdateDogDecription(updatedDog);
+    }
+
+    public void updateDogImage(int index, String imageUri) {
+        Log.d(LOG_TAG, "Model.updateDogDescription() call");
+        Dog updatedDog = Dog.getCopy(LIST_OF_DOGS.getDog(index));
+        updatedDog.setImageUri(imageUri);
+        repoUpdateDogImage(updatedDog);
     }
 
     public void walkDog(int index) {
@@ -177,13 +170,24 @@ public enum AppModel implements Model {
         }).start();
     }
 
-    private void repoUpdateDog(Dog updatedDog) {
+    private void repoUpdateDogDecription(Dog updatedDog) {
         new Thread(() -> {
             try{
                 Log.d(LOG_TAG, "Model.repoUpdateDogDescription(Dog updatedDog) call");
                 repository.update(RepoOperations.UPDATE_DOG_DESCRIPTION, updatedDog);
             } catch (Exception e) {
                 Log.d(LOG_TAG, "Model.repoUpdateDogDescription(Dog updatedDog) EXCEPTION: " + e);
+            }
+        }).start();
+    }
+
+    private void repoUpdateDogImage(Dog updatedDog) {
+        new Thread(() -> {
+            try{
+                Log.d(LOG_TAG, "Model.repoUpdateDogImage(Dog updatedDog) call");
+                repository.update(RepoOperations.UPDATE_DOG_IMAGE, updatedDog);
+            } catch (Exception e) {
+                Log.d(LOG_TAG, "Model.repoUpdateDogImage(Dog updatedDog) EXCEPTION: " + e);
             }
         }).start();
     }

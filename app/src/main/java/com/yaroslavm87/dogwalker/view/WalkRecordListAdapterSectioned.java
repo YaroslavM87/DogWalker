@@ -14,7 +14,7 @@ import com.yaroslavm87.dogwalker.R;
 
 import java.util.ArrayList;
 
-public class AdapterRecyclerViewSectioned extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class WalkRecordListAdapterSectioned extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_GRID = 1;
     private final int VIEW_TITLE = 0;
@@ -34,7 +34,7 @@ public class AdapterRecyclerViewSectioned extends RecyclerView.Adapter<RecyclerV
 //        this.mOnItemClickListener = mItemClickListener;
 //    }
 
-    public AdapterRecyclerViewSectioned(Context context, ArrayList<WalkRecordListItem> items) {
+    public WalkRecordListAdapterSectioned(Context context, ArrayList<WalkRecordListItem> items) {
         this.ctx = context;
         this.items = items;
         month = ctx.getResources().getStringArray(R.array.month);
@@ -42,16 +42,16 @@ public class AdapterRecyclerViewSectioned extends RecyclerView.Adapter<RecyclerV
 
     public class OriginalViewHolder extends RecyclerView.ViewHolder {
         GridView gvMonth;
-        final AdapterGridView adapterGridView;
+        final WalkRecordListAdapterGridView walkRecordListAdapterGridView;
         OriginalViewHolder(View v) {
             super(v);
             gvMonth = (GridView) v.findViewById(R.id.walk_records_gridview_view);
-            adapterGridView = new AdapterGridView(ctx);
-            gvMonth.setAdapter(adapterGridView);
+            walkRecordListAdapterGridView = new WalkRecordListAdapterGridView(ctx);
+            gvMonth.setAdapter(walkRecordListAdapterGridView);
         }
 
         public void passPayloadToAdapter(WalkRecordListItem item) {
-            adapterGridView.setPayload(item);
+            walkRecordListAdapterGridView.setPayload(item);
             //adapterGridView.notifyDataSetChanged();
         }
     }

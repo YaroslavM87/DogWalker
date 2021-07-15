@@ -71,6 +71,7 @@
             android:background="@color/grey_3"
             android:gravity="top"
             android:hint="@string/dog_info_dialog_about_dog"
+            android:inputType="textMultiLine|textCapSentences"
             />
 
         <LinearLayout

@@ -5,10 +5,10 @@ android:id="@+id/walk_records_grid_view_lyt_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:gravity="center"
     >
-
+    
     <GridView
         android:id="@+id/walk_records_gridview_view"
         android:layout_width="fill_parent"

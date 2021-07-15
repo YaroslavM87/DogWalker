@@ -34,7 +34,7 @@ public class WalkRecordsListAdapter extends RecyclerView.Adapter<WalkRecordsList
     private final String LOG_TAG;
 
     {
-        viewHolderLayout = R.layout.view_holder_walk_records_list;
+        viewHolderLayout = R.layout.walkrecords_list_view_holder;
         LOG_TAG = "myLogs";
     }
 

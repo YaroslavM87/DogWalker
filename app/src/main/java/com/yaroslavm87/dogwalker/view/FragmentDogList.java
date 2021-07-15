@@ -6,8 +6,6 @@ import androidx.fragment.app.Fragment;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +15,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +40,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     private EditText etvDialogContentName, etvDialogContentDescription;
     private FloatingActionButton btnAddDog;
     private Button btnDialogCancel, btnDialogSubmit;
+    private ImageButton btnSortByName, btnSortByDate;
     private OnDogListItemClickListener onDogListItemClickListener;
     private final int animationType;
     private final String LOG_TAG;
@@ -65,16 +64,12 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         super.onAttach(context);
         if (context instanceof OnDogListItemClickListener) {
             onDogListItemClickListener = (OnDogListItemClickListener) context;
-        } else {
-            throw new ClassCastException(context.toString()
-                    + " must implement FragmentDogList.OnFragmentViewClickListener");
         }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //Log.d(LOG_TAG, "FragmentDogList.onCreateView() call");
         return inflater.inflate(R.layout.fragment_dog_list, container, false);
     }
 
@@ -82,7 +77,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initVariables();
-        initViewComponents(requireView());
+        initViewComponents(view);
         subscribeForLiveData();
     }
 
@@ -95,12 +90,27 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
+        unsubscribeFromLiveData();
+    }
+
+    @Override
     public void onClick(View v) {
 
         switch (v.getTag().toString()) {
 
             case "add":
                 showCustomDialog();
+                break;
+
+            case "sortByName":
+                appViewModel.sortName();
+                break;
+
+            case "sortByDate":
+                appViewModel.sortDate();
                 break;
 
             case "cancel":
@@ -119,8 +129,8 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     public void onViewHolderItemClick(View view, int position, Dog dog) {
         // TODO: move this logics to appViewModel
         if(appViewModel.getChosenIndexOfDogFromListLive().getValue() != null) {
-            if(position == (int) appViewModel.getChosenIndexOfDogFromListLive().getValue())
-                return;
+//            if(position == (int) appViewModel.getChosenIndexOfDogFromListLive().getValue())
+//                return;
             appViewModel.setCurrentChosenDog(dog);
             appViewModel.setCurrentIndexOfChosenDog(position);
             onDogListItemClickListener.onDogListItemClick(FragmentEvents.DOG_LIST_ITEM_CLICKED);
@@ -135,14 +145,37 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         initRecyclerView(view);
         btnAddDog = view.findViewById(R.id.btn_dog_list_add_dog);
         btnAddDog.setOnClickListener(this);
+        btnSortByName = view.findViewById(R.id.ibtn_dog_list_sort_name);
+        btnSortByName.setOnClickListener(this);
+        btnSortByDate= view.findViewById(R.id.ibtn_dog_list_sort_date);
+        btnSortByDate.setOnClickListener(this);
+    }
+
+    private void initRecyclerView(View view) {
+        dogListView = (RecyclerView) view.findViewById(R.id.dog_list_view);
+        dogListView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        dogListAdapter = new DogListAdapter(appViewModel.getDogListReference(), this);
+        dogListAdapter.setOnViewHolderItemClickListener(this);
+        dogListAdapter.setAnimationType(animationType);
+        dogListView.setAdapter(dogListAdapter);
+    }
+
+    private void setToolbar() {
+        AppCompatActivity act = (AppCompatActivity) requireActivity();
+        ActionBar actionBar = Objects.requireNonNull(act.getSupportActionBar());
+        actionBar.setTitle(R.string.dog_list_header);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        Tools.setSystemBarColor(act, R.color.status_action_bar);
     }
 
     private void subscribeForLiveData() {
+        appViewModel.getListOfDogsLive().observe(
+                getViewLifecycleOwner(), (dogList) ->
+                        dogListAdapter.notifyDataSetChanged());
+
         appViewModel.getInsertedDogIndexLive().observe(
-        getViewLifecycleOwner(),(index) -> {
-                    Log.d(LOG_TAG, "FragmentDogList.subscribeViewElements().getInsertedDogIndexLive() call");
-                    //dogListAdapter.notifyItemInserted(index);
-                    dogListAdapter.notifyDataSetChanged();
+            getViewLifecycleOwner(),(index) -> {
+                    dogListAdapter.notifyItemInserted(index);
                     if(dialog != null) {
                         if(dialog.isShowing())
                         dialog.dismiss();
@@ -161,29 +194,11 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
 //        );
     }
 
-    private void initRecyclerView(View view) {
-        dogListView = (RecyclerView) view.findViewById(R.id.dog_list_view);
-        dogListView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        dogListAdapter = new DogListAdapter(appViewModel.getDogListReference(), requireContext());
-        dogListAdapter.setOnViewHolderItemClickListener(this);
-        dogListAdapter.setAnimationType(animationType);
-        dogListView.setAdapter(dogListAdapter);
-
-//        dogListView.addItemDecoration(new DividerItemDecoration(
-//                view.getContext(),
-//                DividerItemDecoration.VERTICAL
-//                )
-//        );
-//        dogListView.setItemAnimator(new DefaultItemAnimator());
-    }
-
-    private void setToolbar() {
-        AppCompatActivity act = (AppCompatActivity) requireActivity();
-        ActionBar actionBar = Objects.requireNonNull(act.getSupportActionBar());
-        //actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.status_action_bar)));
-        actionBar.setTitle(R.string.dog_list_header);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        Tools.setSystemBarColor(act, R.color.status_action_bar);
+    private void unsubscribeFromLiveData() {
+        appViewModel.getListOfDogsLive().removeObservers(getViewLifecycleOwner());
+        appViewModel.getInsertedDogIndexLive().removeObservers(getViewLifecycleOwner());
+        appViewModel.getChangedDogIndexLive().removeObservers(getViewLifecycleOwner());
+        appViewModel.getDeletedDogIndexLive().removeObservers(getViewLifecycleOwner());
     }
 
     private void showCustomDialog() {
@@ -198,8 +213,8 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         etvDialogContentName = dialog.findViewById(R.id.etv_dog_list_dialog_content_name);
         etvDialogContentDescription = dialog.findViewById(R.id.etv_dog_list_dialog_content_description);
         btnDialogCancel = dialog.findViewById(R.id.btn_dog_list_dialog_cancel);
-        btnDialogSubmit = dialog.findViewById(R.id.btn_dog_list_dialog_submit);
         btnDialogCancel.setOnClickListener(this);
+        btnDialogSubmit = dialog.findViewById(R.id.btn_dog_list_dialog_submit);
         btnDialogSubmit.setOnClickListener(this);
 
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
@@ -218,12 +233,6 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onPause() call");
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onStop() call");
@@ -234,5 +243,4 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         super.onDestroy();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
     }
-
 }

@@ -15,6 +15,8 @@ public interface Model {
 
     void updateDogDescription(int dogIndex, String updatedDescription);
 
+    void updateDogImage(int dogIndex, String path);
+
     void walkDog(int dogIndex);
 
     void deleteDog(int index);
