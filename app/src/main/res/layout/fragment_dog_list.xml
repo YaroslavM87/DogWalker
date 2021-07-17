@@ -20,17 +20,19 @@
             android:orientation="horizontal"
             android:padding="@dimen/spacing_small"
             android:background="@color/main_dark"
-
             >
 
             <TextView
-                android:id="@+id/tv_dog_list_dog_name"
+                android:id="@+id/tv_dog_list_dog_sort_name"
+                android:tag="sortByName"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/spacing_mxlarge"
                 android:gravity="center"
                 android:text="@string/dog_name_lc"
                 android:textSize="14sp"
                 android:textColor="@color/white"
+                android:clickable="true"
+                android:focusable="true"
                 />
 
             <ImageButton
@@ -50,7 +52,8 @@
                 />
 
             <TextView
-                android:id="@+id/tv_dog_list_walk"
+                android:id="@+id/tv_dog_list_sort_date"
+                android:tag="sortByDate"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/spacing_mxlarge"
                 android:gravity="center"

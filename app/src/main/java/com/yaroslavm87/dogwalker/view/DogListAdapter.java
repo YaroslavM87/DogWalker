@@ -41,7 +41,6 @@ public class DogListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         // TODO: it suggested to implement onClick in onCreateViewHolder - check
         @Override
         public void onClick(View v) {
-
             if (onViewHolderItemClickListener != null) {
                 onViewHolderItemClickListener.onViewHolderItemClick(
                         v,

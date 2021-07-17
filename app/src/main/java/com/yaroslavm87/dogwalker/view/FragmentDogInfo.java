@@ -8,8 +8,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,11 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.yaroslavm87.dogwalker.R;
@@ -40,8 +33,6 @@ import com.yaroslavm87.dogwalker.model.WalkRecord;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import com.yaroslavm87.dogwalker.viewModel.Tools;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -57,11 +48,9 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     private Dialog dialog;
     private OnDogInfoItemClickListener onDogInfoItemClickListener;
     private LinkedList<String> listRecentWalks;
-    private final byte MAX_LIST_SIZE;
     private final String LOG_TAG;
     
     {
-        MAX_LIST_SIZE = 5;
         LOG_TAG = "myLogs";
     }
 
@@ -98,7 +87,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(LOG_TAG, "----------- FRAGMENT DOG INFO onViewCreated -----------");
         initVariables();
         initViewComponents(view);
         setViewComponents();
@@ -108,7 +96,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(LOG_TAG, "----------------------");
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
         setToolbar();
         subscribeForLiveData();
@@ -140,12 +127,8 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         profilePic = view.findViewById(R.id.dog_info_profile_icon);
         profilePic.setOnClickListener(this);
 
-
-
 //        removeDogFromList = view.findViewById(R.id.dog_info_button_remove_dog);
         //removeDogFromList.setOnClickListener(this);
-
-
     }
 
     private void setToolbar() {
@@ -198,22 +181,33 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                     }
                 }
         );
+
+        appViewModel.getModelMessageLive().observe(
+                getViewLifecycleOwner(),
+                (msg) -> {
+                    if(!msg.equals("")) {
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     private void unsubscribeFromLiveData() {
         appViewModel.getWalkTimestampsLive().removeObservers(getViewLifecycleOwner());
         appViewModel.getChangedDogLive().removeObservers(getViewLifecycleOwner());
+        appViewModel.getModelMessageLive().removeObservers(getViewLifecycleOwner());
     }
 
     private void fillWalkRecordsList(LinkedList<WalkRecord> walkRecords) {
+        final long MAX_LIST_SIZE = 5;
+
         listRecentWalks.clear();
+
         for(WalkRecord wr : walkRecords) {
 
             if(listRecentWalks.size() >= MAX_LIST_SIZE) break;
 
             if(wr != null) {
-                Log.d(LOG_TAG, "FragmentDogInfo.getRecentWalkTimestampsLive " + wr.getId());
-
                 String strLastWalk = Tools.parseMillsToDate(
                         wr.getTimestamp(),
                         "dd MMMM yyyy");
@@ -278,7 +272,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                 case "submit":
                     String review = etvDialogContent.getText().toString().trim();
                     if (review.equals("")) {
-                        Toast.makeText(getContext(), R.string.dialog_warning_description_is_empty, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.dog_info_dialog_warning_description_is_empty, Toast.LENGTH_SHORT).show();
                     } else {
                         dialog.dismiss();
                         Toast.makeText(getContext(), R.string.dog_info_dialog_success, Toast.LENGTH_SHORT).show();

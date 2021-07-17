@@ -9,6 +9,7 @@ import com.yaroslavm87.dogwalker.notifications.Subscriber;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ListOfDogs implements Observable, Subscriber {
 
@@ -37,7 +38,6 @@ public class ListOfDogs implements Observable, Subscriber {
 
     void addDog(Dog dog) {
         if(LIST_OF_DOGS.add(Objects.requireNonNull(dog))) {
-            Log.d(LOG_TAG, "ListOfDogs.addDog().listSize " + LIST_OF_DOGS.size());
             PUBLISHER.makeSubscribersReceiveUpdate(
                     Event.MODEL_LIST_DOGS_ITEM_ADDED,
                     (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_ADDED, LIST_OF_DOGS.size() - 1)
@@ -45,35 +45,59 @@ public class ListOfDogs implements Observable, Subscriber {
         }
     }
 
-    public void updateDog(Dog dog) {
+    public void updateDog(Dog updatedDog) {
+        Optional<Dog> optDog = LIST_OF_DOGS
+                .stream()
+                .filter(d -> d.getName().equals(updatedDog.getName()))
+                .findAny();
 
-        for(Dog d : LIST_OF_DOGS) {
-            Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> " + d.getName() + " - " + dog.getName());
+        if(optDog.isPresent() && optDog.get().getId().equals(updatedDog.getId())) {
+            int indexOfDogToReplace = LIST_OF_DOGS.indexOf(optDog.get());
 
-            if(d.getName().equals(dog.getName())) {
-                int indexOfDogToReplace = LIST_OF_DOGS.indexOf(d);
+            LIST_OF_DOGS.set(indexOfDogToReplace, updatedDog);
 
-                Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> index = " + indexOfDogToReplace);
-                LIST_OF_DOGS.set(indexOfDogToReplace, dog);
-
-                Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> name = " + LIST_OF_DOGS.get(indexOfDogToReplace).getName());
-                PUBLISHER.makeSubscribersReceiveUpdate(
-                        Event.MODEL_LIST_DOGS_ITEM_CHANGED,
-                        (subscriber) -> subscriber.receiveUpdate(
-                                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
-                                indexOfDogToReplace
-                        )
-                );
-                PUBLISHER.makeSubscribersReceiveUpdate(
-                        Event.MODEL_LIST_DOGS_ITEM_CHANGED,
-                        (subscriber) -> subscriber.receiveUpdate(
-                                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
-                                dog
-                        )
-                );
-                break;
-            }
+            PUBLISHER.makeSubscribersReceiveUpdate(
+                    Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                    (subscriber) -> subscriber.receiveUpdate(
+                            Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                            indexOfDogToReplace
+                    )
+            );
+            PUBLISHER.makeSubscribersReceiveUpdate(
+                    Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                    (subscriber) -> subscriber.receiveUpdate(
+                            Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+                            updatedDog
+                    )
+            );
         }
+
+//        for(Dog d : LIST_OF_DOGS) {
+//
+//            if(d.getName().equals(updatedDog.getName())) {
+//                int indexOfDogToReplace = LIST_OF_DOGS.indexOf(d);
+//
+//                Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> index = " + indexOfDogToReplace);
+//                LIST_OF_DOGS.set(indexOfDogToReplace, updatedDog);
+//
+//                Log.d(LOG_TAG, "ListOfDogs.updateDog() call -> name = " + LIST_OF_DOGS.get(indexOfDogToReplace).getName());
+//                PUBLISHER.makeSubscribersReceiveUpdate(
+//                        Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+//                        (subscriber) -> subscriber.receiveUpdate(
+//                                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+//                                indexOfDogToReplace
+//                        )
+//                );
+//                PUBLISHER.makeSubscribersReceiveUpdate(
+//                        Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+//                        (subscriber) -> subscriber.receiveUpdate(
+//                                Event.MODEL_LIST_DOGS_ITEM_CHANGED,
+//                                updatedDog
+//                        )
+//                );
+//                break;
+//            }
+//        }
     }
 
     void deleteDog(int index) {
@@ -102,36 +126,27 @@ public class ListOfDogs implements Observable, Subscriber {
 
     @Override
     public void receiveUpdate(Event event, Object updatedValue) {
-
         switch(event) {
 
             case REPO_NEW_DOG_OBJ_AVAILABLE:
                 if(updatedValue instanceof Dog) {
-                    Log.d(LOG_TAG, "ListOfDogs.receiveUpdate() newDog " + ((Dog) updatedValue).getName());
-                    // + Thread.currentThread().getName())
                     addDog((Dog) updatedValue);
                 }
                 break;
 
             case REPO_LIST_DOGS_ITEM_CHANGED:
                 if(updatedValue instanceof Dog) {
-                    Log.d(LOG_TAG, "ListOfDogs.receiveUpdate() updatedDog " + ((Dog) updatedValue).getName());
-                    // + Thread.currentThread().getName())
                     updateDog((Dog) updatedValue);
                 }
                 break;
 
             case REPO_LIST_DOGS_ITEM_DELETED:
                 if(updatedValue instanceof Integer) {
-                    Log.d(LOG_TAG, "ListOfDogs.receiveUpdate() deletedDog " + LIST_OF_DOGS.get((int) updatedValue).getName());
-                    // + Thread.currentThread().getName())
                     deleteDog((int) updatedValue);
 
                 } else if (updatedValue instanceof Dog) {
                     for(Dog d : LIST_OF_DOGS) {
                         if(d.getName().equals(((Dog) updatedValue).getName())) {
-                            Log.d(LOG_TAG, "ListOfDogs.receiveUpdate() deletedDog " + ((Dog) updatedValue).getName());
-                            // + Thread.currentThread().getName())
                             deleteDog(d);
                             break;
                         }

@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.yaroslavm87.dogwalker.R;
@@ -54,7 +55,7 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
             initVariables();
             //initToolbar();
             //initViewElements();
-            //subscribeViewElements();
+            //subscribeForModelMessages();
 
         } else {
             authenticateCurrentUser();
@@ -90,16 +91,8 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
 
         if (requestCode == PICK_GALLERY_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             if (data != null) {
-
                 navController.navigate(R.id.action_fragmentDogInfo_to_fragmentImageCrop);
-
-                // this is the image selected by the user
-                String path = data.getData().getPath();
                 Uri uri = data.getData();
-
-                Log.d(LOG_TAG, this.getClass().getCanonicalName() + " path = " + "content://media" + path);
-                Log.d(LOG_TAG, this.getClass().getCanonicalName() + " uri = " + uri);
-                //appViewModel.receiveDogProfilePicPath(path);
                 appViewModel.receiveDogProfilePicUri(uri);
             }
         }
@@ -235,14 +228,9 @@ public class ActivityMain extends AppCompatActivity implements FragmentDogList.O
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
     }
 
-
-
     private void signOut() {
         AuthUI.getInstance().signOut(this).addOnCompleteListener(task -> {
-
-            //Snackbar.make(findViewById(R.id.activity_dog_list), "Выход выполнен", Snackbar.LENGTH_SHORT).show();
             finish();
-
         });
     }
 

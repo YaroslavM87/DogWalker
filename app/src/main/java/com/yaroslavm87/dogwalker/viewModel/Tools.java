@@ -310,7 +310,6 @@ public class Tools {
         Log.d(LOG_TAG,"--------------------------------");
     }
 
-
     public static boolean isMomentInLeapY(long moment) {
         final long FOUR_YEAR_PERIOD = 126230400000L;  // 365 + 365 + 366 + 365
         final long COMMON_YEAR_PERIOD = 31536000000L; // 365
@@ -503,21 +502,11 @@ public class Tools {
         String[] newMonths = {
                 "января", "февраля", "марта", "апреля", "мая", "июня",
                 "июля", "августа", "сентября", "октября", "ноября", "декабря"};
-        //dateFormatSymbols.setMonths(newMonths);
-
-
-
-        //(SimpleDateFormat) DateFormat.getDateInstance(DateFormat.LONG, russian);
-        //formatter.setDateFormatSymbols(dateFormatSymbols);
-
-        //Date date = new Date("dd MMM yyyy", millsToParse);
 
         if(millsToParse <= 1000L) {
             result = "0";
 
         } else {
-            //formatter = new SimpleDateFormat("dd MMM yyyy", russian);
-
             result = formatter.format(millsToParse);
         }
 

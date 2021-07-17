@@ -3,51 +3,51 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/fragmentDogList">
+    app:startDestination="@id/fragment_dog_list">
 
     <fragment
-        android:id="@+id/fragmentDogList"
+        android:id="@+id/fragment_dog_list"
         android:name="com.yaroslavm87.dogwalker.view.FragmentDogList"
         android:label="FragmentDogList" >
         <action
             android:id="@+id/action_fragmentDogList_to_fragmentDogInfo"
-            app:destination="@id/fragmentDogInfo"
+            app:destination="@id/fragment_dog_info"
             />
     </fragment>
 
     <fragment
-        android:id="@+id/fragmentDogInfo"
+        android:id="@+id/fragment_dog_info"
         android:name="com.yaroslavm87.dogwalker.view.FragmentDogInfo"
         android:label="FragmentDogInfo"
-        app:popUpTo="@+id/fragmentDogList"
+        app:popUpTo="@+id/fragment_dog_list"
         app:popUpToInclusive="true"
         >
         <action
             android:id="@+id/action_fragmentDogInfo_to_fragmentWalkRecords"
-            app:destination="@id/fragmentWalkRecords"
+            app:destination="@id/fragment_walk_records"
             />
         <action
             android:id="@+id/action_fragmentDogInfo_to_fragmentImageCrop"
-            app:destination="@id/fragmentImageCrop"
+            app:destination="@id/fragment_image_crop"
             />
     </fragment>
 
     <fragment
-        android:id="@+id/fragmentWalkRecords"
+        android:id="@+id/fragment_walk_records"
         android:name="com.yaroslavm87.dogwalker.view.FragmentWalkRecords"
         android:label="FragmentWalkRecords"
-        app:popUpTo="@+id/fragmentDogInfo"
+        app:popUpTo="@+id/fragment_dog_info"
         />
 
     <fragment
-        android:id="@+id/fragmentImageCrop"
+        android:id="@+id/fragment_image_crop"
         android:name="com.yaroslavm87.dogwalker.view.FragmentImageCrop"
         android:label="FragmentImageCrop"
-        app:popUpTo="@+id/fragmentDogInfo"
+        app:popUpTo="@+id/fragment_dog_info"
         />
     <action
     android:id="@+id/action_fragmentImageCrop_to_fragmentDogInfo"
-    app:destination="@id/fragmentDogInfo"
+    app:destination="@id/fragment_dog_info"
     />
 </navigation>
 

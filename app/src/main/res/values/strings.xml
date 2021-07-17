@@ -24,6 +24,9 @@
         <item>Декабрь</item>
     </string-array>
 
+    <string name="model_dog_name_cannot_be_empty">Напишите имя питомца!</string>
+
+
     <string name="dog_did_not_walk">Еще не гулял(а)</string>
     <string name="dog_have_no_walk_records">Записей о прогулках нет</string>
     <string name="dog_character">Характер</string>
@@ -39,7 +42,7 @@
 
     <string name="dog_info_dialog_btn_cancel">Отменить</string>
     <string name="dog_info_dialog_btn_apply">Добавить</string>
-    <string name="dialog_warning_description_is_empty">Описание отсутствует</string>
+    <string name="dog_info_dialog_warning_description_is_empty">Описание отсутствует</string>
     <string name="dog_info_dialog_success">Описание добавлено</string>
 
     <string name="walk_list_header">Все прогулки</string>

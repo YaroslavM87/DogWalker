@@ -89,6 +89,7 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
             case MODEL_MESSAGE:
                 if(updatedValue instanceof String) {
                     modelErrorMessageLive.setValue((String) updatedValue);
+                    modelErrorMessageLive.postValue("");
                 }
                 break;
         }
@@ -154,14 +155,14 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     private final Comparator<Dog> descDateComp = (dog1, dog2) -> ascDateComp.compare(dog2, dog1);
 
     public void sortName() {
-        nameComp = (nameComp == descNameComp) ? ascNameComp : descNameComp;
+        nameComp = (nameComp == null || nameComp == descNameComp) ? ascNameComp : descNameComp;
         model.getReferenceDogs().sort(nameComp);
         listOfDogsLive.setValue(model.getReferenceDogs());
         dateComp = descDateComp;
     }
 
     public void sortDate() {
-        dateComp = (dateComp == descDateComp) ? ascDateComp : descDateComp;
+        dateComp = (dateComp == null || dateComp == descDateComp) ? ascDateComp : descDateComp;
         model.getReferenceDogs().sort(dateComp);
         listOfDogsLive.setValue(model.getReferenceDogs());
         nameComp = descNameComp;
@@ -212,8 +213,7 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         return chosenDogFromListLive;
     }
 
-
-    public LiveData<String> getModelErrorMessageLive() {
+    public LiveData<String> getModelMessageLive() {
         return modelErrorMessageLive;
     }
 

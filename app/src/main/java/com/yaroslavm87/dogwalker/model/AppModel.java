@@ -2,6 +2,7 @@ package com.yaroslavm87.dogwalker.model;
 
 import android.util.Log;
 
+import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.repository.RepoOperations;
@@ -61,9 +62,12 @@ public enum AppModel implements Model {
     }
 
     public void createDog(String name, String description) {
+        final String NAME_CANNOT_BE_EMPTY = "Напишите имя питомца!";
+        final String NAME_IS_ALREADY_IN_LIST = "Питомец с такой кличкой уже есть в списке!";
+        final String DOG_ADDED_TO_LIST = "Питомец добавлен!";
+
         if(name.equals("")) {
-            String errorMsg = "Напишите имя питомца!";
-            dispatchMessage(errorMsg);
+            dispatchMessage(NAME_CANNOT_BE_EMPTY);
             return;
         }
         Dog newDog = new Dog();
@@ -72,78 +76,102 @@ public enum AppModel implements Model {
         }
         newDog.setName(name);
         if(LIST_OF_DOGS.getList().contains(newDog)) {
-            Log.d(LOG_TAG, "ListOfDogs contains dog " + name);
-            String errorMsg = "Питомец с такой кличкой уже есть в списке!";
-            dispatchMessage(errorMsg);
+            dispatchMessage(NAME_IS_ALREADY_IN_LIST);
 
         } else {
             repoAddDog(newDog);
-            dispatchMessage("Питомец добален!");
+            dispatchMessage(DOG_ADDED_TO_LIST);
         }
     }
 
     public void updateDogDescription(int index, String updatedDescription) {
-        Log.d(LOG_TAG, "Model.updateDogDescription() call");
-        Dog updatedDog = Dog.getCopy(LIST_OF_DOGS.getDog(index));
-        updatedDog.setDescription(updatedDescription);
-        repoUpdateDogDecription(updatedDog);
-    }
+        final String DESCRIPTION_DID_NOT_CHANGED = "Описание не изменено!";
 
-    public void updateDogImage(int index, String imageUri) {
-        Log.d(LOG_TAG, "Model.updateDogDescription() call");
-        Dog updatedDog = Dog.getCopy(LIST_OF_DOGS.getDog(index));
-        updatedDog.setImageUri(imageUri);
-        repoUpdateDogImage(updatedDog);
-    }
-
-    public void walkDog(int index) {
-        Log.d(LOG_TAG, "Model.walkDog() call");
-
-        Dog updatedDog = Dog.getCopy(LIST_OF_DOGS.getDog(index));
-        long currentTime = System.currentTimeMillis();
-        long timeDelta = currentTime - updatedDog.getLastTimeWalk();
-
-        if(timeDelta == 0 || timeDelta >= TIME_TO_REST_AFTER_WALK) {
-
-            updatedDog.setLastTimeWalk(currentTime);
-
-            repoAddWalkRecord(updatedDog);
-
-        } else {
-            long timeUntilNextWalk = TIME_TO_REST_AFTER_WALK - timeDelta;
-
-            //TODO: add reference to res with text message
-            PUBLISHER.makeSubscribersReceiveUpdate(
-                    Event.MODEL_MESSAGE,
-                    (subscriber) -> subscriber.receiveUpdate(
-                            Event.MODEL_MESSAGE,
-                            timeUntilNextWalk
-                    )
-            );
+        if(!LIST_OF_DOGS.getDog(index).getDescription().equals(updatedDescription)) {
+            try{
+                Dog updatedDog = (Dog) LIST_OF_DOGS.getDog(index).clone();
+                updatedDog.setDescription(updatedDescription);
+                repoUpdateDogDecription(updatedDog);
+            }
+            catch(CloneNotSupportedException e) {
+                Log.e(LOG_TAG, "Model.updateDogDescription() EXCEPTION: " + e);
+            }
+        }
+        else {
+            dispatchMessage(DESCRIPTION_DID_NOT_CHANGED);
         }
     }
 
+    public void updateDogImage(int index, String imageUri) {
+        try{
+            Dog updatedDog = (Dog) LIST_OF_DOGS.getDog(index).clone();
+            updatedDog.setImageUri(imageUri);
+            repoUpdateDogImage(updatedDog);
+        }
+        catch(CloneNotSupportedException e) {
+            Log.e(LOG_TAG, "Model.updateDogDescription() EXCEPTION: " + e);
+        }
+    }
+
+    public void walkDog(int index) {
+        String NEXT_WALK_AVAILABLE_IN = "Следующая прогулка возможна через %s";
+
+        try{
+            Dog updatedDog = (Dog) LIST_OF_DOGS.getDog(index).clone();
+            long currentTime = System.currentTimeMillis();
+            long timeDelta = currentTime - updatedDog.getLastTimeWalk();
+
+            if(timeDelta == 0 || timeDelta >= TIME_TO_REST_AFTER_WALK) {
+                updatedDog.setLastTimeWalk(currentTime);
+                repoAddWalkRecord(updatedDog);
+
+            } else {
+                String timeUntilNextWalk = formatTimeValue(TIME_TO_REST_AFTER_WALK - timeDelta);
+                dispatchMessage(String.format(NEXT_WALK_AVAILABLE_IN, timeUntilNextWalk));
+            }
+        }
+        catch (CloneNotSupportedException e) {
+            Log.e(LOG_TAG, "Model.walkDog() EXCEPTION: " + e);
+        }
+
+        //Dog updatedDog = Dog.getCopy(LIST_OF_DOGS.getDog(index));
+    }
+
+    private String formatTimeValue(long timeValue) {
+        return String.format("%s м. %s с.",
+                parseToStringAddZero(convertToMin(timeValue)),
+                parseToStringAddZero(convertToSec(timeValue)));
+    }
+
+    private long convertToMin(long millis) {
+        return ((millis / 1000) - convertToSec(millis)) / 60;
+    }
+
+    private long convertToSec(long millis) {
+        return (millis / 1000) % 60;
+    }
+
+    private String parseToStringAddZero(long value) {
+        return value < 10 ? ("0" + value) : Long.toString(value);
+    }
+
     public void deleteDog(int index) {
-        Log.d(LOG_TAG, "Model.deleteDog() call");
         Dog dogToDelete = LIST_OF_DOGS.getDog(index);
-
         repoDeleteDog(dogToDelete);
-
         repoAddDogToRemoved(dogToDelete);
     }
 
     void setRepo(Repository repository) {
-        Log.d(LOG_TAG, "Model.setRepository() call");
         this.repository = repository;
     }
 
     private void repoReadDogs() {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoReadDogs() call");
                 repository.read(RepoOperations.READ_LIST_OF_DOGS, null);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoReadDogs() EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoReadDogs() EXCEPTION: " + e);
             }
         }).start();
     }
@@ -151,10 +179,10 @@ public enum AppModel implements Model {
     private void repoReadWalkRecords(Dog dog) {
             new Thread(() -> {
                 try {
-                    Log.d(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) call");
                     repository.read(RepoOperations.READ_LIST_OF_WALKS_FOR_DOG, dog);
-                } catch (Exception e) {
-                    Log.d(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) EXCEPTION: " + e);
+                }
+                catch (Exception e) {
+                    Log.e(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) EXCEPTION: " + e);
                 }
             }).start();
     }
@@ -162,10 +190,10 @@ public enum AppModel implements Model {
     private void repoAddDog(Dog newDog) {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoAddDog(Dog newDog) call");
                 repository.add(RepoOperations.CREATE_DOG, newDog);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoAddDog(Dog newDog) EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoAddDog(Dog newDog) EXCEPTION: " + e);
             }
         }).start();
     }
@@ -173,10 +201,10 @@ public enum AppModel implements Model {
     private void repoUpdateDogDecription(Dog updatedDog) {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoUpdateDogDescription(Dog updatedDog) call");
                 repository.update(RepoOperations.UPDATE_DOG_DESCRIPTION, updatedDog);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoUpdateDogDescription(Dog updatedDog) EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoUpdateDogDescription(Dog updatedDog) EXCEPTION: " + e);
             }
         }).start();
     }
@@ -184,10 +212,10 @@ public enum AppModel implements Model {
     private void repoUpdateDogImage(Dog updatedDog) {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoUpdateDogImage(Dog updatedDog) call");
                 repository.update(RepoOperations.UPDATE_DOG_IMAGE, updatedDog);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoUpdateDogImage(Dog updatedDog) EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoUpdateDogImage(Dog updatedDog) EXCEPTION: " + e);
             }
         }).start();
     }
@@ -195,10 +223,10 @@ public enum AppModel implements Model {
     private void repoAddWalkRecord(Dog updatedDog) {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoAddWalkRecord(Dog updatedDog) call");
                 repository.update(RepoOperations.CREATE_RECORD_OF_DOG_WALK, updatedDog);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoAddWalkRecord(Dog updatedDog) EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoAddWalkRecord(Dog updatedDog) EXCEPTION: " + e);
             }
         }).start();
     }
@@ -206,10 +234,10 @@ public enum AppModel implements Model {
     private void repoDeleteDog(Dog dogToDelete) {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoDeleteDog(Dog dogToDelete) call");
                 this.repository.delete(RepoOperations.DELETE_DOG, dogToDelete);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoDeleteDog(Dog dogToDelete) EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoDeleteDog(Dog dogToDelete) EXCEPTION: " + e);
             }
         }).start();
     }
@@ -217,10 +245,10 @@ public enum AppModel implements Model {
     private void repoAddDogToRemoved(Dog dogRemoved) {
         new Thread(() -> {
             try{
-                Log.d(LOG_TAG, "Model.repoAddDogToRemoved(Dog dogRemoved) call");
                 repository.add(RepoOperations.ADD_DOG_TO_LIST_OF_REMOVED_DOGS, dogRemoved);
-            } catch (Exception e) {
-                Log.d(LOG_TAG, "Model.repoAddDogToRemoved(Dog dogRemoved) EXCEPTION: " + e);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoAddDogToRemoved(Dog dogRemoved) EXCEPTION: " + e);
             }
         }).start();
     }

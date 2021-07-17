@@ -5,9 +5,7 @@
     android:layout_height="match_parent"
     >
 
-
 <androidx.core.widget.NestedScrollView
-        android:id="@+id/nested_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="true"
@@ -17,6 +15,7 @@
     >
 
     <LinearLayout
+        android:id="@+id/dog_list_dialog_new_dog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"

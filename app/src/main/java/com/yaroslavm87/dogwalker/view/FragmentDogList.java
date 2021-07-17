@@ -16,6 +16,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import com.yaroslavm87.dogwalker.model.Dog;
@@ -37,6 +40,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     private RecyclerView dogListView;
     private DogListAdapter dogListAdapter;
     private Dialog dialog;
+    private TextView tvSortByName, tvSortByDate;
     private EditText etvDialogContentName, etvDialogContentDescription;
     private FloatingActionButton btnAddDog;
     private Button btnDialogCancel, btnDialogSubmit;
@@ -129,8 +133,6 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     public void onViewHolderItemClick(View view, int position, Dog dog) {
         // TODO: move this logics to appViewModel
         if(appViewModel.getChosenIndexOfDogFromListLive().getValue() != null) {
-//            if(position == (int) appViewModel.getChosenIndexOfDogFromListLive().getValue())
-//                return;
             appViewModel.setCurrentChosenDog(dog);
             appViewModel.setCurrentIndexOfChosenDog(position);
             onDogListItemClickListener.onDogListItemClick(FragmentEvents.DOG_LIST_ITEM_CLICKED);
@@ -145,10 +147,14 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         initRecyclerView(view);
         btnAddDog = view.findViewById(R.id.btn_dog_list_add_dog);
         btnAddDog.setOnClickListener(this);
+        tvSortByName = view.findViewById(R.id.tv_dog_list_dog_sort_name);
+        tvSortByName.setOnClickListener(this);
         btnSortByName = view.findViewById(R.id.ibtn_dog_list_sort_name);
         btnSortByName.setOnClickListener(this);
         btnSortByDate= view.findViewById(R.id.ibtn_dog_list_sort_date);
         btnSortByDate.setOnClickListener(this);
+        tvSortByDate = view.findViewById(R.id.tv_dog_list_sort_date);
+        tvSortByDate.setOnClickListener(this);
     }
 
     private void initRecyclerView(View view) {
@@ -183,15 +189,17 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
                 });
         appViewModel.getChangedDogIndexLive().observe(
                 getViewLifecycleOwner(),(index) -> dogListAdapter.notifyItemChanged(index));
+
         appViewModel.getDeletedDogIndexLive().observe(
                 getViewLifecycleOwner(),(index) -> dogListAdapter.notifyItemRemoved(index));
-//        appViewModel.getModelErrorMessageLive().observe(
-//                getViewLifecycleOwner(), (message) ->
-//                {
-//                    Log.d(LOG_TAG, "FragmentDogList.subscribeViewElements().getModelErrorMessageLive() call");
-//                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-//                }
-//        );
+
+        appViewModel.getModelMessageLive().observe(
+                getViewLifecycleOwner(),
+                (msg) -> {
+                    if(!msg.equals("")) {
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void unsubscribeFromLiveData() {
@@ -199,6 +207,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         appViewModel.getInsertedDogIndexLive().removeObservers(getViewLifecycleOwner());
         appViewModel.getChangedDogIndexLive().removeObservers(getViewLifecycleOwner());
         appViewModel.getDeletedDogIndexLive().removeObservers(getViewLifecycleOwner());
+        appViewModel.getModelMessageLive().removeObservers(getViewLifecycleOwner());
     }
 
     private void showCustomDialog() {

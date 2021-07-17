@@ -1,5 +1,6 @@
 package com.yaroslavm87.dogwalker.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.database.Exclude;
@@ -10,7 +11,6 @@ import java.util.Objects;
 
 public class Dog implements Cloneable{
 
-    // TODO: prohibit changes on dog id
     private String id;
     private String name;
     private String description;
@@ -18,7 +18,6 @@ public class Dog implements Cloneable{
     private String lastWalkRecordId;
     private long lastTimeWalk;
     private String shelterId;
-
 
     public Dog() {
     }
@@ -70,6 +69,7 @@ public class Dog implements Cloneable{
     }
 
     public void setId(String id) {
+        if(this.id != null) return;
         this.id = Objects.requireNonNull(id);
     }
 
@@ -118,10 +118,9 @@ public class Dog implements Cloneable{
     // TODO: rewrite to check equality by id and name
     @Override
     public boolean equals(Object obj) {
-
         if(obj instanceof Dog) {
-
             return this.name.equals(((Dog) obj).getName());
+                    //&& this.id.equals(((Dog) obj).getId());
         }
 
         return false;
@@ -154,21 +153,14 @@ public class Dog implements Cloneable{
                 '}';
     }
 
-    // TODO: replace with clone()
     /*
-     copy of dog is made to avoid controversy between
+     clone of dog is made to avoid controversy between
      dog's values in model's listOfDogs and those in database,
      as all changes to dog's values go through database updates
     */
-    public static Dog getCopy(Dog dogToCopy) {
-        return new Dog(
-                dogToCopy.getId(),
-                dogToCopy.getName(),
-                dogToCopy.getDescription(),
-                dogToCopy.getImageUri(),
-                dogToCopy.getLastWalkRecordId(),
-                dogToCopy.getLastTimeWalk(),
-                dogToCopy.getShelterId()
-        );
+    @NonNull
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
