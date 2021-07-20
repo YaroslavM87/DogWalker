@@ -27,9 +27,6 @@ import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import java.util.Collections;
 import java.util.List;
 
-//public class ActivityDogList extends AppCompatActivity implements View.OnClickListener, FragmentDogList.OnFragmentViewClickListener {
-
-
 public class ActivityMain extends AppCompatActivity implements FragmentDogList.OnDogListItemClickListener,
         FragmentDogInfo.OnDogInfoItemClickListener,
         FragmentImageCrop.OnImageCropItemClickListener {
