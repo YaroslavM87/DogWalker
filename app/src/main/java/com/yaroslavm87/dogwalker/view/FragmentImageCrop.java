@@ -29,15 +29,15 @@ public class FragmentImageCrop extends Fragment implements View.OnClickListener 
     private AppViewModel appViewModel;
     private CropView cropView;
     private FloatingActionButton btnDone, btnRotate;
-    private OnImageCropItemClickListener onImageCropItemClickListener;
+    private OnComponentClickListener onComponentClickListener;
     private float rotationAngle;
     private String LOG_TAG = "myLogs";
 
-    public interface OnImageCropItemClickListener {
-        void onImageCropItemClick(FragmentImageCrop.FragmentEvents event);
+    public interface OnComponentClickListener {
+        void onComponentClick(Events event);
     }
 
-    public enum FragmentEvents{
+    public enum Events {
         IMAGE_CROP_DONE
     }
 
@@ -45,12 +45,12 @@ public class FragmentImageCrop extends Fragment implements View.OnClickListener 
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        if (context instanceof FragmentDogInfo.OnDogInfoItemClickListener) {
-            onImageCropItemClickListener = (FragmentImageCrop.OnImageCropItemClickListener) context;
+        if (context instanceof FragmentImageCrop.OnComponentClickListener) {
+            onComponentClickListener = (OnComponentClickListener) context;
 
         } else {
             throw new ClassCastException(context.toString()
-                    + " must implement FragmentDogInfo.OnDogInfoItemClickListener");
+                    + " must implement FragmentImageCrop.OnComponentClickListener");
         }
     }
 
@@ -116,7 +116,7 @@ public class FragmentImageCrop extends Fragment implements View.OnClickListener 
 
             case "imageDone":
                 onCropClicked();
-                onImageCropItemClickListener.onImageCropItemClick(FragmentEvents.IMAGE_CROP_DONE);
+                onComponentClickListener.onComponentClick(Events.IMAGE_CROP_DONE);
                 break;
         }
     }
@@ -153,5 +153,4 @@ public class FragmentImageCrop extends Fragment implements View.OnClickListener 
         rotationAngle = rotationAngle == 360 ? 0 : rotationAngle + 90;
         cropView.setRotation(rotationAngle);
     }
-
 }

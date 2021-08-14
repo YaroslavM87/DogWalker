@@ -1,6 +1,8 @@
 package com.yaroslavm87.dogwalker.repository;
 
 public enum RepoOperations {
+    CREATE_SHELTER,
+    READ_LIST_OF_SHELTERS,
     READ_LIST_OF_DOGS,
     READ_LIST_OF_WALKS_FOR_DOG,
     CREATE_DOG,

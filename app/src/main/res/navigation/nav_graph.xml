@@ -3,7 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/fragment_dog_list">
+    app:startDestination="@id/fragment_shelter_list">
+
+    <fragment
+        android:id="@+id/fragment_shelter_list"
+        android:name="com.yaroslavm87.dogwalker.view.FragmentShelterList"
+        android:label="FragmentShelterList" >
+        <action
+            android:id="@+id/action_fragmentShelterList_to_fragmentDogList"
+            app:destination="@id/fragment_dog_list"
+            />
+    </fragment>
 
     <fragment
         android:id="@+id/fragment_dog_list"

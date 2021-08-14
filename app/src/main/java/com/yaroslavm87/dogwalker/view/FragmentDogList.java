@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.viewModel.AppViewModel;
 import com.yaroslavm87.dogwalker.model.Dog;
@@ -45,7 +44,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     private FloatingActionButton btnAddDog;
     private Button btnDialogCancel, btnDialogSubmit;
     private ImageButton btnSortByName, btnSortByDate;
-    private OnDogListItemClickListener onDogListItemClickListener;
+    private OnComponentClickListener onComponentClickListener;
     private final int animationType;
     private final String LOG_TAG;
 
@@ -54,11 +53,11 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         LOG_TAG = "myLogs";
     }
 
-    public interface OnDogListItemClickListener {
-        void onDogListItemClick(FragmentDogList.FragmentEvents event);
+    public interface OnComponentClickListener {
+        void onComponentClick(Events event);
     }
 
-    public enum FragmentEvents{
+    public enum Events {
         ADD_DOG_CALL,
         DOG_LIST_ITEM_CLICKED
     }
@@ -66,8 +65,8 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnDogListItemClickListener) {
-            onDogListItemClickListener = (OnDogListItemClickListener) context;
+        if (context instanceof OnComponentClickListener) {
+            onComponentClickListener = (OnComponentClickListener) context;
         }
     }
 
@@ -124,7 +123,12 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
             case "submit":
                 String name = etvDialogContentName.getText().toString().trim();
                 String description = etvDialogContentDescription.getText().toString().trim();
-                appViewModel.addNewDog(name, description);
+                appViewModel.addNewDog(
+                        name,
+                        description,
+                        appViewModel.getChosenShelterIdFromListLive().getValue()
+                );
+                dialog.dismiss();
                 break;
         }
     }
@@ -135,7 +139,7 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
         if(appViewModel.getChosenIndexOfDogFromListLive().getValue() != null) {
             appViewModel.setCurrentChosenDog(dog);
             appViewModel.setCurrentIndexOfChosenDog(position);
-            onDogListItemClickListener.onDogListItemClick(FragmentEvents.DOG_LIST_ITEM_CLICKED);
+            onComponentClickListener.onComponentClick(Events.DOG_LIST_ITEM_CLICKED);
         }
     }
 

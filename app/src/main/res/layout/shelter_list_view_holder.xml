@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:id="@+id/lyt_dog_list_view_holder_lyt_parent"
+<LinearLayout android:id="@+id/lyt_shelter_list_view_holder_lyt_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -11,20 +11,7 @@
     android:clickable="true"
     >
 
-    <com.mikhaellopez.circularimageview.CircularImageView
-        android:id="@+id/civ_dog_list_profile_icon"
-        android:tag="setProfilePic"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="@dimen/spacing_large"
-        android:layout_marginRight="@dimen/spacing_large"
-        android:layout_marginTop="@dimen/spacing_middle"
-        android:scaleType="centerCrop"
-        android:background="@drawable/profile_pic_placeholder"
-        app:civ_border="false"
-        />
-
-    <View android:layout_width="@dimen/spacing_medium"
+    <View android:layout_width="@dimen/spacing_xxxlarge"
         android:layout_height="0dp"
         />
 
@@ -40,24 +27,25 @@
             android:paddingTop="@dimen/spacing_middle"
             >
 
-            <TextView android:id="@+id/tv_dog_list_name"
+            <TextView android:id="@+id/tv_shelter_list_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_middle"
-                android:text="@string/dog_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:text="@string/shelter_name"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="@color/grey_90"
                 />
 
-            <TextView android:id="@+id/tv_dog_list_description"
+            <TextView android:id="@+id/tv_shelter_list_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_middle"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:maxLines="2"
-                android:text="@string/dog_info_recent_walks"
+                android:text="@string/shelter_address"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="@color/grey_40"/>
+                android:textColor="@color/grey_40"
+                />
 
         </LinearLayout>
 

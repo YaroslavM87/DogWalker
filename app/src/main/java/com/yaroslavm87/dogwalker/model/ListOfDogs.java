@@ -13,12 +13,12 @@ import java.util.Optional;
 
 public class ListOfDogs implements Observable, Subscriber {
 
-    public final ArrayList<Dog> LIST_OF_DOGS;
+    public final ArrayList<Dog> LIST;
     private final Publisher PUBLISHER;
     private final String LOG_TAG;
 
     {
-        LIST_OF_DOGS = new ArrayList<>();
+        LIST = new ArrayList<>();
         PUBLISHER = Publisher.INSTANCE;
         this.LOG_TAG = "myLogs";
     }
@@ -33,28 +33,32 @@ public class ListOfDogs implements Observable, Subscriber {
     }
 
     public ArrayList<Dog> getList() {
-        return LIST_OF_DOGS;
+        return LIST;
+    }
+
+    void clearList() {
+        LIST.clear();
     }
 
     void addDog(Dog dog) {
-        if(LIST_OF_DOGS.add(Objects.requireNonNull(dog))) {
+        if(LIST.add(Objects.requireNonNull(dog))) {
             PUBLISHER.makeSubscribersReceiveUpdate(
                     Event.MODEL_LIST_DOGS_ITEM_ADDED,
-                    (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_ADDED, LIST_OF_DOGS.size() - 1)
+                    (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_ADDED, LIST.size() - 1)
             );
         }
     }
 
     public void updateDog(Dog updatedDog) {
-        Optional<Dog> optDog = LIST_OF_DOGS
+        Optional<Dog> optDog = LIST
                 .stream()
                 .filter(d -> d.getName().equals(updatedDog.getName()))
                 .findAny();
 
         if(optDog.isPresent() && optDog.get().getId().equals(updatedDog.getId())) {
-            int indexOfDogToReplace = LIST_OF_DOGS.indexOf(optDog.get());
+            int indexOfDogToReplace = LIST.indexOf(optDog.get());
 
-            LIST_OF_DOGS.set(indexOfDogToReplace, updatedDog);
+            LIST.set(indexOfDogToReplace, updatedDog);
 
             PUBLISHER.makeSubscribersReceiveUpdate(
                     Event.MODEL_LIST_DOGS_ITEM_CHANGED,
@@ -101,10 +105,10 @@ public class ListOfDogs implements Observable, Subscriber {
     }
 
     void deleteDog(int index) {
-        if(index < 0 || index >= LIST_OF_DOGS.size()) {
+        if(index < 0 || index >= LIST.size()) {
             return;
         }
-        LIST_OF_DOGS.remove(index);
+        LIST.remove(index);
         PUBLISHER.makeSubscribersReceiveUpdate(
                 Event.MODEL_LIST_DOGS_ITEM_DELETED,
                 (subscriber) -> subscriber.receiveUpdate(Event.MODEL_LIST_DOGS_ITEM_DELETED, index)
@@ -113,14 +117,14 @@ public class ListOfDogs implements Observable, Subscriber {
 
     void deleteDog(Dog d) {
         if (d != null) {
-            Log.d(LOG_TAG, String.valueOf(LIST_OF_DOGS.contains(d)));
-            deleteDog(LIST_OF_DOGS.indexOf(d));
+            Log.d(LOG_TAG, String.valueOf(LIST.contains(d)));
+            deleteDog(LIST.indexOf(d));
         }
     }
 
     Dog getDog(int index) {
-        if(LIST_OF_DOGS.size() > index) {
-            return LIST_OF_DOGS.get(index);
+        if(LIST.size() > index) {
+            return LIST.get(index);
         } else return null;
     }
 
@@ -145,7 +149,7 @@ public class ListOfDogs implements Observable, Subscriber {
                     deleteDog((int) updatedValue);
 
                 } else if (updatedValue instanceof Dog) {
-                    for(Dog d : LIST_OF_DOGS) {
+                    for(Dog d : LIST) {
                         if(d.getName().equals(((Dog) updatedValue).getName())) {
                             deleteDog(d);
                             break;

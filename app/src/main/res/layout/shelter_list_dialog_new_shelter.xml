@@ -15,14 +15,14 @@
     >
 
     <LinearLayout
-        android:id="@+id/dog_list_dialog_new_dog"
+        android:id="@+id/lyt_shelter_list_dialog_new_shelter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
 
         <TextView
-            android:id="@+id/etv_dog_list_dialog_content_header"
+            android:id="@+id/etv_shelter_list_dialog_content_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_smlarge"
@@ -30,7 +30,7 @@
             android:gravity="center_vertical"
             android:lines="1"
             android:background="@color/grey_3"
-            android:text="@string/dog_list_dialog_header"
+            android:text="@string/shelter_list_dialog_header"
             android:textSize="20sp"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textStyle="bold"
@@ -45,7 +45,7 @@
             />
 
         <EditText
-            android:id="@+id/etv_dog_list_dialog_content_name"
+            android:id="@+id/etv_shelter_list_dialog_content_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_smlarge"
@@ -56,20 +56,20 @@
             android:lines="1"
             android:background="@color/grey_3"
             android:textStyle="bold"
-            android:hint="@string/dog_name_short"
+            android:hint="@string/shelter_name"
             android:inputType="textCapWords"
             />
 
         <EditText
-            android:id="@+id/etv_dog_list_dialog_content_description"
+            android:id="@+id/etv_shelter_list_dialog_content_address"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/spacing_large"
             android:padding="@dimen/spacing_large"
-            android:lines="4"
+            android:lines="2"
             android:background="@color/grey_3"
             android:gravity="top"
-            android:hint="@string/dog_info_dialog_about_dog"
+            android:hint="@string/shelter_address"
             android:inputType="textMultiLine|textCapSentences"
             />
 
@@ -87,7 +87,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_dog_list_dialog_cancel"
+                android:id="@+id/btn_shelter_list_dialog_cancel"
                 android:tag="cancel"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
@@ -98,7 +98,7 @@
                 />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_dog_list_dialog_submit"
+                android:id="@+id/btn_shelter_list_dialog_submit"
                 android:tag="submit"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"

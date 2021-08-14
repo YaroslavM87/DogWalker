@@ -2,6 +2,7 @@ package com.yaroslavm87.dogwalker.viewModel;
 
 import android.app.Application;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.yaroslavm87.dogwalker.model.Dog;
 import com.yaroslavm87.dogwalker.model.Model;
 import com.yaroslavm87.dogwalker.model.ModelBuilder;
+import com.yaroslavm87.dogwalker.model.Shelter;
 import com.yaroslavm87.dogwalker.model.WalkRecord;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
@@ -18,16 +20,22 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Optional;
 
 public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements Subscriber {
 
     private Model model;
     private Publisher PUBLISHER;
-    private MutableLiveData<ArrayList<Dog>> listOfDogsLive;
+
+    private MutableLiveData<ArrayList<Shelter>> listOfSheltersLive;
+    private MutableLiveData<String> chosenShelterIdFromListLive;
 
     // private MutableLiveData<WalkRecord> insertedWalkRecordLive;
 
-    private MutableLiveData<Integer> insertedDogIndexLive,
+    private MutableLiveData<ArrayList<Dog>> listOfDogsLive;
+    private MutableLiveData<Integer>
+            insertedShelterIndexLive,
+            insertedDogIndexLive,
             changedDogIndexLive,
             deletedDogIndexLive,
             chosenIndexOfDogFromListLive;
@@ -58,6 +66,12 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     public void receiveUpdate(Event event, Object updatedValue) {
 
         switch(event) {
+
+            case MODEL_LIST_SHELTER_ITEM_ADDED:
+                if(updatedValue instanceof Integer) {
+                    insertedShelterIndexLive.setValue((int) updatedValue);
+                }
+                break;
 
             case MODEL_LIST_DOGS_ITEM_ADDED:
                 if(updatedValue instanceof Integer) {
@@ -95,7 +109,36 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         }
     }
 
+    public ArrayList<Shelter> getShelterListReference() {
+        return model.getReferenceShelter();
+    }
+
+    public void setCurrentShelterId(String shelterId) {
+        chosenShelterIdFromListLive.setValue(shelterId);
+        obtainDogsForShelterWith(shelterId);
+    }
+
+    private void obtainDogsForShelterWith(String shelterId) {
+        Log.d(LOG_TAG, "ViewModel.obtainDogsForShelterWith(shelterId)");
+        model.dispatchDogsFor(shelterId);
+
+//        Optional<Shelter> optional = model.getReferenceShelter().stream().
+//                filter(sh -> sh.getId().equals(shelterId)).findAny();
+//        Shelter shelter;
+//        Log.d(LOG_TAG, "ViewModel.obtainDogsForShelterWith.optional.isPresent()=" + optional.isPresent());
+//
+//        if(optional.isPresent()) {
+//            shelter = optional.get();
+//            model.dispatchDogsFor(shelterId);
+//        }
+    }
+
+    public void addNewShelter(String name, String description) {
+        model.createShelter(name, description);
+    }
+
     public ArrayList<Dog> getDogListReference() {
+        //model.dispatchDogsFor(chosenShelterIdFromListLive.getValue());
         return model.getReferenceDogs();
     }
 
@@ -108,8 +151,8 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         chosenIndexOfDogFromListLive.postValue(index);
     }
 
-    public void addNewDog(String dogName, String description) {
-        model.createDog(dogName, description);
+    public void addNewDog(String dogName, String description, String shelterId) {
+        model.createDog(dogName, description, shelterId);
     }
 
     public void deleteDog() {
@@ -172,6 +215,17 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         dogProfileImageUriLive.setValue(uri);
     }
 
+    // for FragmentShelterList
+    public LiveData<ArrayList<Shelter>> getListOfSheltersLive() {
+        return listOfSheltersLive;
+    }
+    public LiveData<String> getChosenShelterIdFromListLive() {
+        return chosenShelterIdFromListLive;
+    }
+    public LiveData<Integer> getInsertedShelterIndexLive() {
+        return  insertedShelterIndexLive;
+    }
+
     // for FragmentDogList
     public LiveData<ArrayList<Dog>> getListOfDogsLive() {
         return listOfDogsLive;
@@ -222,6 +276,10 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         model = ModelBuilder.getModelInstance(application);
         refListOfWalkTimestamps = model.getReferenceWalkRecords();
 
+        listOfSheltersLive = new MutableLiveData<>();
+        chosenShelterIdFromListLive = new MutableLiveData<>();
+        insertedShelterIndexLive = new MutableLiveData<>();
+
         listOfDogsLive = new MutableLiveData<>();
         insertedDogIndexLive = new MutableLiveData<>();
         changedDogIndexLive = new MutableLiveData<>();
@@ -249,6 +307,7 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     private void setEntities() {
         PUBLISHER.subscribeForEvent(
                 this,
+                Event.MODEL_LIST_SHELTER_ITEM_ADDED,
                 Event.MODEL_LIST_DOGS_ITEM_ADDED,
                 Event.MODEL_LIST_DOGS_ITEM_CHANGED,
                 Event.MODEL_LIST_DOGS_ITEM_DELETED,

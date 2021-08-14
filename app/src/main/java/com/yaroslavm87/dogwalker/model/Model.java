@@ -5,13 +5,15 @@ import java.util.LinkedList;
 
 public interface Model {
 
+    ArrayList<Shelter> getReferenceShelter();
+
+    void createShelter(String name, String description);
+
     ArrayList<Dog> getReferenceDogs();
 
-    LinkedList<WalkRecord> getReferenceWalkRecords();
+    void dispatchDogsFor(String shelterId);
 
-    void dispatchWalkRecordsFor(Dog dog);
-
-    void createDog(String name, String description);
+    void createDog(String name, String description, String shelterId);
 
     void updateDogDescription(int dogIndex, String updatedDescription);
 
@@ -20,4 +22,8 @@ public interface Model {
     void walkDog(int dogIndex);
 
     void deleteDog(int index);
+
+    LinkedList<WalkRecord> getReferenceWalkRecords();
+
+    void dispatchWalkRecordsFor(Dog dog);
 }

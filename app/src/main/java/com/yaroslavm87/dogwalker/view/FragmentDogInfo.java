@@ -46,7 +46,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     private ImageButton ibtnCreateDescription, btnSeeWalkRecords;
     private CircularImageView profilePic;
     private Dialog dialog;
-    private OnDogInfoItemClickListener onDogInfoItemClickListener;
+    private OnComponentClickListener onComponentClickListener;
     private LinkedList<String> listRecentWalks;
     private final String LOG_TAG;
     
@@ -54,11 +54,11 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         LOG_TAG = "myLogs";
     }
 
-    public interface OnDogInfoItemClickListener {
-        void onDogInfoItemClick(FragmentDogInfo.FragmentEvents event);
+    public interface OnComponentClickListener {
+        void onComponentClick(Events event);
     }
 
-    public enum FragmentEvents{
+    public enum Events {
         SET_PROFILE_PIC,
         WALK_CALL,
         SEE_WALK_RECORDS_CALL,
@@ -69,8 +69,8 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        if (context instanceof FragmentDogInfo.OnDogInfoItemClickListener) {
-            onDogInfoItemClickListener = (FragmentDogInfo.OnDogInfoItemClickListener) context;
+        if (context instanceof FragmentDogInfo.OnComponentClickListener) {
+            onComponentClickListener = (FragmentDogInfo.OnComponentClickListener) context;
 
         } else {
             throw new ClassCastException(context.toString()
@@ -90,7 +90,6 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         initVariables();
         initViewComponents(view);
         setViewComponents();
-
     }
 
     @Override
@@ -241,11 +240,11 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
             switch(v.getTag().toString()) {
 
                 case "setProfilePic":
-                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SET_PROFILE_PIC);
+                    onComponentClickListener.onComponentClick(Events.SET_PROFILE_PIC);
                     break;
 
                 case "walk":
-                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.WALK_CALL);
+                    onComponentClickListener.onComponentClick(Events.WALK_CALL);
                     Log.d(LOG_TAG, String.valueOf(
                             Tools.getDay(System.currentTimeMillis())
                     ));
@@ -253,12 +252,12 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
                 case "seeWalks":
                     if(Objects.requireNonNull(appViewModel.getChosenDogFromListLive().getValue()).getLastTimeWalk() > 1000L) {
-                        onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.SEE_WALK_RECORDS_CALL);
+                        onComponentClickListener.onComponentClick(Events.SEE_WALK_RECORDS_CALL);
                     }
                     break;
 
                 case "removeFromList":
-                    onDogInfoItemClickListener.onDogInfoItemClick(FragmentEvents.REMOVE_FROM_LIST_CALL);
+                    onComponentClickListener.onComponentClick(Events.REMOVE_FROM_LIST_CALL);
                     break;
 
                 case "createDescription":
@@ -272,10 +271,10 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                 case "submit":
                     String review = etvDialogContent.getText().toString().trim();
                     if (review.equals("")) {
-                        Toast.makeText(getContext(), R.string.dog_info_dialog_warning_description_is_empty, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.warning_description_is_empty, Toast.LENGTH_SHORT).show();
                     } else {
                         dialog.dismiss();
-                        Toast.makeText(getContext(), R.string.dog_info_dialog_success, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.success_description_is_empty, Toast.LENGTH_SHORT).show();
                         appViewModel.updateDogDescription(review);
                         //tvDogDescription.setText(review);
                     }
@@ -326,4 +325,3 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onDestroy() call");
     }
 }
-

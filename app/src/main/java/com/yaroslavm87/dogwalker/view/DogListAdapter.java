@@ -31,9 +31,9 @@ public class DogListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         DogListViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            profilePic = itemView.findViewById(R.id.dog_list_profile_icon);
-            dogName = itemView.findViewById(R.id.dog_list_name);
-            dogLastTimeWalk = itemView.findViewById(R.id.dog_list_description);
+            profilePic = itemView.findViewById(R.id.civ_dog_list_profile_icon);
+            dogName = itemView.findViewById(R.id.tv_dog_list_name);
+            dogLastTimeWalk = itemView.findViewById(R.id.tv_dog_list_description);
 
             itemView.setOnClickListener(this);
         }

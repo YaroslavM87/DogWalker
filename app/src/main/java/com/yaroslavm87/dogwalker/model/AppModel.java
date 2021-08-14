@@ -2,7 +2,6 @@ package com.yaroslavm87.dogwalker.model;
 
 import android.util.Log;
 
-import com.yaroslavm87.dogwalker.R;
 import com.yaroslavm87.dogwalker.notifications.Event;
 import com.yaroslavm87.dogwalker.notifications.Publisher;
 import com.yaroslavm87.dogwalker.repository.RepoOperations;
@@ -15,14 +14,16 @@ public enum AppModel implements Model {
 
     INSTANCE;
 
-    public final ListOfDogs LIST_OF_DOGS;
-    public final ListOfWalkRecords LIST_OF_WALK_RECORDS_FOR_DOG;
+    private final ListOfShelters LIST_OF_SHELTERS;
+    private final ListOfDogs LIST_OF_DOGS;
+    private final ListOfWalkRecords LIST_OF_WALK_RECORDS_FOR_DOG;
     private Repository repository;
     private final Publisher PUBLISHER;
     private final long TIME_TO_REST_AFTER_WALK;
     private final String LOG_TAG;
 
     {
+        LIST_OF_SHELTERS = new ListOfShelters();
         LIST_OF_DOGS = new ListOfDogs();
         LIST_OF_WALK_RECORDS_FOR_DOG = new ListOfWalkRecords();
         PUBLISHER = Publisher.INSTANCE;
@@ -32,36 +33,62 @@ public enum AppModel implements Model {
 
     AppModel() {}
 
+    public ArrayList<Shelter> getReferenceShelter() {
+        Log.d(LOG_TAG, "Model.getReferenceShelter()");
+        if(!isListOfSheltersLoaded()) repoReadShelters();
+        return LIST_OF_SHELTERS.getList();
+    }
+
+    private boolean isListOfSheltersLoaded() {
+        boolean listIsNotEmpty = LIST_OF_SHELTERS.getList() != null && LIST_OF_SHELTERS.getList().size() > 0;
+        Log.d(LOG_TAG, "Model.isListOfSheltersLoaded()=" + listIsNotEmpty);
+        return listIsNotEmpty;
+    }
+
+    public void createShelter(String name, String address) {
+        final String NAME_CANNOT_BE_EMPTY = "Напишите название приюта!";
+
+        if(name == null || name.equals("")) {
+            dispatchMessage(NAME_CANNOT_BE_EMPTY);
+            return;
+        }
+        Shelter shelter = new Shelter();
+        shelter.setName(name);
+        if(address != null && !address.equals("")) shelter.setAddress(address);
+        repoCreateShelter(shelter);
+    }
+
     public ArrayList<Dog> getReferenceDogs() {
-        if(!isListOfDogsLoaded()) repoReadDogs();
         return LIST_OF_DOGS.getList();
     }
 
-    private boolean isListOfDogsLoaded() {
-        if(LIST_OF_DOGS.getList() != null) {
-            return LIST_OF_DOGS.getList().size() > 0;
-        } else return false;
+    private boolean isListOfDogsLoaded(String currentShelterId) {
+        boolean result;
+        boolean listIsNotEmpty =
+                LIST_OF_DOGS.getList() != null
+                && LIST_OF_DOGS.getList().size() > 0;
+        boolean dogsFromCurrentShelter =
+                listIsNotEmpty
+                && LIST_OF_DOGS.getList().get(0).getShelterId().equals(currentShelterId);
+
+        result = listIsNotEmpty && dogsFromCurrentShelter;
+        Log.d(LOG_TAG, "Model.isListOfDogsLoaded(currentShelterId)= " + result);
+        return result;
+    }
+
+    public void dispatchDogsFor(String shelterId) {
+        if(!isListOfDogsLoaded(shelterId)) {
+            Log.d(LOG_TAG, "Model.dispatchDogsFor(shelterId)");
+            LIST_OF_DOGS.clearList();
+            repoReadDogs(shelterId);
+        }
     }
 
     public LinkedList<WalkRecord> getReferenceWalkRecords() {
         return LIST_OF_WALK_RECORDS_FOR_DOG.getList();
     }
 
-    public void dispatchWalkRecordsFor(Dog dog) {
-        if(!isListOfWalkRecordsLoaded(dog)) {
-            LIST_OF_WALK_RECORDS_FOR_DOG.clearList();
-            repoReadWalkRecords(dog);
-        }
-    }
-
-    private boolean isListOfWalkRecordsLoaded(Dog dog) {
-        if(LIST_OF_WALK_RECORDS_FOR_DOG.getList() != null) {
-            return LIST_OF_WALK_RECORDS_FOR_DOG.getList().size() > 0
-                    && LIST_OF_WALK_RECORDS_FOR_DOG.getList().get(0).getDogId().equals(dog.getId());
-        } else return false;
-    }
-
-    public void createDog(String name, String description) {
+    public void createDog(String name, String description, String shelterId) {
         final String NAME_CANNOT_BE_EMPTY = "Напишите имя питомца!";
         final String NAME_IS_ALREADY_IN_LIST = "Питомец с такой кличкой уже есть в списке!";
         final String DOG_ADDED_TO_LIST = "Питомец добавлен!";
@@ -71,27 +98,30 @@ public enum AppModel implements Model {
             return;
         }
         Dog newDog = new Dog();
-        if(!description.equals("")) {
-            newDog.setDescription(description);
-        }
         newDog.setName(name);
         if(LIST_OF_DOGS.getList().contains(newDog)) {
             dispatchMessage(NAME_IS_ALREADY_IN_LIST);
+            return;
 
-        } else {
-            repoAddDog(newDog);
-            dispatchMessage(DOG_ADDED_TO_LIST);
         }
+        if(!description.equals("")) {
+            newDog.setDescription(description);
+        }
+        newDog.setShelterId(shelterId);
+        repoAddDog(newDog);
+        dispatchMessage(DOG_ADDED_TO_LIST);
     }
 
     public void updateDogDescription(int index, String updatedDescription) {
         final String DESCRIPTION_DID_NOT_CHANGED = "Описание не изменено!";
-
-        if(!LIST_OF_DOGS.getDog(index).getDescription().equals(updatedDescription)) {
+        if(
+                LIST_OF_DOGS.getDog(index).getDescription() != null
+                && !LIST_OF_DOGS.getDog(index).getDescription().equals(updatedDescription)
+        ) {
             try{
                 Dog updatedDog = (Dog) LIST_OF_DOGS.getDog(index).clone();
                 updatedDog.setDescription(updatedDescription);
-                repoUpdateDogDecription(updatedDog);
+                repoUpdateDogDescription(updatedDog);
             }
             catch(CloneNotSupportedException e) {
                 Log.e(LOG_TAG, "Model.updateDogDescription() EXCEPTION: " + e);
@@ -161,14 +191,40 @@ public enum AppModel implements Model {
         repoAddDogToRemoved(dogToDelete);
     }
 
+    public void dispatchWalkRecordsFor(Dog dog) {
+        if(!isListOfWalkRecordsLoaded(dog)) {
+            LIST_OF_WALK_RECORDS_FOR_DOG.clearList();
+            repoReadWalkRecords(dog);
+        }
+    }
+
+    private boolean isListOfWalkRecordsLoaded(Dog dog) {
+        if(LIST_OF_WALK_RECORDS_FOR_DOG.getList() != null) {
+            return LIST_OF_WALK_RECORDS_FOR_DOG.getList().size() > 0
+                    && LIST_OF_WALK_RECORDS_FOR_DOG.getList().get(0).getDogId().equals(dog.getId());
+        } else return false;
+    }
+
     void setRepo(Repository repository) {
         this.repository = repository;
     }
 
-    private void repoReadDogs() {
+
+    private void repoReadShelters() {
         new Thread(() -> {
             try{
-                repository.read(RepoOperations.READ_LIST_OF_DOGS, null);
+                repository.read(RepoOperations.READ_LIST_OF_SHELTERS, null);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoReadShelters() EXCEPTION: " + e);
+            }
+        }).start();
+    }
+
+    private void repoReadDogs(String shelterId) {
+        new Thread(() -> {
+            try{
+                repository.read(RepoOperations.READ_LIST_OF_DOGS, shelterId);
             }
             catch (Exception e) {
                 Log.e(LOG_TAG, "Model.repoReadDogs() EXCEPTION: " + e);
@@ -177,14 +233,25 @@ public enum AppModel implements Model {
     }
 
     private void repoReadWalkRecords(Dog dog) {
-            new Thread(() -> {
-                try {
-                    repository.read(RepoOperations.READ_LIST_OF_WALKS_FOR_DOG, dog);
-                }
-                catch (Exception e) {
-                    Log.e(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) EXCEPTION: " + e);
-                }
-            }).start();
+        new Thread(() -> {
+            try {
+                repository.read(RepoOperations.READ_LIST_OF_WALKS_FOR_DOG, dog);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoReadWalkRecords(Dog dog) EXCEPTION: " + e);
+            }
+        }).start();
+    }
+
+    private void repoCreateShelter(Shelter shelter) {
+        new Thread(() -> {
+            try{
+                repository.add(RepoOperations.CREATE_SHELTER, shelter);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, "Model.repoCreateShelter() EXCEPTION: " + e);
+            }
+        }).start();
     }
 
     private void repoAddDog(Dog newDog) {
@@ -198,7 +265,7 @@ public enum AppModel implements Model {
         }).start();
     }
 
-    private void repoUpdateDogDecription(Dog updatedDog) {
+    private void repoUpdateDogDescription(Dog updatedDog) {
         new Thread(() -> {
             try{
                 repository.update(RepoOperations.UPDATE_DOG_DESCRIPTION, updatedDog);
@@ -262,9 +329,4 @@ public enum AppModel implements Model {
                 )
         );
     }
-
-//    void subscribeModelForEvents(Event... events) {
-//        Log.d(LOG_TAG, "Model.subscribeModelForEvents() call");
-//        PUBLISHER.subscribeForEvent(LIST_OF_DOGS, Objects.requireNonNull(events));
-//    }
 }
