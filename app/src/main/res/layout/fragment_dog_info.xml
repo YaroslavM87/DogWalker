@@ -225,16 +225,15 @@
 
                             <ImageButton
                                 android:id="@+id/ibtn_dog_see_walks_list"
-                                android:tag="seeWalks"
-                                android:layout_width="@dimen/spacing_mxlarge"
+                                android:layout_width="wrap_content"
                                 android:layout_height="@dimen/spacing_mxlarge"
-                                android:background="?attr/selectableItemBackgroundBorderless"
                                 android:layout_marginEnd="@dimen/spacing_large"
+                                android:background="?attr/selectableItemBackgroundBorderless"
                                 android:clickable="true"
                                 android:focusable="true"
+                                android:tag="seeWalks"
                                 app:srcCompat="@drawable/ic_list"
-                                app:tint="@color/grey_60"
-                                />
+                                app:tint="@color/grey_60" />
                          </LinearLayout>
 
                 </LinearLayout>

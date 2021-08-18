@@ -19,20 +19,8 @@ public class WalkRecordListAdapterSectioned extends RecyclerView.Adapter<Recycle
     private final int VIEW_GRID = 1;
     private final int VIEW_TITLE = 0;
     private String[] month;
-
-
-    private ArrayList<WalkRecordListItem> items;
-
     private Context ctx;
-//    private OnItemClickListener mOnItemClickListener;
-
-//    public interface OnItemClickListener {
-//        void onItemClick(View view, SectionImage obj, int position);
-//    }
-
-//    public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
-//        this.mOnItemClickListener = mItemClickListener;
-//    }
+    private ArrayList<WalkRecordListItem> items;
 
     public WalkRecordListAdapterSectioned(Context context, ArrayList<WalkRecordListItem> items) {
         this.ctx = context;

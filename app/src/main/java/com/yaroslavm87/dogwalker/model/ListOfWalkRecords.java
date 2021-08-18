@@ -53,7 +53,7 @@ public class ListOfWalkRecords implements Observable, Subscriber {
 
     void addWalkRecord(WalkRecord walkRecord) {
         WalkRecord record = Objects.requireNonNull(walkRecord);
-        LIST.addFirst(record);
+        LIST.addLast(record);
 
         PUBLISHER.makeSubscribersReceiveUpdate(
                 Event.MODEL_LIST_WALK_RECORDS_ITEM_ADDED,

@@ -49,6 +49,14 @@ public class ListOfShelters implements Subscriber {
                 Event.MODEL_LIST_SHELTER_ITEM_ADDED,
                 (subscriber) -> subscriber.receiveUpdate(
                         Event.MODEL_LIST_SHELTER_ITEM_ADDED,
+                        shelter
+                )
+        );
+
+        PUBLISHER.makeSubscribersReceiveUpdate(
+                Event.MODEL_LIST_SHELTER_ITEM_ADDED,
+                (subscriber) -> subscriber.receiveUpdate(
+                        Event.MODEL_LIST_SHELTER_ITEM_ADDED,
                         LIST.size() - 1
                 )
         );

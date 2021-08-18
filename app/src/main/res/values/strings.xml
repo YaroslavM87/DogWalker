@@ -30,7 +30,7 @@
     <string name="dog_info_dialog_about_dog">Расскажите про питомца…</string>
     <string name="dog_info_recent_walks">Недавние прогулки</string>
 
-    <string name="walk_list_header">Все прогулки</string>
+    <string name="walk_list_header">Прогулки за 3 мес.</string>
     <string-array name="month">
         <item>Январь</item>
         <item>Февраль</item>

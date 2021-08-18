@@ -138,7 +138,7 @@ public class FirebaseDb extends DataSource {
 
     void initDb() {
         db = FirebaseDatabase.getInstance();
-        db.setPersistenceEnabled(true);
+        //db.setPersistenceEnabled(true);
         cs = FirebaseStorage.getInstance();
         db.setLogLevel(Logger.Level.DEBUG);
         Log.d(LOG_TAG, "DB ref " + db.getReference());
@@ -207,17 +207,14 @@ public class FirebaseDb extends DataSource {
     }
 
     private void createRecordOfDogWalk(Dog dog) {
-        DatabaseReference dogs = db.getReference().child(DOGS_NODE);
-        DatabaseReference walkRecords = db.getReference().child(WALK_RECORDS_NODE);
-
-        String key = walkRecords.child(dog.getId()).push().getKey();
+        String key = db.getReference().child(WALK_RECORDS_NODE).child(dog.getId()).push().getKey();
 
         if(key != null) {
             Map<String, Object> walkRecordsNewChild = new HashMap<>();
             walkRecordsNewChild.put("id", key);
             walkRecordsNewChild.put("dogId", dog.getId());
             walkRecordsNewChild.put("timestamp", dog.getLastTimeWalk());
-            walkRecords
+            db.getReference().child(WALK_RECORDS_NODE)
                     .child(dog.getId())
                     .child(key)
                     .updateChildren(walkRecordsNewChild);
@@ -225,7 +222,7 @@ public class FirebaseDb extends DataSource {
             Map<String, Object> dogChildUpdates = new HashMap<>();
             dogChildUpdates.put("lastTimeWalk" , dog.getLastTimeWalk());
             dogChildUpdates.put("lastWalkRecordId", key);
-            dogs
+            db.getReference().child(DOGS_NODE)
                     .child(dog.getShelterId())
                     .child(dog.getId())
                     .updateChildren(dogChildUpdates);

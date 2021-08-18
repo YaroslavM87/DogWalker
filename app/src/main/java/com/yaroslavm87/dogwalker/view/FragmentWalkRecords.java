@@ -1,6 +1,7 @@
 package com.yaroslavm87.dogwalker.view;
 
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.yaroslavm87.dogwalker.viewModel.Tools;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -45,16 +47,16 @@ public class FragmentWalkRecords extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(LOG_TAG, "----------- FRAGMENT WALK RECORDS onViewCreated -----------");
+        Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onViewCreated() call");
         initVariables();
         initViewElements(view);
+        setToolbar();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
-        setToolbar();
     }
 
     private void initVariables() {
@@ -75,10 +77,19 @@ public class FragmentWalkRecords extends Fragment {
         walkRecordsListView = (RecyclerView) view.findViewById(R.id.walk_records_list_view);
         walkRecordsListView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        long[] walkTimestamps = Objects.requireNonNull(appViewModel.getWalkTimestampsLive().getValue())
+        List<WalkRecord> wrList = Objects.requireNonNull(appViewModel.getWalkTimestampsLive().getValue());
+
+        long[] walkTimestamps = wrList
                 .stream()
                 .distinct().collect(Collectors.toList())
                 .stream().mapToLong(WalkRecord::getTimestamp)
+                .filter(ts -> {
+                    long threeMonthEarlier = Tools.getMomentOfStartMonth(
+                            wrList.get(wrList.size() - 1).getTimestamp() - (86400000L * 90)
+                    );
+                    Log.d(LOG_TAG, Tools.parseMillsToDate(threeMonthEarlier, "dd MMMM yyyy"));
+                    return ts >= threeMonthEarlier;
+                })
                 .toArray();
 
         ArrayList<WalkRecordListItem> itemList = Tools.generateWalkCalendar(walkTimestamps);

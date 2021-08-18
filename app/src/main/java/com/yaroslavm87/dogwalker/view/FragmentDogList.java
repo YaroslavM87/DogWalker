@@ -179,6 +179,19 @@ public class FragmentDogList extends Fragment implements DogListAdapter.OnViewHo
     }
 
     private void subscribeForLiveData() {
+//        appViewModel.getChosenShelterFromListLive().observe(
+//                getViewLifecycleOwner(),
+//                (shelter ->
+//                {
+//                    AppCompatActivity act = (AppCompatActivity) requireActivity();
+//                    ActionBar actionBar = Objects.requireNonNull(act.getSupportActionBar());
+//                    String tittle = Objects.requireNonNull(
+//                                    appViewModel.getChosenShelterFromListLive().getValue()
+//                            ).getName();
+//                    actionBar.setTitle(tittle);
+//                })
+//        );
+
         appViewModel.getListOfDogsLive().observe(
                 getViewLifecycleOwner(), (dogList) ->
                         dogListAdapter.notifyDataSetChanged());

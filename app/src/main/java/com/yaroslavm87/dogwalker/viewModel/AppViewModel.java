@@ -28,6 +28,7 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     private Publisher PUBLISHER;
 
     private MutableLiveData<ArrayList<Shelter>> listOfSheltersLive;
+    private MutableLiveData<Shelter> chosenShelterFromListLive;
     private MutableLiveData<String> chosenShelterIdFromListLive;
 
     // private MutableLiveData<WalkRecord> insertedWalkRecordLive;
@@ -68,14 +69,19 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         switch(event) {
 
             case MODEL_LIST_SHELTER_ITEM_ADDED:
+                if(updatedValue instanceof Shelter) {
+                    chosenShelterFromListLive.setValue((Shelter) updatedValue);
+                }
                 if(updatedValue instanceof Integer) {
                     insertedShelterIndexLive.setValue((int) updatedValue);
+                    Log.d(LOG_TAG, "ViewModel.MODEL_LIST_SHELTER_ITEM_ADDED.index= " + updatedValue);
                 }
                 break;
 
             case MODEL_LIST_DOGS_ITEM_ADDED:
                 if(updatedValue instanceof Integer) {
                     insertedDogIndexLive.setValue((int) updatedValue);
+                    Log.d(LOG_TAG, "ViewModel.MODEL_LIST_DOGS_ITEM_ADDED.index= " + updatedValue);
                 }
                 break;
 
@@ -219,6 +225,9 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
     public LiveData<ArrayList<Shelter>> getListOfSheltersLive() {
         return listOfSheltersLive;
     }
+    public LiveData<Shelter> getChosenShelterFromListLive() {
+        return chosenShelterFromListLive;
+    }
     public LiveData<String> getChosenShelterIdFromListLive() {
         return chosenShelterIdFromListLive;
     }
@@ -277,6 +286,7 @@ public class AppViewModel extends androidx.lifecycle.AndroidViewModel implements
         refListOfWalkTimestamps = model.getReferenceWalkRecords();
 
         listOfSheltersLive = new MutableLiveData<>();
+        chosenShelterFromListLive = new MutableLiveData<>();
         chosenShelterIdFromListLive = new MutableLiveData<>();
         insertedShelterIndexLive = new MutableLiveData<>();
 

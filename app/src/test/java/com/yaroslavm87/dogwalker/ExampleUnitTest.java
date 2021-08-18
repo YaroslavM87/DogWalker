@@ -1,7 +1,6 @@
 package com.yaroslavm87.dogwalker;
 
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**

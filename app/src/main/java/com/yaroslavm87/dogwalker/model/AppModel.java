@@ -117,6 +117,7 @@ public enum AppModel implements Model {
         if(
                 LIST_OF_DOGS.getDog(index).getDescription() != null
                 && !LIST_OF_DOGS.getDog(index).getDescription().equals(updatedDescription)
+                || LIST_OF_DOGS.getDog(index).getDescription() == null
         ) {
             try{
                 Dog updatedDog = (Dog) LIST_OF_DOGS.getDog(index).clone();

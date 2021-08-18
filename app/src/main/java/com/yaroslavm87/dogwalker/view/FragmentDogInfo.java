@@ -36,6 +36,8 @@ import com.yaroslavm87.dogwalker.viewModel.Tools;
 import java.util.LinkedList;
 import java.util.Objects;
 
+
+
 public class FragmentDogInfo extends Fragment implements View.OnClickListener {
 
     private AppViewModel appViewModel;
@@ -90,14 +92,16 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         initVariables();
         initViewComponents(view);
         setViewComponents();
+        setToolbar();
+        subscribeForLiveData();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(LOG_TAG, this.getClass().getCanonicalName() + ".onResume() call");
-        setToolbar();
-        subscribeForLiveData();
+//        setToolbar();
+//        subscribeForLiveData();
     }
 
     @Override
@@ -198,7 +202,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
     }
 
     private void fillWalkRecordsList(LinkedList<WalkRecord> walkRecords) {
-        final long MAX_LIST_SIZE = 5;
+        final int MAX_LIST_SIZE = 5;
 
         listRecentWalks.clear();
 
@@ -212,7 +216,7 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
                         "dd MMMM yyyy");
 
                 if(!isInWalkList(strLastWalk)) {
-                    listRecentWalks.addLast(strLastWalk);
+                    listRecentWalks.addFirst(strLastWalk);
                 }
             }
         }
@@ -228,7 +232,8 @@ public class FragmentDogInfo extends Fragment implements View.OnClickListener {
         if(listRecentWalks.size() == 0) {
             tvRecentWalks.setText(R.string.dog_have_no_walk_records);
             return;
-        }        StringBuilder result = new StringBuilder();
+        }
+        StringBuilder result = new StringBuilder();
         for(String s : listRecentWalks) {
             result.append(s).append("\n");
         }

@@ -1,6 +1,5 @@
 package com.yaroslavm87.dogwalker.viewModel;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -26,8 +25,6 @@ import com.yaroslavm87.dogwalker.view.WalkRecordListItem;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -137,8 +134,19 @@ public class Tools {
                 }).into(profilePic);
     }
 
+
+
+    private static final long FOUR_YEAR_PERIOD = 126230400000L;  // 365 + 365 + 366 + 365
+    private static final long COMMON_YEAR_PERIOD = 31536000000L; // 365
+    private static final long LEAP_YEAR_PERIOD = 31_622_400_000L;   // 366
+    private static final int YEARS_IN_FOUR_YEAR_PERIOD = 4;
+    private static final int YEARS_BEFORE_SECOND_YEAR_IN_FOUR_YEAR_PERIOD = 1;
+    private static final int YEARS_BEFORE_LEAP_YEAR_IN_FOUR_YEAR_PERIOD = 2;
+    private static final int YEARS_BEFORE_LAST_YEAR_IN_FOUR_YEAR_PERIOD = 3;
+    private static final int START_YEAR = 1970;
+    private static  final long DAY_PERIOD = 86400000L;
+
     public static ArrayList<WalkRecordListItem> generateWalkCalendar(long[] walkTimestamps) {
-        final long DAY = 86400000L;
 
         ArrayList<WalkRecordListItem> calendar = new ArrayList<>();
 
@@ -152,26 +160,28 @@ public class Tools {
         long globalStart = getMomentOfStartMonth(firstTs);
 
         int finishMonth = getMonth(lastTs);
-        long globalFinish = getMomentOfStartMonth(lastTs) + (allMonthDaysInYFinish[finishMonth - 1] * DAY);
+        long globalFinish = getMomentOfStartMonth(lastTs) + (allMonthDaysInYFinish[finishMonth - 1] * DAY_PERIOD);
 
         int curIterYearNumber = getYear(firstTs);
         int curIterMonthNumber = startMonth;
         long curIterMonthStart = globalStart;
         int curIterWeekDay = getWeekDay(curIterMonthStart);
         int[] curIterAllMonthDaysInY = allMonthDaysInYStart;
-        long curIterMonthLength = curIterAllMonthDaysInY[startMonth - 1] * DAY;
+        long curIterMonthLength = curIterAllMonthDaysInY[startMonth - 1] * DAY_PERIOD;
         ArrayList<Integer> curIterWalkDaysInMonth = new ArrayList<>();
 
-        do{
-            WalkRecordListItem titleItem = new WalkRecordListItem();
+        WalkRecordListItem titleItem;
+        WalkRecordListItem contentItem;
 
+        do{
             // add item as a month title
+            titleItem = new WalkRecordListItem();
             titleItem.setYearTitle(curIterYearNumber);
             titleItem.setMonthTitle(curIterMonthNumber);
             calendar.add(titleItem);
 
             // add item as set of days for current month
-            WalkRecordListItem contentItem = new WalkRecordListItem();
+            contentItem = new WalkRecordListItem();
             contentItem.setAllDaysInMonth(matchMonthAndWeekDays_dayNumber(
                     curIterAllMonthDaysInY[curIterMonthNumber - 1],
                     curIterWeekDay));
@@ -203,7 +213,7 @@ public class Tools {
             // next month start moment
             curIterMonthStart = curIterMonthStart + curIterMonthLength;
             // next month length
-            curIterMonthLength = curIterAllMonthDaysInY[curIterMonthNumber - 1] * DAY;
+            curIterMonthLength = curIterAllMonthDaysInY[curIterMonthNumber - 1] * DAY_PERIOD;
             // next month week day start number
             curIterWeekDay = getWeekDay(curIterMonthStart);
 
@@ -214,106 +224,41 @@ public class Tools {
 
     public static void printCalendar(ArrayList<WalkRecordListItem> calendar) {
         Log.d(LOG_TAG,"--------------------------------");
+        String[] monthNameSet = {"January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"};
+
+        StringBuilder builder = new StringBuilder();
+
         for (WalkRecordListItem item : calendar) {
+
             if (item.isTitle()) {
-                Log.d(LOG_TAG,"");
-                switch (item.getMonthTitle()) {
-                    case 1:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"January");
-                        break;
-                    case 2:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"February");
-                        break;
-                    case 3:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"March");
-                        break;
-                    case 4:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"April");
-                        break;
-                    case 5:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"May");
-                        break;
-                    case 6:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"June");
-                        break;
-                    case 7:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"July");
-                        break;
-                    case 8:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"August");
-                        break;
-                    case 9:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"September");
-                        break;
-                    case 10:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"October");
-                        break;
-                    case 11:
-                        System.out.println();
-                        Log.d(LOG_TAG,"November");
-                        break;
-                    case 12:
-                        Log.d(LOG_TAG,"");
-                        Log.d(LOG_TAG,"December");
-                        break;
-                }
+                builder.append("...\n").append(monthNameSet[item.getMonthTitle() - 1]).append("\n");
 
             } else {
                 int dayCounter = 1;
                 String msg = "";
 
                 for (int day : item.getSetOfDays()) {
-
-                    if (day == 7) {
-
-                        for (int w : item.getWalkDays()) {
-                            if (dayCounter == w) {
-                                msg = "w";
-                                break;
-                            }
+                    if(day == 0) continue;
+                    for (int w : item.getWalkDays()) {
+                        if (dayCounter == w) {
+                            msg = "w";
+                            break;
                         }
-
-                        Log.d(LOG_TAG, dayCounter + msg);
-                        msg = "";
-                        dayCounter++;
-                        Log.d(LOG_TAG,"");
-
-                    } else if (day > 0) {
-
-                        for (int w : item.getWalkDays()) {
-                            if (dayCounter == w) {
-                                msg = "w";
-                                break;
-                            }
-                        }
-
-                        Log.d(LOG_TAG, dayCounter + msg);
-                        msg = "";
-                        dayCounter++;
-
-                    } else {
-                        Log.d(LOG_TAG, msg);
                     }
+
+                    builder.append(dayCounter).append(msg).append("  ");
+                    msg = "";
+                    dayCounter++;
                 }
+
+                Log.d(LOG_TAG, builder.toString());
             }
         }
         Log.d(LOG_TAG,"--------------------------------");
     }
 
     public static boolean isMomentInLeapY(long moment) {
-        final long FOUR_YEAR_PERIOD = 126230400000L;  // 365 + 365 + 366 + 365
-        final long COMMON_YEAR_PERIOD = 31536000000L; // 365
-        final long LEAP_YEAR_PERIOD = 31622400000L;   // 366
         final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
         long from4YPeriodEnd = MOMENT_WITH_TZ_OFFSET % FOUR_YEAR_PERIOD;
@@ -321,9 +266,6 @@ public class Tools {
     }
 
     public static long getMomentOfStartYear(long moment) {
-        final long FOUR_YEAR_PERIOD = 126230400000L;
-        final long COMMON_YEAR_PERIOD = 31536000000L;
-        final long LEAP_YEAR_PERIOD = 31622400000L;
         final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
         long from4YPeriodEnd = MOMENT_WITH_TZ_OFFSET % FOUR_YEAR_PERIOD;
@@ -346,13 +288,6 @@ public class Tools {
     }
 
     public static int getYear(long moment) {
-        final long FOUR_YEAR_PERIOD = 126230400000L;
-        final long COMMON_YEAR_PERIOD = 31536000000L; // 365
-        final int YEARS_IN_FOUR_YEAR_PERIOD = 4;
-        final int YEARS_BEFORE_SECOND_YEAR_IN_FOUR_YEAR_PERIOD = 1;
-        final int YEARS_BEFORE_LEAP_YEAR_IN_FOUR_YEAR_PERIOD = 2;
-        final int YEARS_BEFORE_LAST_YEAR_IN_FOUR_YEAR_PERIOD = 3;
-        final int START_YEAR = 1970;
         final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
         long from4YPeriodEnd = MOMENT_WITH_TZ_OFFSET % FOUR_YEAR_PERIOD;
@@ -382,7 +317,6 @@ public class Tools {
     public static long getMomentOfStartMonth(long moment) {
         long yearStart = getMomentOfStartYear(moment);
         int[] daySet = getDaysForEachMonthInYear(moment);
-        final long DAY_PERIOD = 86400000L;
         final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
         long monthStart = yearStart;
@@ -398,14 +332,13 @@ public class Tools {
     public static int getMonth(long moment) {
         long start = getMomentOfStartYear(moment);
         long monthStart = getMomentOfStartMonth(moment);
-        final long DAY = 86400000L;
         int[] daySet = getDaysForEachMonthInYear(moment);
 
         int month = 0;
         do {
             if (month == 12)
                 break;
-            start = start + (daySet[month] * DAY);
+            start = start + (daySet[month] * DAY_PERIOD);
             ++month;
         } while (start <= monthStart);
         return month;
@@ -413,7 +346,6 @@ public class Tools {
 
     public static long getMomentOfStartDay(long moment) {
         long monthStart = getMomentOfStartMonth(moment);
-        final long DAY_PERIOD = 86400000L;
         final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
         long dayStart = monthStart;
@@ -428,23 +360,21 @@ public class Tools {
     public static int getDay(long moment) {
         long start = getMomentOfStartMonth(moment);
         long dayStart = getMomentOfStartDay(moment);
-        final long DAY = 86400000L;
 
         int day = 0;
         do {
-            start = start + DAY;
+            start = start + DAY_PERIOD;
             ++day;
         } while (start <= dayStart);
         return day;
     }
 
     public static int getWeekDay(long moment) {
-        final long DAY = 86400000L;
         final int GLOBAL_WEEK_DAY_START = 4;
         final long MOMENT_WITH_TZ_OFFSET = TimeZone.getDefault().getOffset(moment) + moment;
 
-        long beginningOfDay = MOMENT_WITH_TZ_OFFSET - (MOMENT_WITH_TZ_OFFSET % DAY);
-        int currentWeekDay = (int)((beginningOfDay / DAY) % 7) + GLOBAL_WEEK_DAY_START;
+        long beginningOfDay = MOMENT_WITH_TZ_OFFSET - (MOMENT_WITH_TZ_OFFSET % DAY_PERIOD);
+        int currentWeekDay = (int)((beginningOfDay / DAY_PERIOD) % 7) + GLOBAL_WEEK_DAY_START;
         if (currentWeekDay > 7) {
             currentWeekDay = currentWeekDay % 7;
         }
